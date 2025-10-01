@@ -1,0 +1,14 @@
+.container {
+  position: fixed;
+  bottom: 20px;
+  /* esquina inferior */
+  right: 20px;
+  /* esquina derecha */
+  z-index: 10000;
+  display: flex;
+  flex-direction: column-reverse;
+  /* nuevas abajo, viejas arriba */
+  gap: 10px;
+  align-items: flex-end;
+  /* cada notificación quede alineada a la derecha */
+}

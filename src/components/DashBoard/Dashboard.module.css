@@ -1,0 +1,134 @@
+.dashboard {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* --- Tarjeta de bienvenida --- */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 25px;
+  text-align: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tituloBienvenida {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.nitText {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #32c369;
+}
+
+/* --- Secciones --- */
+.seccion {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.seccion h3 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #32c369;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+
+/* --- Lista de funciones --- */
+.funcionesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.funcionesList li {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.funcionesList li:last-child {
+  border-bottom: none;
+}
+
+.icono {
+  color: #32c369;
+  margin-right: 10px;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* --- Contacto --- */
+.tituloFirma {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.firmaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.firmaList li {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.firmaList .icono {
+  font-size: 1rem;
+  margin-right: 12px;
+  color: #32c369;
+}
+
+.enlace {
+  color: #32c369;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.enlace:hover {
+  text-decoration: underline;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .tituloBienvenida {
+    font-size: 1.4rem;
+  }
+
+  .nitText {
+    font-size: 1rem;
+  }
+
+  .funcionesList li {
+    font-size: 0.95rem;
+  }
+
+  .firmaList li {
+    font-size: 0.9rem;
+  }
+}

@@ -1,0 +1,299 @@
+.loginWrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.leftPanel {
+  flex: 1;
+  background: linear-gradient(135deg, #2a8a3a, #36b04b94),
+    url(/src/assets/images/BELALCAZAR-1.jpg);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.panelLogo {
+  width: 50%;
+  margin-bottom: 20px;
+}
+
+.panelTitle {
+  font-size: 61px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.panelText {
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 500px;
+  opacity: 0.9;
+}
+
+.rightPanel {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  position: relative;
+  overflow: visible;
+  background: linear-gradient(135deg, #f9fafb, #eef2f7);
+}
+
+.rightPanel::before,
+.rightPanel::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float 8s ease-in-out infinite;
+}
+
+.rightPanel::before {
+  width: 200px;
+  height: 200px;
+  top: 10%;
+  left: 15%;
+  background: #36b04b;
+  animation-delay: 0s;
+}
+
+.rightPanel::after {
+  width: 300px;
+  height: 300px;
+  bottom: 5%;
+  right: 10%;
+  background: #2a8a3a;
+  animation-delay: 4s;
+}
+
+.cardWrap {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  /* igual que tu loginCard.max-width para atarlo */
+  z-index: 0;
+  /* centro por si el rightPanel usa justify/align center */
+  display: block;
+  z-index: 1;
+}
+
+.loginCard {
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.loginLogo {
+  width: 60%;
+  margin-bottom: 15px;
+}
+
+.loginTitle {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 25px;
+}
+
+.loginInputGroup {
+  margin-bottom: 15px;
+}
+
+.loginInputGroup input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.loginInputGroup input:focus {
+  border-color: #36b04b;
+  box-shadow: 0 0 6px rgba(54, 176, 75, 0.4);
+}
+
+.loginButton {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: #36b04b;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.loginButton:hover {
+  background: #2a8a3a;
+  transform: translateY(-2px);
+}
+
+.loginError {
+  color: #e53e3e;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.loginFooter {
+  margin-top: 25px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.firmaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.firmaList li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.icono {
+  color: #36b04b;
+}
+
+.logoMobile {
+  width: 50%;
+  margin-bottom: 20px;
+  display: none;
+  margin: 0 auto 20px auto;
+}
+
+.userIcon {
+  font-size: 100px;
+  color: #36b04b;
+  margin-bottom: 20px;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+.registerIcon,
+.forgotIcon {
+  font-size: 90px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.registerIcon {
+  color: #36b04b;
+}
+
+.forgotIcon {
+  color: #d9534f;
+}
+
+.decorCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* translate centra y el rotate da pequeño giro estético */
+  transform: translate(-50%, -50%) rotate(-6deg);
+  width: calc(100% + 40px);
+  /* siempre un poco más ancho que la loginCard */
+  height: calc(100% + 56px);
+  /* siempre un poco más alto que la loginCard */
+  max-width: 520px;
+  /* evita que crezca demasiado en pantallas enormes */
+  border-radius: 20px;
+  background: linear-gradient(135deg, #2a8a3a, #36b04b);
+  box-shadow: 0 12px 40px rgba(10, 25, 10, 0.18);
+  z-index: 1;
+  pointer-events: none;
+  /* evita que la decorCard interfiera con clicks */
+  will-change: transform, width, height;
+}
+
+.extraLinks {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  color: #36b04b;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  text-decoration: underline;
+}
+
+.linkButton:hover {
+  color: #2a8a3a;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .loginWrapper {
+    flex-direction: column;
+  }
+
+  .leftPanel {
+    display: none;
+  }
+
+  .rightPanel {
+    padding: 20px;
+    overflow: visible;
+  }
+
+  .loginCard {
+    padding: 25px;
+  }
+
+  .logoMobile {
+    display: block;
+  }
+
+  .userIcon {
+    display: none;
+  }
+
+  .decorCard {
+    transform: translate(-50%, -50%) rotate(-4deg);
+    width: calc(100% + 20px);
+    /* menos sobresalto horizontal en móvil */
+    height: calc(100% + 48px);
+    /* se mantiene más alto que la loginCard */
+    max-width: none;
+  }
+}
