@@ -3,11 +3,14 @@ import { createContext, useContext, useState, useEffect } from "react";
 const EmpresaContext = createContext();
 
 export function EmpresaProvider({ children }) {
-  const [empresa, setEmpresa] = useState("abastecemos");
+  const [empresa, setEmpresa] = useState(() => {
+    return localStorage.getItem("empresa") || "abastecemos";
+  });
 
   useEffect(() => {
-    document.body.classList.remove("abastecemos", "tobar");
+    localStorage.setItem("empresa", empresa);
 
+    document.body.classList.remove("abastecemos", "tobar");
     document.body.classList.add(empresa);
   }, [empresa]);
 

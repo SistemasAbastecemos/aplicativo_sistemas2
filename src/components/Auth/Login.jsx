@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { apiService } from "../../services/api";
-import LoadingScreen from "../UI/LoadingScreen";
 import {
   FaUserCircle,
-  FaUserPlus,
   FaKey,
   FaPhoneAlt,
   FaEnvelope,
@@ -18,11 +16,11 @@ import styles from "./Login.module.css";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    nit: "",
+    login: "",
     email: "",
     password: "",
   });
-  const [mode, setMode] = useState("login"); // "login" | "register" | "forgot
+  const [mode, setMode] = useState("login"); // "login" | "forgot
   const { login, error, setError } = useAuth();
   const navigate = useNavigate();
   const [cargando, setCargando] = useState(false);
@@ -40,7 +38,7 @@ const Login = () => {
     try {
       if (mode === "login") {
         const data = await login({
-          nit: credentials.nit,
+          login: credentials.login,
           password: credentials.password,
         });
 
@@ -51,23 +49,9 @@ const Login = () => {
         }
       }
 
-      if (mode === "register") {
-        const data = await apiService.register({
-          nit: credentials.nit,
-          email: credentials.email,
-          password: credentials.password,
-        });
-
-        if (data.success) {
-          setMode("login");
-        } else {
-          throw new Error(data.message || "No se pudo registrar");
-        }
-      }
-
       if (mode === "forgot") {
         const data = await apiService.forgotPassword({
-          nit: credentials.nit,
+          login: credentials.login,
         });
 
         if (data.success) {
@@ -100,7 +84,7 @@ const Login = () => {
         />
         <h2 className={styles.panelTitle}>Abastecemos de Occidente S.A.S</h2>
         <p className={styles.panelText}>
-          Bienvenid@ a nuestro portal de proveedores de Supermercado Belalcazar.
+          Bienvenid@ a nuestro aplicativo de Supermercado Belalcazar.
         </p>
       </div>
 
@@ -143,10 +127,10 @@ const Login = () => {
                 <form onSubmit={handleSubmit} className={styles.loginForm}>
                   <div className={styles.loginInputGroup}>
                     <input
-                      type="number"
-                      name="nit"
-                      placeholder="Nit"
-                      value={credentials.nit}
+                      type="text"
+                      name="login"
+                      placeholder="Usuario"
+                      value={credentials.login}
                       onChange={handleChange}
                       required
                     />
@@ -170,7 +154,7 @@ const Login = () => {
                   </button>
                 </form>
 
-                {/* Olvide mi contraseña y registrarse */}
+                {/* Olvide mi contraseña */}
                 <div className={styles.extraLinks}>
                   <button
                     type="button"
@@ -178,117 +162,6 @@ const Login = () => {
                     onClick={() => setMode("forgot")}
                   >
                     ¿Olvidaste tu contraseña?
-                  </button>
-                  <span>|</span>
-                  <button
-                    type="button"
-                    className={styles.linkButton}
-                    onClick={() => setMode("register")}
-                  >
-                    Registrarse
-                  </button>
-                </div>
-
-                {error && <p className={styles.loginError}>{error}</p>}
-
-                <footer className={styles.loginFooter}>
-                  <ul className={styles.firmaList}>
-                    <li>
-                      <FaPhoneAlt className={styles.icono} /> 669 5778 | Ext 132
-                      -109
-                    </li>
-                    <li>
-                      <FaEnvelope className={styles.icono} />{" "}
-                      <a
-                        href="mailto:sistemas@supermercadobelalcazar.com.co"
-                        className={styles.enlace}
-                      >
-                        sistemas@supermercadobelalcazar.com.co
-                      </a>
-                    </li>
-                    <li>
-                      <FaGlobe className={styles.icono} />
-                      <a
-                        href="https://supermercadobelalcazar.com.co"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.enlace}
-                      >
-                        supermercado.com.co
-                      </a>
-                    </li>
-                    <li>
-                      <FaMapMarkerAlt className={styles.icono} /> Oficina
-                      Principal, Yumbo - Valle
-                    </li>
-                  </ul>
-                </footer>
-              </motion.div>
-            )}
-            {mode === "register" && (
-              // REGISTER CARD
-              <motion.div
-                key="register"
-                className={styles.loginCard}
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 0.4 }}
-              >
-                <motion.div
-                  initial={{ scale: 0, rotate: -180, opacity: 0 }}
-                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                  transition={{ duration: 0.6, type: "spring" }}
-                  whileHover={{ scale: 1.1, rotate: 10, color: "#2a8a3a" }}
-                  className={styles.registerIcon}
-                >
-                  <FaUserPlus />
-                </motion.div>
-
-                <h2 className={styles.loginTitle}>Crear Cuenta</h2>
-
-                <form onSubmit={handleSubmit} className={styles.loginForm}>
-                  <div className={styles.loginInputGroup}>
-                    <input
-                      type="number"
-                      name="nit"
-                      placeholder="Nit"
-                      value={credentials.nit}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className={styles.loginInputGroup}>
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Correo electrónico"
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className={styles.loginInputGroup}>
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Contraseña"
-                      value={credentials.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <button type="submit" className={styles.loginButton}>
-                    Registrarme
-                  </button>
-                </form>
-
-                <div className={styles.extraLinks}>
-                  <button
-                    type="button"
-                    className={styles.linkButton}
-                    onClick={() => setMode("login")}
-                  >
-                    ← Volver al Login
                   </button>
                 </div>
 
@@ -353,9 +226,9 @@ const Login = () => {
                   <div className={styles.loginInputGroup}>
                     <input
                       type="number"
-                      name="nit"
-                      placeholder="Nit"
-                      value={credentials.nit}
+                      name="login"
+                      placeholder="Usuario"
+                      value={credentials.login}
                       onChange={handleChange}
                       required
                     />

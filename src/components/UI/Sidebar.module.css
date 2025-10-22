@@ -1,22 +1,23 @@
 .sidebarWrapper {
   position: relative;
-  z-index: 100;
+  z-index: 4;
   height: 100%;
 }
 
+/* Botón móvil (menú hamburguesa) */
 .mobileButton {
   position: fixed;
   top: 3.2rem;
   left: 1rem;
   z-index: 1300;
-  background: #0000007a;
+  background: rgba(0, 0, 0, 0.65);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
   border-radius: 6px;
   padding: 0.6rem;
-  color: white;
+  color: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -24,39 +25,43 @@
   display: none;
 }
 
+/* === SIDEBAR BASE === */
 .sidebar {
-  background-color: var(--primary-500);
-  color: white;
+  background-color: var(--light-gray); /* nuevo fondo claro */
+  color: #333; /* texto oscuro */
   display: flex;
   flex-direction: column;
   padding: 1rem 0;
   width: 240px;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
   height: 100%;
-  transition: background-color 0.6s ease, color 0.4s ease;
+  transition: var(--transition);
 }
 
 .open {
   transform: translateX(0);
 }
 
+/* === HEADER === */
 .sidebarHeader {
   font-size: 1.2rem;
   font-weight: 700;
   text-align: center;
   padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   letter-spacing: 0.5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #222;
 }
 
+/* === BOTÓN CERRAR === */
 .closeBtn {
   background: transparent;
   border: none;
-  color: white;
+  color: #444;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -65,20 +70,22 @@
   display: none;
 }
 
+/* === LINKS PRINCIPALES === */
 .navLink {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 0.75rem 1rem;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.95);
+  color: #333;
   text-decoration: none;
   position: relative;
-  transition: all 0.25s ease;
+  transition: var(--transition);
 }
 
 .navLink:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.08);
+  color: #000;
 }
 
 .navLink::before {
@@ -90,16 +97,17 @@
   width: 4px;
   border-radius: 0 4px 4px 0;
   background: transparent;
-  transition: background 0.3s;
+  transition: var(--transition);
 }
 
 .navLink:hover::before {
-  background: #fff;
+  background: var(--primary-500);
 }
 
+/* === SUBMENÚ === */
 .submenu {
   margin-left: 1.5rem;
-  border-left: 1px dashed rgba(255, 255, 255, 0.2);
+  border-left: 1px dashed rgba(0, 0, 0, 0.15);
   padding-left: 0.75rem;
   display: flex;
   flex-direction: column;
@@ -108,35 +116,40 @@
 
 .subLink {
   font-size: 0.85rem;
-  color: #e5ffe9;
+  color: #555;
   padding: 0.45rem 0.75rem;
   border-radius: 6px;
-  transition: background 0.2s ease;
+  transition: var(--transition);
 }
 
 .subLink:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.06);
+  color: #000;
 }
 
+/* === ICONOS === */
 .icon {
   min-width: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.95;
+  opacity: 0.9;
+  color: inherit;
 }
 
 .iconPlaceholder {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.1);
 }
 
+/* === TEXTO === */
 .linkText {
   font-size: 0.95rem;
 }
 
+/* === OVERLAY (móvil) === */
 .overlay {
   position: fixed;
   inset: 0;
@@ -145,25 +158,28 @@
   z-index: 200;
 }
 
-.empty {
-  padding: 1rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
-}
-
+/* === ESTADO ACTIVO === */
 .active {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--primary-500);
   font-weight: 600;
-  color: #fff;
+  color: var(--white);
 }
 
 .active::before {
-  background: #fff;
+  background: var(--primary-500);
 }
 
-@media (max-width: 768px) {
+/* === TEXTO VACÍO === */
+.empty {
+  padding: 1rem;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1000px) {
   .sidebarWrapper {
-    z-index: 1500;
+    z-index: 5;
     position: fixed;
   }
 
@@ -173,13 +189,12 @@
     left: 0;
     height: 100%;
     width: 16rem;
-    background-color: #047857;
-    color: white;
+    background-color: var(--light-gray);
+    color: #333;
     transform: translateX(-100%);
-    transition: transform 0.28s ease-in-out;
+    transition: var(--transition);
     z-index: 1500;
     overflow-y: auto;
-    position: fixed;
   }
 
   .sidebar.open {
@@ -195,7 +210,7 @@
   }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 1000px) {
   .sidebar {
     transform: translateX(0);
   }

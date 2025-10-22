@@ -1,15 +1,18 @@
+import { useState, useEffect, useRef } from "react";
 import styles from "./TopBar.module.css";
-import logo from "../../assets/images/logo.png";
 import { useAuth } from "../../contexts/AuthContext";
+import { useEmpresa } from "../../contexts/EmpresaContext";
+import { CSSTransition, SwitchTransition } from "react-transition-group";
+import logo from "../../assets/images/logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-import { useState, useEffect } from "react";
-import { useEmpresa } from "../../contexts/EmpresaContext"; // 👈 importa contexto
+import "./fade.css";
 
 export default function TopBar({ onLogout }) {
   const { user } = useAuth();
-  const { empresa, setEmpresa } = useEmpresa(); // 👈 empresa actual
+  const { empresa, setEmpresa } = useEmpresa();
   const [isMobile, setIsMobile] = useState(false);
+  const nodeRef = useRef(null);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -33,11 +36,20 @@ export default function TopBar({ onLogout }) {
       <div className={styles.left}>
         <img src={logo} alt="Logo" className={styles.logo} />
         <p>
-          <span className={styles.appName}>
-            {empresa === "abastecemos"
-              ? "Abastecemos de Occidente S.A.S"
-              : "Tobar Sanchez Vallejo S.A"}
-          </span>
+          <SwitchTransition>
+            <CSSTransition
+              key={empresa}
+              nodeRef={nodeRef}
+              timeout={200}
+              classNames="fade"
+            >
+              <span ref={nodeRef} className={styles.appName}>
+                {empresa === "abastecemos"
+                  ? "Abastecemos de Occidente S.A.S"
+                  : "Tobar Sanchez Vallejo S.A"}
+              </span>
+            </CSSTransition>
+          </SwitchTransition>
         </p>
       </div>
 
@@ -54,9 +66,12 @@ export default function TopBar({ onLogout }) {
         </div>
 
         <div className={styles.userProfile}>
-          <div className={styles.avatar}>{user?.nit?.[0] || "U"}</div>
+          <div className={styles.avatar}>
+            {user?.nombres_completos?.[0] || user?.login?.[0]}
+          </div>
           <p className={styles.userInfo}>
-            Bienvenid@, {user?.nit} {user?.email && ` - ${user.email}`}
+            Bienvenid@, {user?.nombres_completos || user?.login || "Usuario"}
+            {user?.correo && ` - ${user.correo}`}
           </p>
         </div>
         <button onClick={onLogout} className={styles.logoutBtn}>

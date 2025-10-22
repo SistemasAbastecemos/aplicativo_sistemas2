@@ -1,5 +1,16 @@
 import React from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useEmpresa } from "../../contexts/EmpresaContext";
+import LoadingScreen from "../UI/LoadingScreen";
 import styles from "./Dashboard.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBuilding,
+  faEnvelope,
+  faFileAlt,
+  faShoppingCart,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   FaPhoneAlt,
   FaEnvelope,
@@ -7,23 +18,67 @@ import {
   FaMapMarkerAlt,
   FaAngleRight,
 } from "react-icons/fa";
-import { useAuth } from "../../contexts/AuthContext";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const isTobarSanchez = user?.nit === "123456789" || "";
-  const empresaNombre = isTobarSanchez
-    ? "Tobar Sanchez Valencia y Vallejo S.A."
-    : "Abastecemos de Occidente S.A.S.";
+  const { empresa, setEmpresa } = useEmpresa();
+  const empresaNombre =
+    empresa === "abastecemos"
+      ? "Abastecemos de Occidente S.A.S"
+      : "Tobar Sanchez Vallejo S.A";
+
+  const saludo = () => {
+    const hora = new Date().getHours();
+    if (hora < 12) return "Buenos días";
+    if (hora < 18) return "Buenas tardes";
+    return "Buenas noches";
+  };
+
+  if (!user) {
+    return <LoadingScreen message="Cargando informacion del usuario..." />;
+  }
 
   return (
     <div className={styles.dashboard}>
       {/* Bienvenida */}
-      <div className={`${styles.card} shadow-lg`}>
-        <h1 className={styles.tituloBienvenida}>
-          ¡Bienvenido al portal de proveedores de {empresaNombre}!
+      <div className={`${styles.card} ${styles.header} shadow-lg`}>
+        <h1>
+          {saludo()}, <span>{user.nombres_completos || "Usuario"}</span>
         </h1>
-        <p className={styles.nitText}>Tu NIT es: {user?.nit}</p>
+
+        <p className={styles.tituloBienvenida}>
+          ¡Bienvenido al aplicativo de {empresaNombre}!
+        </p>
+
+        <div className={styles.cardResumen}>
+          <h2>Información del usuario</h2>
+          <ul>
+            <li>
+              <FontAwesomeIcon icon={faBuilding} /> <strong>Login:</strong>{" "}
+              {user.login}
+            </li>
+            <li>
+              <FontAwesomeIcon icon={faUser} /> <strong>Razón Social:</strong>{" "}
+              {user.nombres_completos || "No registra"}
+            </li>
+            <li>
+              <FontAwesomeIcon icon={faEnvelope} /> <strong>Correo:</strong>{" "}
+              {user.correo || "No registra"}
+            </li>
+            <li>
+              <FontAwesomeIcon icon={faBuilding} /> <strong>Area:</strong>{" "}
+              {user.area || "No registra"}
+            </li>
+            <li>
+              <FontAwesomeIcon icon={faBuilding} /> <strong>Cargo:</strong>{" "}
+              {user.cargo || "No registra"}
+            </li>
+            <li>
+              <strong>Estado:</strong>{" "}
+              {user.proveedor?.estado !== "X" ? "Activo ✅" : "Inactivo ❌"}
+            </li>
+          </ul>
+        </div>
       </div>
 
       {/* Funciones disponibles */}
@@ -36,6 +91,10 @@ const Dashboard = () => {
           </li>
           <li>
             <FaAngleRight className={styles.icono} />
+            Realizar solicitudes de actualizacion de costos
+          </li>
+          <li>
+            <FaAngleRight className={styles.icono} />
             Realizar solicitudes de codificación de productos
           </li>
           <li>
@@ -44,19 +103,7 @@ const Dashboard = () => {
           </li>
           <li>
             <FaAngleRight className={styles.icono} />
-            Generar Notas
-          </li>
-          <li>
-            <FaAngleRight className={styles.icono} />
-            Generar Notas de NI
-          </li>
-          <li>
-            <FaAngleRight className={styles.icono} />
-            Generar Notas de CR
-          </li>
-          <li>
-            <FaAngleRight className={styles.icono} />
-            Generar Notas de NG
+            Generar Notas (NP, NI, CR y NG)
           </li>
           <li>
             <FaAngleRight className={styles.icono} />

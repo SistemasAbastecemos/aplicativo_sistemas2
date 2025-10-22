@@ -1,23 +1,43 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Home, Users, BarChart, Settings, List } from "lucide-react";
 import { apiService } from "../../services/api";
+import { useNotification } from "../../contexts/NotificationContext";
+import { useEmpresa } from "../../contexts/EmpresaContext";
+import {
+  Menu,
+  X,
+  Home,
+  Users,
+  BarChart,
+  List,
+  ClipboardList,
+  BadgeDollarSign,
+  FileText,
+  FileStack,
+  Grid2x2Plus,
+} from "lucide-react";
 import styles from "./Sidebar.module.css";
 
 export default function Sidebar({}) {
+  const { addNotification } = useNotification();
   const [menus, setMenus] = useState([]);
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState({});
   const [isMobile, setIsMobile] = useState(false);
 
   const location = useLocation();
+  const { empresa } = useEmpresa();
 
   const iconMap = {
     home: Home,
     users: Users,
     "bar-chart": BarChart,
-    settings: Settings,
+    formatos: ClipboardList,
+    costos: BadgeDollarSign,
     list: List,
+    documents: FileText,
+    pdf: FileStack,
+    codificacion: Grid2x2Plus,
   };
 
   useEffect(() => {
@@ -32,14 +52,19 @@ export default function Sidebar({}) {
   useEffect(() => {
     const loadMenu = async () => {
       try {
-        const res = await apiService.getMenu();
+        if (!empresa) return;
+        const res = await apiService.getUserMenu(empresa);
         setMenus(res || []);
       } catch (err) {
-        console.error("Error cargando menú:", err);
+        addNotification({
+          message: "Error cargando menú:",
+          err,
+          type: "error",
+        });
       }
     };
     loadMenu();
-  }, []);
+  }, [empresa]);
 
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));

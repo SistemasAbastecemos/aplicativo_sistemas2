@@ -6,7 +6,6 @@
   color: #333;
 }
 
-/* --- Tarjeta de bienvenida --- */
 .card {
   background: white;
   border-radius: 12px;
@@ -16,20 +15,47 @@
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
+.header h1 {
+  font-size: 2rem;
+  color: var(--primary-600);
+}
+
+.header span {
+  color: var(--secondary-600);
+}
+
 .tituloBienvenida {
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: 10px;
-  color: #222;
+  color: #585858;
 }
 
-.nitText {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #32c369;
+.cardResumen {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
 }
 
-/* --- Secciones --- */
+.cardResumen h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-600);
+}
+
+.cardResumen ul {
+  list-style: none;
+  padding: 0;
+}
+
+.cardResumen li {
+  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
 .seccion {
   background: white;
   border-radius: 12px;
@@ -43,12 +69,11 @@
   font-size: 1.3rem;
   font-weight: 600;
   color: #333;
-  border-bottom: 2px solid #32c369;
+  border-bottom: 2px solid var(--primary-600);
   padding-bottom: 8px;
   margin-bottom: 15px;
 }
 
-/* --- Lista de funciones --- */
 .funcionesList {
   list-style: none;
   padding: 0;
@@ -70,13 +95,12 @@
 }
 
 .icono {
-  color: #32c369;
+  color: var(--primary-500);
   margin-right: 10px;
   font-size: 1.1rem;
   flex-shrink: 0;
 }
 
-/* --- Contacto --- */
 .tituloFirma {
   font-size: 1.2rem;
   font-weight: 600;
@@ -101,11 +125,11 @@
 .firmaList .icono {
   font-size: 1rem;
   margin-right: 12px;
-  color: #32c369;
+  color: var(--primary-600);
 }
 
 .enlace {
-  color: #32c369;
+  color: var(--primary-600);
   text-decoration: none;
   font-weight: 500;
 }
@@ -114,7 +138,6 @@
   text-decoration: underline;
 }
 
-/* --- Responsive --- */
 @media (max-width: 768px) {
   .tituloBienvenida {
     font-size: 1.4rem;
@@ -130,5 +153,9 @@
 
   .firmaList li {
     font-size: 0.9rem;
+  }
+
+  .cardResumen li {
+    overflow: scroll;
   }
 }

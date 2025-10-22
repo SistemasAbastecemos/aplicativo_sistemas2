@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }) => {
 
       setUser(null);
       localStorage.removeItem("authToken");
+      localStorage.removeItem("userRole");
 
       if (message) {
         const safeMessage =
@@ -70,6 +71,7 @@ export const AuthProvider = ({ children }) => {
         // Actualizar usuario si hay cambios
         setUser(result.user);
         localStorage.setItem("authToken", token);
+        localStorage.setItem("userRole", result.user.rol);
       } else {
         logout(result.message || "Sesión expirada o usuario inactivo");
       }
@@ -89,6 +91,7 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         setUser(response.user);
         localStorage.setItem("authToken", response.token);
+        localStorage.setItem("userRole", response.user.rol);
         return { success: true };
       } else {
         setError(response.message || "Error en el login");
