@@ -31,7 +31,7 @@ import {
 const Dashboard = () => {
   const { user } = useAuth();
   const { empresa, setEmpresa } = useEmpresa();
-  const { menu, userInfo, loading: menuLoading, tienePermiso, error } = useDynamicMenu();
+  const { menu, userInfo, acciones, loading: menuLoading, tienePermiso, error } = useDynamicMenu();
   const navigate = useNavigate();
   
   const [userInfoExpanded, setUserInfoExpanded] = useState(false);
@@ -44,7 +44,7 @@ const Dashboard = () => {
   // ✅ Combinar información de user (AuthContext) y userInfo (useDynamicMenu)
   const usuarioCompleto = {
     ...user,
-    ...userInfo, // Esto sobrescribirá los datos de user con userInfo si existen
+    ...userInfo,
   };
 
   const saludo = () => {
@@ -54,7 +54,23 @@ const Dashboard = () => {
     return "Buenas noches";
   };
 
-  // Funciones para las acciones rápidas
+  // ✅ NUEVA FUNCIÓN: Manejar click en acciones rápidas dinámicas
+  const handleAccionRapida = (accion) => {
+    console.log("Ejecutando acción rápida:", accion);
+    
+    if (accion.ruta) {
+      navigate(accion.ruta);
+    } else if (accion.path) {
+      navigate(accion.path);
+    } else if (accion.url) {
+      // Si es una URL externa
+      window.open(accion.url, '_blank');
+    } else {
+      console.warn("La acción rápida no tiene ruta definida:", accion);
+    }
+  };
+
+  // ✅ Funciones para las acciones hardcodeadas (mantener compatibilidad)
   const handleNuevaSolicitud = () => {
     navigate("/solicitudes/nueva");
   };
@@ -83,6 +99,9 @@ const Dashboard = () => {
   const funcionesDisponibles = Array.isArray(menu) 
     ? menu.filter(item => item.permisos && Object.values(item.permisos).some(permiso => permiso))
     : [];
+
+  // ✅ Obtener acciones rápidas dinámicas
+  const accionesRapidasDinamicas = acciones?.accionesRapidas || [];
 
   // ✅ Mostrar error si hay problema cargando el menú
   if (error) {
@@ -231,12 +250,31 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Acciones Rápidas FUNCIONALES */}
+        {/* Acciones Rápidas - COMBINADAS (Dinámicas + Hardcodeadas) */}
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>
             <FontAwesomeIcon icon={faShoppingCart} /> Acciones Rápidas
           </h2>
           <div className={styles.accionesGrid}>
+            {/* ✅ ACCIONES DINÁMICAS */}
+            {accionesRapidasDinamicas.map((accion, index) => (
+              <button 
+                key={accion.id || index}
+                className={`${styles.botonAccion} ${styles[accion.estilo] || styles.accionPrimary}`}
+                onClick={() => handleAccionRapida(accion)}
+                title={accion.descripcion || accion.nombre}
+              >
+                {accion.icono ? (
+                  <FontAwesomeIcon icon={accion.icono} className={styles.accionIcon} />
+                ) : (
+                  <FaPlus className={styles.accionIcon} />
+                )}
+                <span>{accion.nombre}</span>
+                <small>{accion.categoria || "Acción rápida"}</small>
+              </button>
+            ))}
+
+            {/* ✅ ACCIONES HARCODEADAS (para compatibilidad) */}
             {tienePermiso(3, 'crear') && (
               <button 
                 className={`${styles.botonAccion} ${styles.accionPrimary}`}

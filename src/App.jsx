@@ -13,6 +13,13 @@ import User from "./components/Config/User";
 import ActualizacionCostos from "./components/Formularios/ActualizacionCostos/ActualizacionCostos";
 import CodificacionProductos from "./components/Formularios/CodificacionProductos/CodificacionProductos";
 
+// import nuevo
+import Usuarios from './components/Usuarios/Usuarios';
+import Solicitudes from './components/Solicitudes/Solicitudes';
+import NuevaSolicitud from './components/Solicitudes/NuevaSolicitud';
+import Reportes from './components/Reportes/Reportes';
+import Perfil from './components/Perfil/Perfil';
+
 function AppContent() {
   const { user, loading } = useAuth();
 
@@ -70,6 +77,76 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <CodificacionProductos />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        {/* ✅ NUEVAS RUTAS PARA ACCIONES RÁPIDAS */}
+        <Route
+          path="/usuarios"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Usuarios />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/solicitudes"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Solicitudes />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/solicitudes/nueva"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <NuevaSolicitud />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/reportes"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Reportes />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/perfil"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Perfil />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/ayuda"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <div style={{ padding: '20px' }}>
+                  <h1>Centro de Ayuda</h1>
+                  <p>Página de ayuda en construcción...</p>
+                </div>
               </Layout>
             </PrivateRoute>
           }
