@@ -11,51 +11,143 @@
   border-radius: 12px;
   padding: 30px;
   margin-bottom: 25px;
-  text-align: center;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+  color: white;
 }
 
 .header h1 {
   font-size: 2rem;
-  color: var(--primary-600);
+  color: white;
+  margin-bottom: 10px;
 }
 
 .header span {
-  color: var(--secondary-600);
+  color: #ffd700;
 }
 
 .tituloBienvenida {
   font-size: 1.2rem;
   font-weight: 700;
-  margin-bottom: 10px;
-  color: #585858;
+  margin-bottom: 15px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.cardResumen {
-  background: var(--white);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  padding: 1.5rem;
+.welcomeSubtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 15px;
 }
 
-.cardResumen h2 {
-  margin-bottom: 1rem;
-  color: var(--primary-600);
+.userBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-top: 10px;
 }
 
-.cardResumen ul {
-  list-style: none;
-  padding: 0;
+/* Estadísticas */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
 }
 
-.cardResumen li {
-  margin: 0.5rem 0;
+.statCard {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
 }
 
+.statPrimary { background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-400) 100%); }
+.statSuccess { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+.statWarning { background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%); }
+.statInfo { background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%); }
+
+.statIcon {
+  font-size: 2rem;
+  margin-right: 15px;
+  opacity: 0.8;
+}
+
+.statContent h3 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.statContent p {
+  margin: 5px 0 0 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* Grid de Contenido */
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px 0;
+  font-size: 1.3rem;
+  color: #333;
+  border-bottom: 2px solid var(--primary-100);
+  padding-bottom: 10px;
+}
+
+/* Información del Usuario */
+.userInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.infoItem:last-child {
+  border-bottom: none;
+}
+
+.infoItem strong {
+  color: #666;
+  font-weight: 600;
+}
+
+.statusActive {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.statusInactive {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+/* Funciones Disponibles */
 .seccion {
   background: white;
   border-radius: 12px;
@@ -80,27 +172,200 @@
   margin: 0;
 }
 
-.funcionesList li {
+.funcionItem {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  font-size: 1rem;
-  color: #444;
-  margin-bottom: 10px;
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
 }
 
-.funcionesList li:last-child {
+.funcionItem:hover {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.funcionItem:last-child {
   border-bottom: none;
+}
+
+.funcionMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.funcionNombre {
+  font-weight: 500;
+  color: #333;
 }
 
 .icono {
   color: var(--primary-500);
-  margin-right: 10px;
   font-size: 1.1rem;
   flex-shrink: 0;
 }
 
+/* Badges de Permisos */
+.permisosBadge {
+  display: flex;
+  gap: 5px;
+}
+
+.permisosBadge span {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badgeCreate { background: #d4edda; color: #155724; }
+.badgeEdit { background: #fff3cd; color: #856404; }
+.badgeDelete { background: #f8d7da; color: #721c24; }
+
+/* Acciones Rápidas */
+.accionesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.botonAccion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 10px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.botonAccion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.accionPrimary { background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-400) 100%); }
+.accionSuccess { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+.accionWarning { background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%); }
+.accionInfo { background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%); }
+
+.accionIcon {
+  font-size: 1.2rem;
+}
+
+/* Información de Contacto */
+.contactInfo {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.contactIcon {
+  color: var(--primary-600);
+  font-size: 1.1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.contactItem strong {
+  display: block;
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.contactItem span, .contactItem a {
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.enlace {
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.enlace:hover {
+  text-decoration: underline;
+}
+
+/* Tarjeta Informativa */
+.infoCard {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--secondary-600) 100%);
+  color: white;
+}
+
+.infoContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.infoIcon {
+  font-size: 2rem;
+  opacity: 0.8;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.infoContent h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.3rem;
+  border-bottom: none;
+  color: white;
+  padding-bottom: 0;
+}
+
+.infoContent p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Estados de carga */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px;
+  color: #666;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Sección de firma/contacto existente */
 .tituloFirma {
   font-size: 1.2rem;
   font-weight: 600;
@@ -128,34 +393,235 @@
   color: var(--primary-600);
 }
 
-.enlace {
-  color: var(--primary-600);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.enlace:hover {
-  text-decoration: underline;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
+  .dashboard {
+    padding: 10px;
+  }
+  
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .accionesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header h1 {
+    font-size: 1.8rem;
+  }
+  
   .tituloBienvenida {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
   }
-
-  .nitText {
-    font-size: 1rem;
-  }
-
+  
   .funcionesList li {
     font-size: 0.95rem;
   }
-
+  
   .firmaList li {
     font-size: 0.9rem;
   }
+  
+  .infoItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .funcionItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .permisosBadge {
+    align-self: flex-start;
+  }
+}
+/* Card de información de usuario expandible */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
-  .cardResumen li {
-    overflow: scroll;
+.expandButton {
+  background: var(--primary-100);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--primary-600);
+}
+
+.expandButton:hover {
+  background: var(--primary-200);
+  transform: scale(1.1);
+}
+
+.expandIcon {
+  font-size: 1rem;
+}
+
+/* Grid de información de usuario adaptable */
+.userInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.userInfoGrid.expandedGrid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.infoItem:last-child {
+  border-bottom: none;
+}
+
+.infoItem strong {
+  color: #666;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.infoItem span {
+  color: #333;
+  font-size: 1rem;
+  word-break: break-word;
+}
+
+/* Card expandida */
+.card.expanded {
+  min-height: 300px;
+}
+
+/* Mejoras para las acciones rápidas */
+.accionesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.botonAccion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 15px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  min-height: 100px;
+}
+
+.botonAccion:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.botonAccion:active {
+  transform: translateY(-1px);
+}
+
+.botonAccion span {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.botonAccion small {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.accionPrimary { background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-400) 100%); }
+.accionSuccess { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+.accionWarning { background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%); }
+.accionInfo { background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%); }
+.accionSecondary { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
+.accionTertiary { background: linear-gradient(135deg, #e83e8c 0%, #d63384 100%); }
+
+.accionIcon {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+}
+
+/* Estados */
+.statusActive {
+  color: #28a745;
+  font-weight: 600;
+  background: #d4edda;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.statusInactive {
+  color: #dc3545;
+  font-weight: 600;
+  background: #f8d7da;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+  .userInfoGrid.expandedGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .accionesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .botonAccion {
+    min-height: 90px;
+    padding: 15px 10px;
+  }
+  
+  .botonAccion span {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .accionesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cardHeader {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .expandButton {
+    align-self: flex-end;
   }
 }

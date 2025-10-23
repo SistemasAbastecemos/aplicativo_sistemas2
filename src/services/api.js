@@ -195,14 +195,14 @@ export const apiService = {
     return json.data;
   },
 
-  async updateUsuario(usuario, payload) {
+  async updateUsuario(id, payload) {
     const response = await fetch(`${API_BASE_URL}/usuarios/update_user.php`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
-      body: JSON.stringify({ ...payload, usuario }),
+      body: JSON.stringify({ ...payload, id }),
     });
     const json = await response.json();
     if (!json.success)
