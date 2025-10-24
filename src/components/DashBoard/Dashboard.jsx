@@ -41,7 +41,7 @@ const Dashboard = () => {
       ? "Abastecemos de Occidente S.A.S"
       : "Tobar Sanchez Vallejo S.A";
 
-  // ✅ Combinar información de user (AuthContext) y userInfo (useDynamicMenu)
+  // Combinar información de user (AuthContext) y userInfo (useDynamicMenu)
   const usuarioCompleto = {
     ...user,
     ...userInfo,
@@ -54,7 +54,7 @@ const Dashboard = () => {
     return "Buenas noches";
   };
 
-  // ✅ NUEVA FUNCIÓN: Manejar click en acciones rápidas dinámicas
+  // Manejar click en acciones rápidas dinámicas
   const handleAccionRapida = (accion) => {
     console.log("Ejecutando acción rápida:", accion);
     
@@ -70,7 +70,7 @@ const Dashboard = () => {
     }
   };
 
-  // ✅ Funciones para las acciones hardcodeadas (mantener compatibilidad)
+  // Funciones para las acciones hardcodeadas (mantener compatibilidad)
   const handleNuevaSolicitud = () => {
     navigate("/solicitudes/nueva");
   };
@@ -84,7 +84,7 @@ const Dashboard = () => {
   };
 
   const handleEditarPerfil = () => {
-    navigate("/perfil");
+    navigate("/usuario");
   };
 
   const toggleUserInfo = () => {
