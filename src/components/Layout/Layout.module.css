@@ -27,6 +27,19 @@
 .content {
   flex: 1;
   overflow: auto;
+  transition: margin-left 0.3s ease;
+}
+
+/* Sidebar colapsada */
+.sidebarCollapsed {
+  width: 80px !important;
+  transition: width 0.3s ease;
+  z-index: 99 !important;
+}
+
+/* Contenido expandido cuando sidebar está colapsada */
+.contentCollapsed {
+  transition: margin-left 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -45,5 +58,13 @@
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #eee;
+  }
+
+  .sidebarCollapsed {
+    width: 100% !important;
+  }
+
+  .contentCollapsed {
+    margin-left: 0;
   }
 }

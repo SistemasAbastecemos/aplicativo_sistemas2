@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiService } from "../services/api";
@@ -24,6 +25,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Usar useRef para almacenar el usuario actual sin causar re-renders
+  const userRef = useRef(null);
+
   const logout = useCallback(
     (message = "", redirect = true) => {
       const token = localStorage.getItem("authToken");
@@ -37,6 +41,8 @@ export const AuthProvider = ({ children }) => {
       }
 
       setUser(null);
+      userRef.current = null;
+      sessionStorage.removeItem("hasRedirectedThisSession");
       localStorage.removeItem("authToken");
       localStorage.removeItem("userRole");
 
@@ -58,8 +64,11 @@ export const AuthProvider = ({ children }) => {
   const verifyToken = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      // No hacer logout con error, simplemente dejar usuario en null
-      setUser(null);
+      // Solo actualizar estado si hay un cambio real
+      if (userRef.current !== null) {
+        setUser(null);
+        userRef.current = null;
+      }
       setLoading(false);
       return;
     }
@@ -68,19 +77,33 @@ export const AuthProvider = ({ children }) => {
       const result = await apiService.verifyToken(token);
 
       if (result.success && result.user) {
-        // Actualizar usuario si hay cambios
-        setUser(result.user);
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("userRole", result.user.rol);
+        // Solo actualizar si el usuario realmente cambió
+        const userChanged =
+          JSON.stringify(userRef.current) !== JSON.stringify(result.user);
+
+        if (userChanged) {
+          setUser(result.user);
+          userRef.current = result.user;
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("userRole", result.user.rol);
+        }
       } else {
-        logout(result.message || "Sesión expirada o usuario inactivo");
+        // Solo hacer logout si realmente había un usuario activo
+        if (userRef.current !== null) {
+          logout(result.message || "Sesión expirada o usuario inactivo");
+        }
       }
     } catch (err) {
-      logout(err.message || "Error de conexión al verificar la sesión");
+      // Solo hacer logout si realmente había un usuario activo
+      if (userRef.current !== null) {
+        logout(err.message || "Error de conexión al verificar la sesión");
+      }
     } finally {
-      setLoading(false);
+      if (loading) {
+        setLoading(false);
+      }
     }
-  }, [logout]);
+  }, [logout, loading]);
 
   const login = async (credentials) => {
     try {
@@ -90,6 +113,7 @@ export const AuthProvider = ({ children }) => {
 
       if (response.success) {
         setUser(response.user);
+        userRef.current = response.user;
         localStorage.setItem("authToken", response.token);
         localStorage.setItem("userRole", response.user.rol);
         return { success: true };
@@ -110,7 +134,7 @@ export const AuthProvider = ({ children }) => {
 
     const interval = setInterval(() => {
       verifyToken();
-    }, 30000); // cada 60s
+    }, 30000); // cada 30s
 
     return () => clearInterval(interval);
   }, [verifyToken]);

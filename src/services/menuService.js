@@ -1,42 +1,40 @@
-const API_BASE_URL = "https://aplicativo2.supermercadobelalcazar.com/api";
+const API_BASE_URL = "https://aplicativo.supermercadobelalcazar.com/api";
 
 export const menuService = {
   async getMenuPorUsuario(usuarioId) {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/menu/get_menu_usuario.php`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify({ usuario_id: usuarioId }),
-        }
-      );
-      
+      const response = await fetch(`${API_BASE_URL}/menu/get_menu_user.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ usuario_id: usuarioId }),
+      });
+
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
-      
+
       const json = await response.json();
-      if (!json.success) throw new Error(json.message || "Error obteniendo menú");
-      
-      // ✅ Ahora el backend devuelve 'id' (no 'id_usuario') para el usuario
+      if (!json.success)
+        throw new Error(json.message || "Error obteniendo menú");
+
+      // Ahora el backend devuelve
       return {
         menu: json.data,
-        userInfo: json.user_info // ✅ Contiene 'id', 'login', 'id_rol', etc.
+        userInfo: json.user_info, // Contiene 'id', 'login', 'id_rol', etc.
       };
     } catch (error) {
       console.error("Error obteniendo menú:", error);
       return {
         menu: this.getMenuPorDefecto(),
-        userInfo: null
+        userInfo: null,
       };
     }
   },
 
-  // ✅ CORREGIDO: menú por defecto con nomenclatura correcta
+  // menú por defecto
   getMenuPorDefecto() {
     return [
       {
@@ -48,8 +46,8 @@ export const menuService = {
         permisos: {
           crear: true,
           editar: true,
-          eliminar: false
-        }
+          eliminar: false,
+        },
       },
       {
         id_menu: 2,
@@ -60,9 +58,9 @@ export const menuService = {
         permisos: {
           crear: false,
           editar: true,
-          eliminar: false
-        }
-      }
+          eliminar: false,
+        },
+      },
     ];
-  }
+  },
 };

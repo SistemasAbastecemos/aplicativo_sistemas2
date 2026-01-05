@@ -1,0 +1,892 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* Header */
+.header {
+  background: #ffffff;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Controls */
+.controls {
+  margin: 0.5rem auto;
+  padding: 0 1rem;
+}
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.formGroup {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.formGroup.floating {
+  margin-top: 1rem;
+}
+
+.formGroup.floating .formLabel {
+  position: absolute;
+  top: -0.75rem;
+  left: 0.75rem;
+  background: white;
+  padding: 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  z-index: 2;
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+.formInput,
+.formSelect {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-family: inherit;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Efecto cuando el input está enfocado */
+.formGroup.floating .formInput:focus + .formLabel,
+.formGroup.floating .formSelect:focus + .formLabel {
+  color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+/* También cambia el color cuando tiene contenido */
+.formGroup.floating .formInput:not(:placeholder-shown) + .formLabel,
+.formGroup.floating .formSelect:not(:default) + .formLabel {
+  color: #3b82f6;
+}
+
+/* Search group adjustments for floating labels */
+.formGroup.floating .searchGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.formGroup.floating .searchGroup .formInput {
+  padding-left: 2.5rem;
+}
+
+.formGroup.floating .searchGroup .searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  z-index: 3;
+}
+
+/* Ajustes específicos para los grupos de formulario en los filtros */
+.filters .formGroup {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* Estilos específicos para el input de fecha con floating label */
+.formGroup.floating .formInput[type="date"] {
+  padding-left: 2.5rem;
+  color: #374151;
+}
+
+.formGroup.floating .formInput[type="date"]:focus {
+  color: #1e293b;
+}
+
+/* Para navegadores que no soportan placeholder en date inputs */
+.formGroup.floating .formInput[type="date"]:not(:focus):not(:valid) {
+  color: transparent;
+}
+
+.formGroup.floating
+  .formInput[type="date"]:not(:focus):not(:valid)
+  + .formLabel {
+  color: #374151;
+}
+
+.actionPanel .formGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.refreshButton {
+  padding: 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.refreshButton:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refreshIconLoading {
+  animation: spin 1s linear infinite;
+}
+
+/* Stats */
+.stats {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.statCard {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.statNumber {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Policies Card */
+.policiesCard {
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+  display: none; /* Oculto en móvil por defecto */
+}
+
+.policiesHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+}
+
+.policiesIcon {
+  color: #1d4ed8;
+  font-size: 1rem;
+}
+
+.policiesHeader h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.policiesContent {
+  padding: 0.75rem 2rem;
+}
+
+.policiesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.policiesList li {
+  color: #374151;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  padding: 0.25rem 0;
+}
+
+.policiesList li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+/* Content */
+.content {
+  margin: 0 auto;
+  padding: 0 1rem 0.5rem;
+}
+
+/* Table Container */
+.tableContainer {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  min-width: 600px; /* Mínimo para scroll horizontal en móviles */
+}
+
+.table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #374151;
+  text-align: left;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.colIndex {
+  width: 40px;
+}
+.colItem {
+  width: 80px;
+}
+.colDesc {
+  width: 200px;
+  min-width: 150px;
+}
+.colDias {
+  width: 70px;
+}
+.colComprador {
+  width: 120px;
+}
+.colEstado {
+  width: 80px;
+}
+.colAccion {
+  width: 100px;
+}
+
+.tableRow {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tableRow:hover {
+  background: #f8fafc;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.rowSelected {
+  background: #f0fdf4 !important;
+}
+
+.rowSelected:hover {
+  background: #ecfdf5 !important;
+}
+
+.table td {
+  padding: 0.6rem 0.5rem;
+  color: #475569;
+  font-size: 0.75rem;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+
+.indexCell {
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+  font-size: 0.7rem;
+}
+
+.itemCode {
+  font-weight: 600;
+  color: #1e293b;
+  font-family: "Monaco", "Consolas", monospace;
+  font-size: 0.75rem;
+}
+
+.itemDescription {
+  font-weight: 500;
+  color: #374151;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.diasCell {
+  text-align: center;
+}
+
+.daysContainer {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.daysText {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.daysText {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.daysText:hover {
+  background: #bae6fd;
+  border-color: #7dd3fc;
+}
+
+.daysTextExpanded {
+  background: #0ea5e9;
+  color: white;
+  border-color: #0284c7;
+}
+
+.daysIcon {
+  font-size: 0.6rem;
+}
+
+/* Days Tooltip */
+.daysTooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  margin-top: 0.5rem;
+  min-width: 180px;
+}
+
+.daysTooltipContent {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 0.75rem;
+  animation: tooltipFadeIn 0.2s ease;
+}
+
+.daysTooltipHeader {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.daysTooltipHeader strong {
+  color: #1e293b;
+  font-size: 0.75rem;
+}
+
+.daysList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.dayItem {
+  background: #f8fafc;
+  color: #475569;
+  padding: 0.375rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.dayItem:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.noDays {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 0.7rem;
+}
+
+.comprador {
+  max-width: 120px;
+}
+
+.compradorContent {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  overflow: hidden;
+}
+
+.compradorContent span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compradorIcon {
+  color: #6b7280;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.statusCell {
+  text-align: center;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.statusPedido {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusPendiente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.actionCell {
+  text-align: center;
+}
+
+.pedidoButton {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.pedidoButton:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.pedidoSelected {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+}
+
+.pedidoSelected:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.paginationButton {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.emptyState p {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Asegurar que la celda de días tenga espacio para el tooltip */
+.diasCell {
+  text-align: center;
+  position: relative;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem 0.5rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .controls {
+    padding: 0 0.5rem;
+    margin: 1rem auto;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .dateInput {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .searchContainer {
+    max-width: none;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .statCard {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .statNumber {
+    font-size: 1.25rem;
+  }
+
+  .statLabel {
+    font-size: 0.65rem;
+  }
+
+  .policiesCard {
+    display: block;
+    margin: 0 0.5rem 1rem;
+    padding: 0;
+  }
+
+  .policiesList {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+
+  .policiesList li {
+    font-size: 0.7rem;
+  }
+
+  .content {
+    padding: 0 0.5rem 1.5rem;
+  }
+
+  .tableContainer {
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .table th {
+    padding: 0.6rem 0.375rem;
+    font-size: 0.65rem;
+  }
+
+  .table td {
+    padding: 0.5rem 0.375rem;
+    font-size: 0.7rem;
+  }
+
+  .itemDescription {
+    max-width: 120px;
+  }
+
+  .pedidoButton {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.65rem;
+    min-width: 60px;
+  }
+
+  /* Pagination */
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .paginationButton {
+    padding: 0.75rem 1rem;
+    width: 100%;
+    justify-content: center;
+    min-height: 44px; /* Tamaño táctil mínimo */
+  }
+
+  .paginationInfo {
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  .emptyState {
+    padding: 2rem 1rem;
+    margin: 0 0.5rem;
+  }
+
+  .emptyIcon {
+    font-size: 2.5rem;
+  }
+
+  .emptyState h3 {
+    font-size: 1.1rem;
+  }
+
+  .emptyState p {
+    font-size: 0.85rem;
+  }
+
+  .daysTooltip {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 280px;
+    margin: 0;
+  }
+
+  .daysTooltipContent {
+    padding: 1rem;
+  }
+
+  .daysList {
+    gap: 0.5rem;
+  }
+
+  .dayItem {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .formGroup.floating .formLabel {
+    font-size: 0.7rem;
+  }
+
+  .formInput,
+  .formSelect {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .formGroup.floating .searchGroup .formInput {
+    padding-left: 2rem;
+  }
+
+  .formGroup.floating .searchGroup .searchIcon {
+    left: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .filters .formGroup {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .table {
+    min-width: 550px;
+  }
+}
+
+/* Mostrar políticas solo en desktop */
+@media (min-width: 769px) {
+  .policiesCard {
+    display: block;
+  }
+}
