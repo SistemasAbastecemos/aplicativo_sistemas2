@@ -51,174 +51,139 @@ import Tesseract from "tesseract.js";
 // ============================================================================
 const parsearDatosEscaneados = (rawData) => {
   if (!rawData || rawData.length < 5) return null;
-  // Al inicio de parsearDatosEscaneados
-  console.log("=== DATOS CRUDOS RECIBIDOS ===");
-  console.log("Longitud:", rawData.length);
-  console.log("Primeros 100 chars:", rawData.substring(0, 100));
-  console.log("Contiene PubDSK:", rawData.includes("PubDSK"));
 
-  // Limpiar caracteres de control y basura del final
+  console.log("=== PROCESANDO CÉDULA COLOMBIANA ===");
+
+  // 1. LIMPIEZA SUAVE (Reemplazar basura por espacios para no perder índices)
   let cleanData = "";
   for (let i = 0; i < rawData.length; i++) {
     const charCode = rawData.charCodeAt(i);
-    if (charCode >= 32 && charCode <= 126) {
+    // Dejamos pasar letras, números, espacios y la Ñ
+    if ((charCode >= 32 && charCode <= 126) || charCode === 209 || charCode === 241) {
       cleanData += rawData[i];
-    } else if (cleanData.length > 20) {
-      break;
+    } else {
+      cleanData += " ";
     }
   }
 
-  console.log("Datos limpios:", cleanData);
+  // 2. BUSCAR EL ENCABEZADO "PubDSK_1"
+  const anchor = "PubDSK_1";
+  const indexAnchor = cleanData.indexOf(anchor);
 
-  if (cleanData.includes("PubDSK")) {
+  if (indexAnchor !== -1) {
     try {
-      const pubdskIndex = cleanData.indexOf("PubDSK");
-      const despuesPubDSK = cleanData.substring(pubdskIndex);
+      // Offset: PubDSK_1 (8 chars) + Número Tarjeta (8 chars) = 16 caracteres de salto
+      const inicioDatosUtiles = indexAnchor + anchor.length;
+      const tramaUtil = cleanData.substring(inicioDatosUtiles);
 
-      const numerosEncontrados = despuesPubDSK.match(/\d{8,10}/g) || [];
+      // --- A. EXTRACCIÓN DE CÉDULA ---
+      // Los primeros 8 dígitos son el número de la tarjeta (NO la cédula).
+      // Los siguientes 10 dígitos son la cédula.
+      const cedulaRaw = tramaUtil.substring(8, 18);
+      
+      // parseInt quita los ceros a la izquierda si es una cédula antigua
+      const cedula = parseInt(cedulaRaw, 10).toString();
 
-      console.log("Números encontrados:", numerosEncontrados);
+      // --- B. EXTRACCIÓN DE FECHA Y NOMBRES RAW ---
+      // La trama después de la cédula es: NOMBRES + SEPARADOR(0) + GENERO(M/F) + FECHA(8 digitos)
+      // Ajustamos el Regex para aceptar un '0' o espacio antes del género
+      const restoTrama = tramaUtil.substring(18); // Saltamos tarjeta(8) + cedula(10)
+      
+      // Regex Explicado:
+      // ([A-ZÑ\s]+) -> Grupo 1: Nombres (Letras y espacios)
+      // (?:0|\s)?   -> Separador opcional (puede ser un 0 o un espacio, no lo capturamos)
+      // ([MF])      -> Grupo 2: Género
+      // (\d{8})     -> Grupo 3: Fecha nacimiento
+      const regexBio = /([A-ZÑ\s]+)(?:0|\s)?([MF])(\d{8})/;
+      const match = restoTrama.match(regexBio);
 
-      let cedula = null;
-      if (numerosEncontrados.length >= 2) {
-        cedula = numerosEncontrados[1];
-      } else if (numerosEncontrados.length === 1) {
-        cedula = numerosEncontrados[0];
-      }
-
-      if (!cedula) return null;
-
-      const fechaMatch = cleanData.match(/(19[0-9]{2}|20[0-2][0-9])(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])/);
+      let nombresCompletosRaw = "";
       let fechaNacimiento = "";
-      if (fechaMatch) {
-        fechaNacimiento = `${fechaMatch[1]}-${fechaMatch[2]}-${fechaMatch[3]}`;
+      let genero = "";
+
+      if (match) {
+        nombresCompletosRaw = match[1].trim(); // "MARQUEZSEPULVEDADANIEL"
+        genero = match[2];                     // "M"
+        const f = match[3];                    // "20040528"
+        fechaNacimiento = `${f.substring(0, 4)}-${f.substring(4, 6)}-${f.substring(6, 8)}`;
       }
 
-      let nombresCompletos = "";
-      const indexCedula = cleanData.indexOf(cedula);
-      if (indexCedula !== -1) {
-        const despuesCedula = cleanData.substring(indexCedula + cedula.length);
-        const matchNombres = despuesCedula.match(/^([A-ZÑ]+)/);
-        if (matchNombres) {
-          nombresCompletos = matchNombres[1];
-        }
-      }
-
+      // --- C. SEPARACIÓN DE APELLIDOS Y NOMBRES ---
+      // Como vienen pegados (MARQUEZSEPULVEDADANIEL), usamos tu lógica de diccionario
       let apellidos = "";
       let nombres = "";
 
-      if (nombresCompletos.length > 0) {
-        const longitudTotal = nombresCompletos.length;
-
-        const patronesApellido = [
+      // Lista de apellidos comunes para intentar cortar la cadena
+      const patronesApellido = [
           'MARQUEZ', 'SEPULVEDA', 'GARCIA', 'RODRIGUEZ', 'MARTINEZ', 'LOPEZ',
           'HERNANDEZ', 'GONZALEZ', 'PEREZ', 'SANCHEZ', 'RAMIREZ', 'TORRES',
           'FLORES', 'RIVERA', 'GOMEZ', 'DIAZ', 'CRUZ', 'MORALES', 'REYES',
-          'ORTIZ', 'GUTIERREZ', 'CHAVEZ', 'RAMOS', 'VARGAS', 'CASTILLO'
-        ];
+          'ORTIZ', 'GUTIERREZ', 'CHAVEZ', 'RAMOS', 'VARGAS', 'CASTILLO', 
+          'RUIZ', 'ALVAREZ', 'ROMERO', 'FERNANDEZ', 'JIMENEZ', 'MORENO'
+      ];
 
-        let separacionEncontrada = false;
+      let restoNombres = nombresCompletosRaw;
+      let apellido1 = "";
+      let apellido2 = "";
 
-        for (const apellido1 of patronesApellido) {
-          if (nombresCompletos.startsWith(apellido1)) {
-            const resto1 = nombresCompletos.substring(apellido1.length);
-            for (const apellido2 of patronesApellido) {
-              if (resto1.startsWith(apellido2)) {
-                apellidos = `${apellido1} ${apellido2}`;
-                nombres = resto1.substring(apellido2.length);
-                separacionEncontrada = true;
-                break;
-              }
-            }
-            if (separacionEncontrada) break;
-          }
-        }
-
-        if (!separacionEncontrada) {
-          const puntoCorte = Math.floor(longitudTotal * 0.6);
-          apellidos = nombresCompletos.substring(0, puntoCorte);
-          nombres = nombresCompletos.substring(puntoCorte);
+      // Buscamos primer apellido
+      for (const ap of patronesApellido) {
+        if (restoNombres.startsWith(ap)) {
+          apellido1 = ap;
+          restoNombres = restoNombres.substring(ap.length); // Quitamos el apellido encontrado
+          break;
         }
       }
+      
+      // Buscamos segundo apellido (si existe)
+      if (apellido1) {
+         for (const ap of patronesApellido) {
+            if (restoNombres.startsWith(ap)) {
+              apellido2 = ap;
+              restoNombres = restoNombres.substring(ap.length);
+              break;
+            }
+         }
+         apellidos = `${apellido1} ${apellido2}`.trim();
+         nombres = restoNombres.trim(); // Lo que sobre son los nombres
+      } 
 
-      console.log("Datos extraídos:", { cedula, apellidos, nombres, fechaNacimiento });
+      // Fallback: Si no encontró apellidos en la lista, cortamos a la fuerza
+      if (!apellidos) {
+          // Si hay espacios (algunas cédulas viejas los traen), usamos split
+          if (nombresCompletosRaw.includes(" ")) {
+              const partes = nombresCompletosRaw.split(" ");
+              apellidos = partes.slice(0, 2).join(" ");
+              nombres = partes.slice(2).join(" ");
+          } else {
+              // Si todo está pegado y no está en la lista, no podemos adivinar bien
+              // Dejamos todo en apellidos para que el usuario corrija manual
+              apellidos = nombresCompletosRaw; 
+              nombres = "";
+          }
+      }
+
+      console.log("Resultado Final:", { cedula, apellidos, nombres, fechaNacimiento });
 
       return {
         tipo: "CEDULA_COLOMBIANA",
         cedula: cedula,
-        apellidos: apellidos.trim(),
-        nombres: nombres.trim(),
-        nombresCompletos: nombresCompletos,
+        apellidos: apellidos,
+        nombres: nombres,
+        nombresCompletos: nombresCompletosRaw,
         fecha_nacimiento: fechaNacimiento,
+        genero: genero
       };
+
     } catch (error) {
-      console.error("Error parseando trama de cédula:", error);
+      console.error("Error procesando datos:", error);
     }
   }
 
-  if (cleanData.length > 30 && /\d{8,10}/.test(cleanData) && /[A-Z]{5,}/.test(cleanData)) {
-    try {
-      const numeros = cleanData.match(/\d{8,10}/g) || [];
-
-      let cedula = numeros.find(n =>
-        !n.startsWith('0') &&
-        !n.startsWith('19') &&
-        !n.startsWith('20')
-      );
-
-      if (!cedula) {
-        cedula = numeros.find(n => /^[1-9]\d{7,9}$/.test(n) && !n.startsWith('19') && !n.startsWith('20'));
-      }
-
-      if (!cedula && numeros.length > 0) {
-        cedula = numeros[numeros.length > 1 ? 1 : 0];
-      }
-
-      if (cedula) {
-        const fechaMatch = cleanData.match(/(19[0-9]{2}|20[0-2][0-9])(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])/);
-        let fechaNacimiento = "";
-        if (fechaMatch) {
-          fechaNacimiento = `${fechaMatch[1]}-${fechaMatch[2]}-${fechaMatch[3]}`;
-        }
-
-        const indexCedula = cleanData.indexOf(cedula);
-        let nombresCompletos = "";
-        if (indexCedula !== -1) {
-          const despues = cleanData.substring(indexCedula + cedula.length);
-          const match = despues.match(/^([A-ZÑ]+)/);
-          if (match) {
-            nombresCompletos = match[1];
-          }
-        }
-
-        return {
-          tipo: "CEDULA_COLOMBIANA",
-          cedula: cedula,
-          apellidos: nombresCompletos,
-          nombres: "",
-          nombresCompletos: nombresCompletos,
-          fecha_nacimiento: fechaNacimiento,
-        };
-      }
-    } catch (error) {
-      console.error("Error en parsing alternativo:", error);
-    }
-  }
-
+  // --- LÓGICA SECUNDARIA PARA CÉDULAS SIN FORMATO PDF417 COMPLETO ---
   const codigoLimpio = cleanData.replace(/[^a-zA-Z0-9]/g, "");
-
   if (/^\d{8,10}$/.test(codigoLimpio)) {
-    return {
-      tipo: "CEDULA_SIMPLE",
-      cedula: codigoLimpio,
-    };
-  }
-
-  if (codigoLimpio.length >= 4 && codigoLimpio.length <= 20) {
-    return {
-      tipo: "CODIGO_SIMPLE",
-      codigo: codigoLimpio,
-    };
+    return { tipo: "CEDULA_SIMPLE", cedula: codigoLimpio };
   }
 
   return null;
@@ -2624,4 +2589,4 @@ const ConsultaTab = React.memo(
   }
 );
 
-export default GestionVisitantes;0
+export default GestionVisitantes;
