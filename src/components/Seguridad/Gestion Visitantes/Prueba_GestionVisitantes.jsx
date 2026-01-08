@@ -15,6 +15,8 @@ import {
   BarcodeFormat,
   DecodeHintType,
 } from "@zxing/library";
+// Asegúrate de que esta línea esté presente:
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
   faUserPlus,
@@ -37,12 +39,11 @@ import {
   faEnvelope,
   faMapMarkerAlt,
   faStickyNote,
+  faFile,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from "./GestionVisitantes.module.css";
 import debounce from "lodash/debounce";
 import Tesseract from "tesseract.js";
-
 // ============================================================================
 // FUNCIÓN UNIFICADA DE PARSING - Reemplaza todas las anteriores
 // ============================================================================
@@ -450,17 +451,21 @@ const FloatingTextarea = React.memo(
   }
 );
 
+
 // ============================================================================
-// COMPONENTE: ScannerModal (CORREGIDO)
+// COMPONENTE: ScannerModal (ACTUALIZADO PARA CÉDULA COLOMBIANA)
 // ============================================================================
 const ScannerModal = ({ isOpen, onClose, onScan }) => {
   const scannerRef = useRef(null);
   const physicalInputRef = useRef(null);
-
+  const fileInputRef = useRef(null);
+  
   const [error, setError] = useState("");
   const [scanner, setScanner] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [activeMode, setActiveMode] = useState("physical");
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const bufferRef = useRef("");
   const lastKeyTimeRef = useRef(Date.now());
@@ -470,211 +475,213 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
   }, []);
 
-  useEffect(() => {
-    if (isOpen && activeMode === "physical") {
-      const focusTrap = () => physicalInputRef.current?.focus();
-      const t1 = setTimeout(focusTrap, 100);
-      const t2 = setTimeout(focusTrap, 500);
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
-    }
-  }, [isOpen, activeMode]);
-
+  // --- LÓGICA DE LIMPIEZA REUTILIZABLE ---
   const limpiarBuffer = useCallback((data) => {
     if (!data) return "";
-    // Elimina tokens como <F2>, <F5>, <CR>, <LF>, caracteres de control y deja imprimibles
     return data
       .replace(/<F\d+>/gi, "")
       .replace(/<CR>|<LF>|<GS>|<RS>|<US>/gi, "")
       .split("")
       .filter((ch) => {
         const code = ch.charCodeAt(0);
-        return code >= 32 && code <= 126;
+        return (code >= 32 && code <= 126) || code === 209 || code === 241;
       })
       .join("");
   }, []);
 
-  const procesarBuffer = useCallback(() => {
-    const raw = bufferRef.current;
-    bufferRef.current = "";
-    const data = limpiarBuffer(raw);
-    if (!data || data.length < 3) return;
+  // --- PROCESADOR CENTRAL DE DATOS ---
+  const procesarResultado = useCallback((rawText) => {
+    const dataLimpia = limpiarBuffer(rawText);
+    if (!dataLimpia || dataLimpia.length < 5) return;
 
-    const resultado = parsearDatosEscaneados(data);
+    const resultado = parsearDatosEscaneados(dataLimpia);
+    
     if (resultado) {
       onScan(resultado);
     } else {
-      onScan({ tipo: "CODIGO_SIMPLE", codigo: data });
+      onScan({ tipo: "CODIGO_SIMPLE", codigo: dataLimpia });
     }
     onClose();
   }, [limpiarBuffer, onScan, onClose]);
 
-  useEffect(() => {
-    if (!isOpen) return;
+  // --- MANEJO DE SUBIDA DE ARCHIVOS ---
+  const handleFileUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    const handleKeyDown = (e) => {
-      const key = e.key;
-      const now = Date.now();
-      const timeDiff = now - lastKeyTimeRef.current;
-      lastKeyTimeRef.current = now;
+    setUploadedFileName(file.name);
+    
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setError('Formato de archivo no soportado. Use JPG, PNG o WEBP.');
+      return;
+    }
 
-      // Bloquea recarga y navegación
-      if (
-        key === "F5" ||
-        (e.ctrlKey && key.toLowerCase() === "r") ||
-        (e.metaKey && key.toLowerCase() === "r")
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
+    // Validar tamaño (máximo 10MB para mejor calidad)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('El archivo es demasiado grande. Máximo 10MB.');
+      setUploadedFileName('');
+      return;
+    }
+
+    setIsUploading(true);
+    setError("");
+    
+    try {
+      // Crear URL temporal para la imagen
+      const imageUrl = URL.createObjectURL(file);
+      
+      // Preparar hints para todos los formatos de códigos de barras posibles
+      const hints = new Map();
+      hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+        BarcodeFormat.PDF_417,    // Para cédulas colombianas
+        BarcodeFormat.CODE_128,   // Para escarapelas y otros
+        BarcodeFormat.CODE_39,
+        BarcodeFormat.EAN_8,      // Para escarapelas (8 dígitos)
+        BarcodeFormat.EAN_13,
+        BarcodeFormat.QR_CODE,
+        BarcodeFormat.UPC_A,
+        BarcodeFormat.UPC_E,
+        BarcodeFormat.CODABAR,
+        BarcodeFormat.ITF,
+        BarcodeFormat.RSS_14,
+        BarcodeFormat.RSS_EXPANDED,
+        BarcodeFormat.AZTEC,
+        BarcodeFormat.DATA_MATRIX
+      ]);
+      hints.set(DecodeHintType.TRY_HARDER, true);
+      hints.set(DecodeHintType.PURE_BARCODE, false); // Aceptar imágenes que no sean solo código
+
+      const codeReader = new BrowserMultiFormatReader(hints);
+      
+      // Configurar timeout para evitar que se quede pegado
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Tiempo de espera agotado')), 15000);
+      });
+
+      const decodePromise = codeReader.decodeFromImageUrl(imageUrl);
+      const result = await Promise.race([decodePromise, timeoutPromise]);
+      
+      if (result) {
+        const textoEscaneado = result.getText();
+        console.log("Código detectado en imagen:", textoEscaneado.substring(0, 100));
+        
+        // Procesar con tu función de parseo
+        procesarResultado(textoEscaneado);
+      } else {
+        setError('No se encontraron códigos de barras en la imagen.');
       }
 
-      // Cierra con Escape
-      if (key === "Escape") {
-        e.preventDefault();
-        e.stopPropagation();
-        onClose();
-        return;
-      }
-
-      // Ya no usamos F2/F3 para cambiar de modo (evita interferencia con scanners que envían <F2> en texto)
-      // Solo procesar en modo físico
-      if (activeMode !== "physical") return;
-
-      // Enter = fin de escaneo
-      if (key === "Enter") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (bufferRef.current.length > 0) procesarBuffer();
-        return;
-      }
-
-      // Distinguir velocidad de escáner
-      const isScannerSpeed = timeDiff < 50;
-      if (!isScannerSpeed && bufferRef.current.length === 0) {
-        return; // no interferir con escritura humana
-      }
-
-      // Carácter imprimible -> buffer
-      if (key.length === 1) {
-        e.preventDefault();
-        e.stopPropagation();
-        bufferRef.current += key;
-
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => {
-          if (bufferRef.current.length > 3) {
-            procesarBuffer();
+      URL.revokeObjectURL(imageUrl);
+    } catch (error) {
+      console.error('Error procesando archivo:', error);
+      
+      // Intentar con Tesseract OCR si ZXing falla (para imágenes más complejas)
+      if (error.message.includes('Tiempo de espera') || error.message.includes('No se pudo leer')) {
+        try {
+          setError('Intentando lectura OCR...');
+          
+          const imageUrl = URL.createObjectURL(file);
+          const { data: { text } } = await Tesseract.recognize(imageUrl, 'spa+eng', {
+            logger: m => console.log('OCR:', m.status),
+            tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz- ',
+          });
+          
+          URL.revokeObjectURL(imageUrl);
+          
+          // Buscar posibles códigos en el texto OCR
+          const regexCodigos = /\b\d{8,20}\b/g;
+          const matches = text.match(regexCodigos);
+          
+          if (matches && matches.length > 0) {
+            const codigoProbable = matches[0];
+            onScan({ tipo: "CODIGO_SIMPLE", codigo: codigoProbable });
+            onClose();
           } else {
-            bufferRef.current = "";
+            setError('No se pudo detectar ningún código. Asegúrese de que la imagen sea clara.');
           }
-        }, 250);
+        } catch (ocrError) {
+          console.error('Error OCR:', ocrError);
+          setError('No se pudo procesar la imagen. Intente con una imagen más clara.');
+        }
+      } else {
+        setError(`Error: ${error.message}`);
       }
-    };
-
-    window.addEventListener("keydown", handleKeyDown, { capture: true });
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown, { capture: true });
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      bufferRef.current = "";
-    };
-  }, [isOpen, activeMode, procesarBuffer, onClose]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const stopKeys = (e) => {
-      const key = e.key;
-      if (
-        key === "F5" ||
-        (e.ctrlKey && key.toLowerCase() === "r") ||
-        (e.metaKey && key.toLowerCase() === "r") ||
-        key === "Enter" ||
-        key === "Escape"
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
+    } finally {
+      setIsUploading(false);
+      setUploadedFileName('');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
-    };
-    window.addEventListener("keyup", stopKeys, { capture: true });
-    return () => window.removeEventListener("keyup", stopKeys, { capture: true });
-  }, [isOpen]);
+    }
+  };
 
-  const handleCameraScan = useCallback(
-    (text) => {
-      const resultado = parsearDatosEscaneados(limpiarBuffer(text));
-      if (resultado) {
-        onScan(resultado);
-        onClose();
-      }
-    },
-    [limpiarBuffer, onScan, onClose]
-  );
+  // --- MANEJO DE CÁMARA ---
+  const handleCameraScan = useCallback((text) => {
+    if (text) {
+      console.log("Cámara detectó:", text.substring(0, 100));
+      procesarResultado(text);
+    }
+  }, [procesarResultado]);
 
-  const initScanner = useCallback(() => {
+  const initScanner = useCallback(async () => {
     if (!scannerRef.current) return;
     try {
-      if (scanner) {
-        try {
-          scanner.clear();
-        } catch (e) {
-          console.log("Error limpiando scanner anterior:", e);
-        }
-      }
+      stopScanner();
 
       const hints = new Map();
       hints.set(DecodeHintType.POSSIBLE_FORMATS, [
         BarcodeFormat.PDF_417,
         BarcodeFormat.CODE_128,
-        BarcodeFormat.CODE_39,
+        BarcodeFormat.QR_CODE,
+        BarcodeFormat.EAN_8,
+        BarcodeFormat.EAN_13
       ]);
       hints.set(DecodeHintType.TRY_HARDER, true);
 
       const codeReader = new BrowserMultiFormatReader(hints);
       const videoElement = document.createElement("video");
-      videoElement.style.width = "100%";
-      videoElement.style.height = "100%";
-      videoElement.style.objectFit = "cover";
+      
+      Object.assign(videoElement.style, {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover"
+      });
 
       scannerRef.current.innerHTML = "";
       scannerRef.current.appendChild(videoElement);
 
-      navigator.mediaDevices
-        .getUserMedia({
-          video: { facingMode: isMobile ? "environment" : "user" },
-        })
-        .then((stream) => {
-          videoElement.srcObject = stream;
-          videoElement.play();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: isMobile ? "environment" : "user",
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
 
-          codeReader.decodeFromStream(stream, videoElement, (result) => {
-            if (result) {
-              handleCameraScan(result.getText());
-            }
-          });
+      videoElement.srcObject = stream;
+      videoElement.setAttribute("playsinline", true);
+      await videoElement.play();
 
-          setScanner({
-            clear: () => {
-              try {
-                stream.getTracks().forEach((t) => t.stop());
-                codeReader.reset();
-              } catch (e) {
-                console.log("Error deteniendo stream:", e);
-              }
-            },
-          });
-        })
-        .catch((err) => {
-          console.error("Error accediendo a cámara:", err);
-          setError("No se pudo acceder a la cámara. Verifique permisos.");
-        });
+      codeReader.decodeFromStream(stream, videoElement, (result, err) => {
+        if (result) {
+          handleCameraScan(result.getText());
+        }
+      });
+
+      setScanner({
+        clear: () => {
+          stream.getTracks().forEach(t => t.stop());
+          codeReader.reset();
+        }
+      });
+
     } catch (err) {
-      console.error("Error inicializando scanner:", err);
-      setError("Error inicializando librería de escáner.");
+      console.error("Error cámara:", err);
+      setError("No se pudo iniciar la cámara. Verifique permisos.");
     }
-  }, [scanner, isMobile, handleCameraScan]);
+  }, [isMobile, handleCameraScan]);
 
   const stopScanner = useCallback(() => {
     if (scanner) {
@@ -683,16 +690,65 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     }
   }, [scanner]);
 
+  // --- EFECTOS DE CONTROL ---
   useEffect(() => {
     if (isOpen && activeMode === "camera") {
-      const timer = setTimeout(initScanner, 300);
-      return () => {
-        clearTimeout(timer);
-        stopScanner();
-      };
+      const t = setTimeout(initScanner, 300);
+      return () => { clearTimeout(t); stopScanner(); };
+    }
+    if (isOpen && activeMode === "physical") {
+      physicalInputRef.current?.focus();
     }
     return () => stopScanner();
-  }, [isOpen, activeMode, initScanner, stopScanner]);
+  }, [isOpen, activeMode]);
+
+  // Manejo de entrada de escáner físico
+  useEffect(() => {
+    if (activeMode !== "physical" || !isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.target !== physicalInputRef.current) return;
+      
+      const now = Date.now();
+      const timeDiff = now - lastKeyTimeRef.current;
+      
+      // Si pasó más de 100ms desde la última tecla, reiniciar buffer
+      if (timeDiff > 100) {
+        bufferRef.current = "";
+      }
+      
+      lastKeyTimeRef.current = now;
+      
+      // Agregar caracter al buffer
+      if (e.key.length === 1) {
+        bufferRef.current += e.key;
+      }
+      
+      // Limpiar timeout anterior
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      // Establecer nuevo timeout para procesar
+      timeoutRef.current = setTimeout(() => {
+        if (bufferRef.current.length >= 5) {
+          procesarResultado(bufferRef.current);
+        }
+        bufferRef.current = "";
+      }, 50);
+    };
+
+    const inputElement = physicalInputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener('keydown', handleKeyDown);
+      return () => {
+        inputElement.removeEventListener('keydown', handleKeyDown);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    }
+  }, [isOpen, activeMode, procesarResultado]);
 
   if (!isOpen) return null;
 
@@ -700,7 +756,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <h2>Escanear Código de Barras</h2>
+          <h2>Escanear Código</h2>
           <button type="button" onClick={onClose} className={styles.closeButton}>
             <FontAwesomeIcon icon={faTimes} />
           </button>
@@ -724,6 +780,18 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
             onClick={() => setActiveMode("physical")}
           >
             <FontAwesomeIcon icon={faBarcode} /> Escáner Físico
+          </button>
+          <button
+            type="button"
+            className={`${styles.scannerTab} ${
+              activeMode === "upload" ? styles.activeTab : ""
+            }`}
+            onClick={() => {
+              setActiveMode("upload");
+              setError("");
+            }}
+          >
+            <FontAwesomeIcon icon={faUpload} /> Subir Imagen
           </button>
         </div>
 
@@ -752,10 +820,12 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                     style={{ minHeight: "300px", background: "#000" }}
                   />
                   <div className={styles.scannerOverlay}>
-                    <p className={styles.scannerHint}>Enfoca el código</p>
+                    <p className={styles.scannerHint}>
+                      Enfoca el código de barras de la cédula o escarapela
+                    </p>
                   </div>
                 </>
-              ) : (
+              ) : activeMode === "physical" ? (
                 <div
                   className={styles.physicalScannerContainer}
                   onClick={() => physicalInputRef.current?.focus()}
@@ -770,10 +840,9 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                       LISTO PARA ESCANEAR
                     </span>
                     <br />
-                    No es necesario hacer clic, solo usa el lector.
+                    Escanee la cédula o escarapela
                   </p>
 
-                  {/* INPUT TRAMPA */}
                   <input
                     ref={physicalInputRef}
                     type="text"
@@ -787,7 +856,70 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                   />
 
                   <div className={styles.scannerStatus}>
-                    <small>Detectando entrada de teclado...</small>
+                    <small>Detectando entrada del escáner...</small>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.uploadContainer}>
+                  <div className={styles.uploadIcon}>
+                    <FontAwesomeIcon icon={faFile} size="5x" />
+                  </div>
+                  <h3>Subir Imagen para Escanear</h3>
+                  <p className={styles.uploadInstructions}>
+                    Suba una foto del código de barras de:
+                    <br />
+                    • Cédula colombiana (parte posterior)
+                    <br />
+                    • Escarapela o carnet
+                  </p>
+                  
+                  <div className={styles.uploadArea}>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      id="barcode-file"
+                      accept=".jpg,.jpeg,.png,.webp"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className={styles.fileInput}
+                    />
+                    <label 
+                      htmlFor="barcode-file" 
+                      className={`${styles.uploadButton} ${isUploading ? styles.uploading : ''}`}
+                    >
+                      {isUploading ? (
+                        <>
+                          <FontAwesomeIcon icon={faSyncAlt} spin />
+                          <span>Procesando imagen...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={faUpload} />
+                          <span>Seleccionar Imagen</span>
+                        </>
+                      )}
+                    </label>
+                    
+                    {uploadedFileName && !isUploading && (
+                      <div className={styles.fileInfo}>
+                        <FontAwesomeIcon icon={faFile} />
+                        <span>{uploadedFileName}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className={styles.supportedFormats}>
+                    <small>Formatos: JPG, PNG, WEBP</small>
+                    <br />
+                    <small>Máximo: 10MB</small>
+                    <br />
+                    <small>Recomendaciones:</small>
+                    <br />
+                    <small>- Buena iluminación</small>
+                    <br />
+                    <small>- Enfocar bien el código</small>
+                    <br />
+                    <small>- Sin reflejos ni sombras</small>
                   </div>
                 </div>
               )}
@@ -804,8 +936,6 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     </div>
   );
 };
-
-
 
 // ============================================================================
 // COMPONENTE: PhotoModal
@@ -1866,86 +1996,7 @@ const GestionVisitantes = () => {
                 )}
               </div>
 
-              {/* Sección de documentos */}
-              <div style={{ marginTop: "20px", padding: "0 10px" }}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    Foto Cédula (Lectura Automática)
-                    {isProcessing && (
-                      <span style={{ marginLeft: 10, color: "blue" }}>
-                        Procesando...{" "}
-                        <FontAwesomeIcon icon={faSyncAlt} spin />
-                      </span>
-                    )}
-                  </label>
-                  <div className={styles.uploadContainer}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileSelect(e, "foto_cedula")}
-                      id="upload-cedula"
-                      className={styles.fileInput}
-                      disabled={isProcessing}
-                    />
-                    <label
-                      htmlFor="upload-cedula"
-                      className={`${styles.uploadLabel} ${
-                        documentos.foto_cedula ? styles.fileUploaded : ""
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faUpload} />
-                      {documentos.foto_cedula
-                        ? "Cambiar Imagen"
-                        :  "Subir Cédula (Frente o Reverso)"}
-                    </label>
-                  </div>
-                  {documentos.foto_cedula && (
-                    <div style={{ marginTop: 5 }}>
-                      <img
-                        src={documentos.foto_cedula}
-                        alt="Preview"
-                        style={{ height: 60, borderRadius: 4 }}
-                      />
-                    </div>
-                  )}
-                                </div>
-
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    Foto Escarapela / Carnet
-                  </label>
-                  <div className={styles.uploadContainer}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileSelect(e, "foto_escarapela")}
-                      id="upload-escarapela"
-                      className={styles.fileInput}
-                    />
-                    <label
-                      htmlFor="upload-escarapela"
-                      className={`${styles.uploadLabel} ${
-                        documentos.foto_escarapela ?  styles.fileUploaded : ""
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faIdCard} />
-                      {documentos. foto_escarapela
-                        ?  "Cambiar Escarapela"
-                        : "Subir Escarapela"}
-                    </label>
-                  </div>
-                  {documentos.foto_escarapela && (
-                    <div style={{ marginTop: 5 }}>
-                      <img
-                        src={documentos.foto_escarapela}
-                        alt="Preview Escarapela"
-                        style={{ height: 60, borderRadius: 4 }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
+              
               <div className={styles.formActions}>
                 <button
                   className={styles.saveButton}
