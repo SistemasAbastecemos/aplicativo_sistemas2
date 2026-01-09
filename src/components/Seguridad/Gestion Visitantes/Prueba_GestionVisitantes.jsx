@@ -15,7 +15,7 @@ import {
   BarcodeFormat,
   DecodeHintType,
 } from "@zxing/library";
-// Asegúrate de que esta línea esté presente:
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -44,11 +44,9 @@ import {
 import styles from "./GestionVisitantes.module.css";
 import debounce from "lodash/debounce";
 import Tesseract from "tesseract.js";
+
 // ============================================================================
-// FUNCIÓN UNIFICADA DE PARSING - Reemplaza todas las anteriores
-// ============================================================================
-// ============================================================================
-// FUNCIÓN UNIFICADA DE PARSING - VERSIÓN CORREGIDA PARA CÉDULAS COLOMBIANAS
+// FUNCIÓN UNIFICADA DE PARSING - VERSIÓN PARA CÉDULAS COLOMBIANAS
 // ============================================================================
 const parsearDatosEscaneados = (rawData) => {
   if (!rawData || rawData.length < 5) return null;
@@ -164,7 +162,13 @@ const parsearDatosEscaneados = (rawData) => {
           }
       }
 
-      console.log("Resultado Final:", { cedula, apellidos, nombres, fechaNacimiento });
+      console.log("Resultado Final:", { 
+        cedula, 
+        apellidos, 
+        nombres, 
+        fechaNacimiento,
+        fecha_nacimiento: fechaNacimiento // Agregar para debug
+      });
 
       return {
         tipo: "CEDULA_COLOMBIANA",
@@ -172,7 +176,7 @@ const parsearDatosEscaneados = (rawData) => {
         apellidos: apellidos,
         nombres: nombres,
         nombresCompletos: nombresCompletosRaw,
-        fecha_nacimiento: fechaNacimiento,
+        fecha_nacimiento: fechaNacimiento, // ¡CAMBIADO A SNAKE_CASE!
         genero: genero
       };
 
@@ -184,7 +188,10 @@ const parsearDatosEscaneados = (rawData) => {
   // --- LÓGICA SECUNDARIA PARA CÉDULAS SIN FORMATO PDF417 COMPLETO ---
   const codigoLimpio = cleanData.replace(/[^a-zA-Z0-9]/g, "");
   if (/^\d{8,10}$/.test(codigoLimpio)) {
-    return { tipo: "CEDULA_SIMPLE", cedula: codigoLimpio };
+    return { 
+      tipo: "CEDULA_SIMPLE", 
+      cedula: codigoLimpio 
+    };
   }
 
   return null;
@@ -453,7 +460,7 @@ const FloatingTextarea = React.memo(
 
 
 // ============================================================================
-// COMPONENTE: ScannerModal (ACTUALIZADO PARA CÉDULA COLOMBIANA)
+// COMPONENTE: ScannerModal  PARA CÉDULA COLOMBIANA
 // ============================================================================
 const ScannerModal = ({ isOpen, onClose, onScan }) => {
   const scannerRef = useRef(null);
@@ -490,19 +497,134 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
   }, []);
 
   // --- PROCESADOR CENTRAL DE DATOS ---
-  const procesarResultado = useCallback((rawText) => {
-    const dataLimpia = limpiarBuffer(rawText);
-    if (!dataLimpia || dataLimpia.length < 5) return;
+  const procesarBuffer = useCallback(() => {
+    const raw = bufferRef.current;
+    bufferRef.current = "";
+    
 
-    const resultado = parsearDatosEscaneados(dataLimpia);
+    const data = limpiarBuffer(raw);
+
+    
+    if (!data || data.length < 3) {
+      console.log("Buffer demasiado corto, ignorando");
+      return;
+    }
+
+    const resultado = parsearDatosEscaneados(data);
+
     
     if (resultado) {
       onScan(resultado);
     } else {
-      onScan({ tipo: "CODIGO_SIMPLE", codigo: dataLimpia });
+      onScan({ tipo: "CODIGO_SIMPLE", codigo: data });
     }
     onClose();
   }, [limpiarBuffer, onScan, onClose]);
+
+  // --- MANEJO DE ESCÁNER FÍSICO  ---
+  useEffect(() => {
+    if (!isOpen || activeMode !== "physical") return;
+
+    const handleKeyDown = (e) => {
+      const key = e.key;
+      const now = Date.now();
+      const timeDiff = now - lastKeyTimeRef.current;
+      lastKeyTimeRef.current = now;
+
+
+
+      // Bloquea recarga y navegación
+      if (
+        key === "F5" ||
+        (e.ctrlKey && key.toLowerCase() === "r") ||
+        (e.metaKey && key.toLowerCase() === "r")
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      // Cierra con Escape
+      if (key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+
+      // Solo procesar en modo físico
+      if (activeMode !== "physical") return;
+
+      // Enter = fin de escaneo
+      if (key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Enter presionado, buffer actual:", bufferRef.current);
+        if (bufferRef.current.length > 0) procesarBuffer();
+        return;
+      }
+
+      // Distinguir velocidad de escáner vs escritura humana
+      const isScannerSpeed = timeDiff < 50; // Escáneres son más rápidos
+      console.log("isScannerSpeed:", isScannerSpeed, "buffer length:", bufferRef.current.length);
+
+      if (!isScannerSpeed && bufferRef.current.length === 0) {
+        console.log("Velocidad lenta, ignorando tecla inicial");
+        return; // no interferir con escritura humana
+      }
+
+      // Carácter imprimible -> buffer
+      if (key.length === 1) {
+        e.preventDefault();
+        e.stopPropagation();
+        bufferRef.current += key;
+        console.log("Buffer actualizado:", bufferRef.current);
+
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+          console.log("Timeout disparado, procesando buffer:", bufferRef.current);
+          if (bufferRef.current.length > 3) {
+            procesarBuffer();
+          } else {
+            console.log("Buffer demasiado corto, limpiando");
+            bufferRef.current = "";
+          }
+        }, 250);
+      }
+    };
+
+    // Usar window.addEventListener con capture: true
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      bufferRef.current = "";
+    };
+  }, [isOpen, activeMode, procesarBuffer, onClose]);
+
+  // Prevenir comportamiento por defecto de teclas
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const stopKeys = (e) => {
+      const key = e.key;
+      if (
+        key === "F5" ||
+        (e.ctrlKey && key.toLowerCase() === "r") ||
+        (e.metaKey && key.toLowerCase() === "r") ||
+        key === "Enter" ||
+        key === "Escape"
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+    
+    window.addEventListener("keyup", stopKeys, { capture: true });
+    return () => window.removeEventListener("keyup", stopKeys, { capture: true });
+  }, [isOpen]);
 
   // --- MANEJO DE SUBIDA DE ARCHIVOS ---
   const handleFileUpload = async (event) => {
@@ -551,7 +673,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
         BarcodeFormat.DATA_MATRIX
       ]);
       hints.set(DecodeHintType.TRY_HARDER, true);
-      hints.set(DecodeHintType.PURE_BARCODE, false); // Aceptar imágenes que no sean solo código
+      hints.set(DecodeHintType.PURE_BARCODE, false);
 
       const codeReader = new BrowserMultiFormatReader(hints);
       
@@ -565,10 +687,19 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
       
       if (result) {
         const textoEscaneado = result.getText();
-        console.log("Código detectado en imagen:", textoEscaneado.substring(0, 100));
+        console.log("Código detectado en imagen:", textoEscaneado.substring(0, 200));
         
-        // Procesar con tu función de parseo
-        procesarResultado(textoEscaneado);
+        // Procesar el resultado
+        const dataLimpia = limpiarBuffer(textoEscaneado);
+        const resultado = parsearDatosEscaneados(dataLimpia);
+        
+        if (resultado) {
+          onScan(resultado);
+          onClose();
+        } else {
+          onScan({ tipo: "CODIGO_SIMPLE", codigo: dataLimpia });
+          onClose();
+        }
       } else {
         setError('No se encontraron códigos de barras en la imagen.');
       }
@@ -577,7 +708,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     } catch (error) {
       console.error('Error procesando archivo:', error);
       
-      // Intentar con Tesseract OCR si ZXing falla (para imágenes más complejas)
+      // Intentar con Tesseract OCR si ZXing falla
       if (error.message.includes('Tiempo de espera') || error.message.includes('No se pudo leer')) {
         try {
           setError('Intentando lectura OCR...');
@@ -618,70 +749,82 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
   };
 
   // --- MANEJO DE CÁMARA ---
-  const handleCameraScan = useCallback((text) => {
-    if (text) {
-      console.log("Cámara detectó:", text.substring(0, 100));
-      procesarResultado(text);
-    }
-  }, [procesarResultado]);
+  const handleCameraScan = useCallback(
+    (text) => {
+      console.log("Cámara detectó:", text.substring(0, 200));
+      const dataLimpia = limpiarBuffer(text);
+      const resultado = parsearDatosEscaneados(dataLimpia);
+      if (resultado) {
+        onScan(resultado);
+        onClose();
+      }
+    },
+    [limpiarBuffer, onScan, onClose]
+  );
 
-  const initScanner = useCallback(async () => {
+  const initScanner = useCallback(() => {
     if (!scannerRef.current) return;
     try {
-      stopScanner();
+      if (scanner) {
+        try {
+          scanner.clear();
+        } catch (e) {
+          console.log("Error limpiando scanner anterior:", e);
+        }
+      }
 
       const hints = new Map();
       hints.set(DecodeHintType.POSSIBLE_FORMATS, [
         BarcodeFormat.PDF_417,
         BarcodeFormat.CODE_128,
+        BarcodeFormat.CODE_39,
         BarcodeFormat.QR_CODE,
-        BarcodeFormat.EAN_8,
-        BarcodeFormat.EAN_13
       ]);
       hints.set(DecodeHintType.TRY_HARDER, true);
 
       const codeReader = new BrowserMultiFormatReader(hints);
       const videoElement = document.createElement("video");
-      
-      Object.assign(videoElement.style, {
-        width: "100%",
-        height: "100%",
-        objectFit: "cover"
-      });
+      videoElement.style.width = "100%";
+      videoElement.style.height = "100%";
+      videoElement.style.objectFit = "cover";
 
       scannerRef.current.innerHTML = "";
       scannerRef.current.appendChild(videoElement);
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: isMobile ? "environment" : "user",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
+      navigator.mediaDevices
+        .getUserMedia({
+          video: { facingMode: isMobile ? "environment" : "user" },
+        })
+        .then((stream) => {
+          videoElement.srcObject = stream;
+          videoElement.play();
 
-      videoElement.srcObject = stream;
-      videoElement.setAttribute("playsinline", true);
-      await videoElement.play();
+          codeReader.decodeFromStream(stream, videoElement, (result) => {
+            if (result) {
+              handleCameraScan(result.getText());
+            }
+          });
 
-      codeReader.decodeFromStream(stream, videoElement, (result, err) => {
-        if (result) {
-          handleCameraScan(result.getText());
-        }
-      });
-
-      setScanner({
-        clear: () => {
-          stream.getTracks().forEach(t => t.stop());
-          codeReader.reset();
-        }
-      });
-
+          setScanner({
+            clear: () => {
+              try {
+                stream.getTracks().forEach((t) => t.stop());
+                codeReader.reset();
+              } catch (e) {
+                console.log("Error deteniendo stream:", e);
+              }
+            },
+          });
+        })
+        .catch((err) => {
+          console.error("Error accediendo a cámara:", err);
+          setError("No se pudo acceder a la cámara. Verifique permisos.");
+        });
     } catch (err) {
-      console.error("Error cámara:", err);
-      setError("No se pudo iniciar la cámara. Verifique permisos.");
+      console.error("Error inicializando scanner:", err);
+      setError("Error inicializando librería de escáner.");
     }
-  }, [isMobile, handleCameraScan]);
+  }, [scanner, isMobile, handleCameraScan]);
 
   const stopScanner = useCallback(() => {
     if (scanner) {
@@ -693,62 +836,27 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
   // --- EFECTOS DE CONTROL ---
   useEffect(() => {
     if (isOpen && activeMode === "camera") {
-      const t = setTimeout(initScanner, 300);
-      return () => { clearTimeout(t); stopScanner(); };
-    }
-    if (isOpen && activeMode === "physical") {
-      physicalInputRef.current?.focus();
-    }
-    return () => stopScanner();
-  }, [isOpen, activeMode]);
-
-  // Manejo de entrada de escáner físico
-  useEffect(() => {
-    if (activeMode !== "physical" || !isOpen) return;
-
-    const handleKeyDown = (e) => {
-      if (e.target !== physicalInputRef.current) return;
-      
-      const now = Date.now();
-      const timeDiff = now - lastKeyTimeRef.current;
-      
-      // Si pasó más de 100ms desde la última tecla, reiniciar buffer
-      if (timeDiff > 100) {
-        bufferRef.current = "";
-      }
-      
-      lastKeyTimeRef.current = now;
-      
-      // Agregar caracter al buffer
-      if (e.key.length === 1) {
-        bufferRef.current += e.key;
-      }
-      
-      // Limpiar timeout anterior
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      
-      // Establecer nuevo timeout para procesar
-      timeoutRef.current = setTimeout(() => {
-        if (bufferRef.current.length >= 5) {
-          procesarResultado(bufferRef.current);
-        }
-        bufferRef.current = "";
-      }, 50);
-    };
-
-    const inputElement = physicalInputRef.current;
-    if (inputElement) {
-      inputElement.addEventListener('keydown', handleKeyDown);
+      const timer = setTimeout(initScanner, 300);
       return () => {
-        inputElement.removeEventListener('keydown', handleKeyDown);
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
+        clearTimeout(timer);
+        stopScanner();
       };
     }
-  }, [isOpen, activeMode, procesarResultado]);
+    return () => stopScanner();
+  }, [isOpen, activeMode, initScanner, stopScanner]);
+
+  // Enfocar el input cuando se cambia a modo físico
+  useEffect(() => {
+    if (isOpen && activeMode === "physical") {
+      const focusTrap = () => physicalInputRef.current?.focus();
+      const t1 = setTimeout(focusTrap, 100);
+      const t2 = setTimeout(focusTrap, 500);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
+    }
+  }, [isOpen, activeMode]);
 
   if (!isOpen) return null;
 
@@ -843,6 +951,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                     Escanee la cédula o escarapela
                   </p>
 
+                  {/* INPUT TRAMPA */}
                   <input
                     ref={physicalInputRef}
                     type="text"
