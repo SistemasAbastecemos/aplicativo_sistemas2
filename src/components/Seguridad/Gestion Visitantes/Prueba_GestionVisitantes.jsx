@@ -567,40 +567,32 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
   }, [isOpen]);
 
   // --- MANEJO DE ESCÁNER FÍSICO CON BLOQUEO AGRESIVO ---
+ // DENTRO DE ScannerModal
+
+  // --- MANEJO DE ESCÁNER FÍSICO CON BLOQUEO SUPREMO ---
   useEffect(() => {
     if (!isOpen || activeMode !== "physical") return;
 
     const handleKeyDown = (e) => {
       const key = e.key;
       
-      // 1. BLOQUEO DE SEGURIDAD (ANTI-COMANDOS / ANTI-LOCURA)
-      // Bloqueamos F1-F12, Tabs, Alt, Ctrl, Meta, Escape, Backspace (si no estamos escribiendo en input)
-      if (
-        key.startsWith("F") || // F1 (Ayuda), F5 (Refresh), F12, etc.
-        key === "Tab" || 
-        key === "Alt" || 
-        key === "Control" || 
-        key === "Meta" || 
-        key === "ContextMenu" ||
-        key === "Escape" ||
-        (key === "Backspace" && e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA")
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation(); // Detiene al navegador de hacer cualquier cosa
-        return false;
-      }
+      // 1. LISTA NEGRA EXTENDIDA
+      // Bloqueamos cualquier tecla de función o control que pueda causar navegación
+      const forbiddenKeys = [
+        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
+        "Tab", "Alt", "Control", "Meta", "ContextMenu", "Escape", "Home", "End", "PageUp", "PageDown"
+      ];
 
-      // Bloquear combinaciones (Ctrl+R, Ctrl+F, Alt+Left, etc.)
-      if (e.ctrlKey || e.altKey || e.metaKey) {
+      // Detectar si es una tecla prohibida o una combinación (Ctrl+P, etc)
+      if (forbiddenKeys.includes(key) || e.ctrlKey || e.altKey || e.metaKey) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
         return false;
       }
 
-      // 2. LÓGICA DE CAPTURA
-      // Enter suele marcar el final del código de barras
+      // 2. LOGICA DE ENTRADA
+      // Si es Enter, procesamos
       if (key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
@@ -610,33 +602,45 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
         return;
       }
 
-      // Si es un caracter imprimible (letra, número, símbolo)
+      // 3. CAPTURA DE CARACTERES
+      // Solo aceptamos caracteres imprimibles de longitud 1
       if (key.length === 1) {
-        e.preventDefault(); // IMPORTANTE: Evita que escriba en inputs ajenos o active menús
-        e.stopPropagation();
+        // IMPORTANTE: Evitamos que el evento llegue al navegador
+        // Esto evita que 'f' active búsquedas o espacios hagan scroll
+        e.preventDefault(); 
         
+        // Acumulamos en el buffer manual
         bufferRef.current += key;
 
+        // Limpieza de buffer automática (debounce)
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         
-        // Timeout generoso para códigos largos (Cédula Antigua es muy larga)
+        // Aumentamos el tiempo de espera a 200ms por si el lector es lento
         timeoutRef.current = setTimeout(() => {
-          if (bufferRef.current.length >= 8) {
+          if (bufferRef.current.length >= 7) {
             procesarBuffer();
           }
-        }, 500); 
+        }, 300); 
       }
     };
 
-    // Usar { capture: true } para interceptar el evento ANTES que el navegador
-    window.addEventListener("keydown", handleKeyDown, { capture: true });
+    // USAR { capture: true } ES CRÍTICO
+    // Esto hace que React/JS escuche el evento antes que el comportamiento nativo del navegador
+    window.addEventListener("keydown", handleKeyDown, { capture: true, passive: false });
+
+    // Asegurar foco en el input trampa constantemente
+    const focusInterval = setInterval(() => {
+        if (physicalInputRef.current) {
+            physicalInputRef.current.focus({ preventScroll: true });
+        }
+    }, 500);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown, { capture: true });
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      clearInterval(focusInterval);
     };
   }, [isOpen, activeMode, procesarBuffer]);
-
   // --- INPUT TRAMPA MEJORADO ---
   useEffect(() => {
     if (isOpen && activeMode === "physical" && physicalInputRef.current) {
