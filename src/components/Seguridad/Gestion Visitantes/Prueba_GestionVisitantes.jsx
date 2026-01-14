@@ -1,53 +1,54 @@
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
+import { apiService } from "../../../services/api";
+import { useNotification } from "../../../contexts/NotificationContext";
+import LoadingScreen from "../../UI/LoadingScreen";
+import { useAuth } from "../../../contexts/AuthContext";
+import Webcam from "react-webcam";
 import {
-  BarcodeFormat,
   BrowserMultiFormatReader,
+  BarcodeFormat,
   DecodeHintType,
 } from "@zxing/library";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import Webcam from "react-webcam";
-import { useAuth } from "../../../contexts/AuthContext";
-import { useNotification } from "../../../contexts/NotificationContext";
-import { apiService } from "../../../services/api";
-import LoadingScreen from "../../UI/LoadingScreen";
-import { APELLIDOS_COLOMBIANOS } from "../../../utils/apellidos_colombianos.js";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faBarcode,
-  faCalendar,
-  faCamera,
-  faCaretDown,
+  faSearch,
+  faUserPlus,
+  faIdCard,
+  faHistory,
+  faSyncAlt,
+  faEdit,
   faCheckCircle,
   faClock,
-  faEdit,
-  faEnvelope,
-  faFile,
-  faFilter,
-  faHistory,
-  faIdCard,
-  faMapMarkerAlt,
-  faPhone,
-  faQrcode,
-  faSearch,
-  faSignOutAlt,
-  faStickyNote,
-  faSyncAlt,
-  faTimes,
   faTruckLoading,
+  faSignOutAlt,
+  faFilter,
+  faQrcode,
+  faCamera,
+  faTimes,
   faUpload,
-  faUserPlus,
+  faBarcode,
+  faCalendar,
+  faPhone,
+  faEnvelope,
+  faMapMarkerAlt,
+  faStickyNote,
+  faFile,
+  faCaretDown,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import styles from "./GestionVisitantes.module.css";
 import debounce from "lodash/debounce";
 import Tesseract from "tesseract.js";
-import styles from "./GestionVisitantes.module.css";
+import { APELLIDOS_COLOMBIANOS } from "../../../utils/apellidos_colombianos"; // Asegúrate de que esta ruta sea correcta
 
 // ============================================================================
-// FUNCIÓN UNIFICADA DE PARSING - LÓGICA SEPARADA Y ESTRICTA
+// FUNCIÓN UNIFICADA DE PARSING - ESTRATEGIA "SÁNDWICH" (ANCLAJE)
 // ============================================================================
 const parsearDatosEscaneados = (rawData) => {
   if (!rawData || rawData.length < 5) return null;
@@ -55,186 +56,171 @@ const parsearDatosEscaneados = (rawData) => {
   console.log("=== INICIANDO PARSEO ===");
 
   // 1. LIMPIEZA INICIAL
-  // Necesitamos una versión limpia donde la basura sea espacios
   let cleanData = "";
   for (let i = 0; i < rawData.length; i++) {
     const charCode = rawData.charCodeAt(i);
-    // Letras, números, espacio, Ñ, guiones y símbolos básicos
-    if ((charCode >= 32 && charCode <= 126) || charCode === 209 || charCode === 241) {
+    // Dejar pasar solo lo útil: Letras, Números, Ñ, Espacios y Guiones
+    if ((charCode >= 48 && charCode <= 57) || // 0-9
+        (charCode >= 65 && charCode <= 90) || // A-Z
+        (charCode >= 97 && charCode <= 122) || // a-z
+        charCode === 209 || charCode === 241 || // Ñ
+        charCode === 32) { // Espacio
       cleanData += rawData[i];
     } else {
+      // Cualquier símbolo raro se vuelve espacio
       cleanData += " ";
     }
   }
-
-  // Normalizamos espacios para facilitar regex, pero guardamos cleanData original por si acaso
+  // Normalizar espacios (quita dobles espacios)
   const dataNormalizada = cleanData.replace(/\s+/g, " ").trim();
   console.log("Data Normalizada:", dataNormalizada);
-
-
-  // ========================================================================
-  // CASO 1: CÉDULA DIGITAL (Policarbonato)
-  // CRITERIO: Contiene "PubDSK" (puede venir como PubDSK_1, PubDSK7, etc. por errores de lectura)
-  // ========================================================================
+  
+  // ==========================================
+  // CASO 1: CÉDULA DIGITAL (PubDSK)
+  // ==========================================
   if (dataNormalizada.includes("PubDSK") || rawData.includes("PubDSK")) {
-    console.log("-> DETECTADO: Cédula Digital (Lógica de Apellidos Pegados)");
-    
-    try {
-      // Buscamos "PubDSK" y tomamos lo que sigue
-      const indexAnchor = cleanData.indexOf("PubDSK");
-      // Ajustamos el offset. PubDSK_1 son 8 chars, pero a veces el lector se come el _1.
-      // Sumamos 6 (PubDSK) y buscamos el inicio de la trama útil.
-      let tramaUtil = cleanData.substring(indexAnchor + 6);
-      
-      // A veces queda basura pegada al inicio ("_1" o "7" etc), limpiamos hasta encontrar números
-      // La trama digital empieza con NumTarjeta(8-10) + NumCedula(10)
-      const matchInicio = tramaUtil.match(/.*?(\d{15,25})/); // Buscamos bloque largo de números
-      
-      if (!matchInicio) return null;
-
-      // Reconstruimos la trama desde los números encontrados
-      const bloqueNumerico = matchInicio[1];
-      const indexNumeros = tramaUtil.indexOf(bloqueNumerico);
-      tramaUtil = tramaUtil.substring(indexNumeros);
-
-      // Ahora aplicamos Regex para sacar: Numeros + LetrasPegadas + (0/espacio) + Genero + Fecha
-      const regexDigital = /^(\d+)([A-ZÑ]+)(?:0|\s|1)?([MF])(\d{8})/;
-      const match = tramaUtil.match(regexDigital);
-
-      if (match) {
-        const numerosCompletos = match[1];
-        // La cédula son los últimos 10 dígitos de la parte numérica
-        const cedula = parseInt(numerosCompletos.slice(-10), 10).toString();
+     console.log("-> DETECTADO: Cédula Digital");
+     try {
+        const indexAnchor = cleanData.indexOf("PubDSK");
+        // Ajuste de offset (+6 chars de PubDSK)
+        let tramaUtil = cleanData.substring(indexAnchor + 6);
         
-        const nombresPegados = match[2]; // MARQUEZSEPULVEDADANIEL
-        const genero = match[3];
-        const f = match[4];
-        const fechaNacimiento = `${f.substring(0, 4)}-${f.substring(4, 6)}-${f.substring(6, 8)}`;
+        // Buscar el inicio numérico real
+        const matchInicio = tramaUtil.match(/.*?(\d{15,25})/);
+        if (matchInicio) {
+            tramaUtil = tramaUtil.substring(tramaUtil.indexOf(matchInicio[1]));
+            
+            // Regex Digital Estricta
+            const regexDigital = /^(\d+)([A-ZÑ]+)(?:0|\s|1)?([MF])(\d{8})/;
+            const match = tramaUtil.match(regexDigital);
+            
+            if (match) {
+                const cedula = parseInt(match[1].slice(-10), 10).toString();
+                const nombresPegados = match[2];
+                const genero = match[3];
+                const f = match[4];
+                const fechaNacimiento = `${f.substring(0, 4)}-${f.substring(4, 6)}-${f.substring(6, 8)}`;
+                
+                // Lógica de separación con APELLIDOS_COLOMBIANOS
+                let apellidos = "";
+                let nombres = "";
+                let resto = nombresPegados;
+                let foundAp1 = false;
+                
+                if (typeof APELLIDOS_COLOMBIANOS !== 'undefined') {
+                    for (const ap of APELLIDOS_COLOMBIANOS) {
+                        if (resto.startsWith(ap)) { apellidos += ap; resto = resto.substring(ap.length); foundAp1 = true; break; }
+                    }
+                    if (foundAp1) {
+                        for (const ap of APELLIDOS_COLOMBIANOS) {
+                            if (resto.startsWith(ap)) { apellidos += " " + ap; resto = resto.substring(ap.length); break; }
+                        }
+                        nombres = resto;
+                    } else { apellidos = nombresPegados; nombres = ""; }
+                } else {
+                    apellidos = nombresPegados;
+                }
 
-        // --- SEPARACIÓN DE NOMBRES PEGADOS (Usando tu lista) ---
-        let apellidos = "";
-        let nombres = "";
-        let resto = nombresPegados;
-        let foundAp1 = false;
-
-        // Buscar Primer Apellido
-        for (const ap of APELLIDOS_COLOMBIANOS) {
-          if (resto.startsWith(ap)) {
-            apellidos += ap;
-            resto = resto.substring(ap.length);
-            foundAp1 = true;
-            break; 
-          }
+                return {
+                    tipo: "CEDULA_DIGITAL",
+                    cedula, apellidos: apellidos.trim(), nombres: nombres.trim(), nombresCompletos: nombresPegados, fecha_nacimiento: fechaNacimiento, genero
+                };
+            }
         }
-        
-        if (foundAp1) {
-           // Buscar Segundo Apellido
-           for (const ap of APELLIDOS_COLOMBIANOS) {
-              if (resto.startsWith(ap)) {
-                  apellidos += " " + ap;
-                  resto = resto.substring(ap.length);
-                  break; 
-              }
-           }
-           nombres = resto; // El resto son nombres
-        } else {
-           apellidos = nombresPegados; // Fallback
-           nombres = "";
-        }
-
-        return {
-          tipo: "CEDULA_DIGITAL",
-          cedula,
-          apellidos: apellidos.trim(),
-          nombres: nombres.trim(),
-          nombresCompletos: nombresPegados,
-          fecha_nacimiento: fechaNacimiento,
-          genero
-        };
-      }
-    } catch (e) {
-      console.error("Error Digital:", e);
-    }
+     } catch (e) { console.error("Error Digital:", e); }
   }
 
-  // ========================================================================
+  // ==========================================
   // CASO 2: CÉDULA ANTIGUA (Hologramas)
-  // CRITERIO: NO tiene PubDSK. Tiene espacios entre palabras.
-  // PROBLEMA ESPECÍFICO: A veces el NumCédula y Apellido1 vienen pegados.
-  // ========================================================================
-  console.log("-> DETECTADO: Cédula Antigua (Lógica Posicional/Espacios)");
+  // ESTRATEGIA: "SÁNDWICH" (Lo que está entre la Cédula y el Género es el Nombre)
+  // ==========================================
+  console.log("-> DETECTADO: Cédula Antigua (Estrategia Ancla Final)");
 
-  // Regex explicada para el caso "14572367CATAO BOLIVAR ANDRES..."
-  // 1. (\d{7,15})        -> Captura Cédula (y basura numérica anterior)
-  // 2. (?=[A-ZÑ])        -> Lookahead: Asegura que sigue una letra INMEDIATAMENTE
-  // 3. ([A-ZÑ]+)         -> Apellido 1 (CATAO) - Pegado al número
-  // 4. \s+               -> Espacio OBLIGATORIO (porque la antigua separa apellidos con espacios)
-  // 5. ([A-ZÑ]+)         -> Apellido 2 (BOLIVAR)
-  // 6. \s+               -> Espacio
-  // 7. ([A-ZÑ]+)         -> Nombre 1 (ANDRES)
-  // 8. (?:.*?)           -> Basura intermedia
-  // 9. 0([MF])           -> Cero + Genero (Clave para encontrar el final)
-  // 10. (\d{8})          -> Fecha
-
-  const regexAntigua = /(\d{7,15})(?=[A-ZÑ])([A-ZÑ]+)\s+([A-ZÑ]+)\s+([A-ZÑ]+)(?:\s+([A-ZÑ]+))?.*?0([MF])(\d{8})/;
+  // Regex Explicada:
+  // 1. (\d{7,15})       -> Busca el bloque numérico inicial (Cédula + basura)
+  // 2. \s*              -> 0 o más espacios (Cubre si está pegado o separado)
+  // 3. ([A-ZÑ\s]+?)     -> CAPTURA TODO EL TEXTO (Nombres y Apellidos revueltos). "?" lo hace no-codicioso.
+  // 4. \s*              -> Espacios opcionales antes del género
+  // 5. 0([MF])          -> EL ANCLA FINAL: Un cero seguido de M o F.
+  // 6. (\d{8})          -> La fecha.
   
-  const matchAntigua = dataNormalizada.match(regexAntigua);
+  const regexSandwich = /(\d{7,15})\s*([A-ZÑ\s]+?)\s*0([MF])(\d{8})/;
+  
+  const match = dataNormalizada.match(regexSandwich);
 
-  if (matchAntigua) {
+  if (match) {
     try {
-      let cedulaRaw = matchAntigua[1];
-      // Limpieza de cédula (tomar max 10 digitos del final)
+      // 1. Cédula
+      let cedulaRaw = match[1];
       if (cedulaRaw.length > 10) cedulaRaw = cedulaRaw.slice(-10);
       const cedula = parseInt(cedulaRaw, 10).toString();
 
-      const ap1 = matchAntigua[2];
-      const ap2 = matchAntigua[3];
-      const nom1 = matchAntigua[4];
-      const nom2 = matchAntigua[5] || ""; // Opcional
-      const genero = matchAntigua[6];
-      const f = matchAntigua[7];
+      // 2. Nombres Completos (Todo el sándwich de texto)
+      const textoNombres = match[2].trim(); 
+      // Ejemplo: "CATAO BOLIVAR ANDRES FELIPE"
       
+      // 3. Género y Fecha
+      const genero = match[3];
+      const f = match[4];
       const fechaNacimiento = `${f.substring(0, 4)}-${f.substring(4, 6)}-${f.substring(6, 8)}`;
+
+      // 4. Separación Inteligente de Nombres Antigua
+      // En la antigua SIEMPRE vienen en orden: AP1 AP2 NOM1 NOM2
+      // Simplemente partimos por espacios.
+      const partesNombre = textoNombres.split(" ").filter(Boolean); // filter quita espacios vacíos extra
+      
+      let apellidos = "";
+      let nombres = "";
+
+      if (partesNombre.length >= 3) {
+        // Si hay 3 o más palabras (CATAO BOLIVAR ANDRES ...)
+        // Asumimos 2 apellidos siempre al inicio
+        apellidos = `${partesNombre[0]} ${partesNombre[1]}`;
+        nombres = partesNombre.slice(2).join(" ");
+      } else if (partesNombre.length === 2) {
+        // Caso raro con 1 apellido y 1 nombre
+        apellidos = partesNombre[0];
+        nombres = partesNombre[1];
+      } else {
+        // Caso desastroso, ponemos todo en apellidos para que corrijan manual
+        apellidos = textoNombres;
+      }
 
       return {
         tipo: "CEDULA_ANTIGUA",
         cedula: cedula,
-        apellidos: `${ap1} ${ap2}`,
-        nombres: `${nom1} ${nom2}`.trim(),
-        nombresCompletos: `${nom1} ${nom2} ${ap1} ${ap2}`.trim(),
+        apellidos: apellidos.trim(),
+        nombres: nombres.trim(),
+        nombresCompletos: textoNombres,
         fecha_nacimiento: fechaNacimiento,
         genero: genero
       };
+
     } catch (e) {
-      console.error("Error Antigua:", e);
+      console.error("Error procesando antigua:", e);
     }
   }
 
-  // Fallback simple solo numeros
+  // Fallback solo numeros
   const soloNumeros = cleanData.replace(/\D/g, "");
-  if (soloNumeros.length >= 7 && soloNumeros.length <= 15) {
-     return { tipo: "CEDULA_SIMPLE", cedula: parseInt(soloNumeros.slice(-10), 10).toString() };
+  if (soloNumeros.length >= 7) {
+     return { tipo: "CEDULA_SIMPLE", cedula: soloNumeros.slice(0, 15) };
   }
 
   return null;
 };
+
 // ============================================================================
 // COMPONENTE:  ProveedorSelect
 // ============================================================================
 const ProveedorSelect = React.memo(
-  ({
-    value,
-    onChange,
-    proveedores,
-    placeholder = "Seleccionar proveedor",
-    isMobile = false,
-  }) => {
+  ({ value, onChange, proveedores, placeholder = "Seleccionar proveedor", isMobile = false }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const selectRef = useRef(null);
 
     const filteredProveedores = useMemo(() => {
-      if (!searchTerm.trim()) return proveedores.slice(0, 50);
+      if (! searchTerm.trim()) return proveedores.slice(0, 50);
       const term = searchTerm.toLowerCase();
       return proveedores
         .filter(
@@ -267,7 +253,7 @@ const ProveedorSelect = React.memo(
     );
 
     const selectedProveedor = useMemo(
-      () => proveedores.find((p) => p.codigo === value),
+      () =>proveedores.find((p) => p.codigo === value),
       [proveedores, value]
     );
 
@@ -297,11 +283,7 @@ const ProveedorSelect = React.memo(
         </div>
 
         {isOpen && (
-          <div
-            className={`${styles.selectDropdown} ${
-              isMobile ? styles.mobileDropdown : ""
-            }`}
-          >
+          <div className={`${styles.selectDropdown} ${isMobile ? styles.mobileDropdown : ''}`}>
             <div className={styles.searchContainer}>
               <FontAwesomeIcon
                 icon={faSearch}
@@ -318,12 +300,12 @@ const ProveedorSelect = React.memo(
             </div>
 
             <div className={styles.selectOptions}>
-              {filteredProveedores.length > 0 ? (
+              {filteredProveedores.length > 0 ?  (
                 filteredProveedores.map((proveedor) => (
                   <div
                     key={proveedor.codigo}
                     className={`${styles.selectOption} ${
-                      value === proveedor.codigo ? styles.selected : ""
+                      value === proveedor.codigo ?  styles.selected : ""
                     }`}
                     onClick={() => handleSelect(proveedor)}
                   >
@@ -388,7 +370,7 @@ const FloatingInput = React.memo(
         />
         <label
           className={`${styles.formLabel} ${
-            hasValue || isFocused ? styles.labelFloating : ""
+            hasValue || isFocused ?  styles.labelFloating : ""
           }`}
         >
           {label}
@@ -502,12 +484,12 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
   const scannerRef = useRef(null);
   const physicalInputRef = useRef(null);
   const fileInputRef = useRef(null);
-
+  
   const [error, setError] = useState("");
   const [scanner, setScanner] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [activeMode, setActiveMode] = useState("physical");
-  const [uploadedFileName, setUploadedFileName] = useState("");
+  const [uploadedFileName, setUploadedFileName] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [showSecurityWarning, setShowSecurityWarning] = useState(false);
 
@@ -518,14 +500,11 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(
-        window.innerWidth <= 768 ||
-          /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      );
+      setIsMobile(window.innerWidth <= 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
     };
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // --- LÓGICA DE LIMPIEZA REUTILIZABLE ---
@@ -546,20 +525,24 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
   const procesarBuffer = useCallback(() => {
     const raw = bufferRef.current;
     bufferRef.current = "";
+    
+    // IMPORTANTE: NO usamos limpiarBuffer aquí todavía, porque necesitamos la data cruda
+    // para detectar patrones, pero sí para el fallback.
+    const dataLimpia = limpiarBuffer(raw);
 
-    const data = limpiarBuffer(raw);
-
-    if (!data || data.length < 3) {
+    if (!dataLimpia || dataLimpia.length < 3) {
       console.log("Buffer demasiado corto, ignorando");
       return;
     }
 
-    const resultado = parsearDatosEscaneados(data);
-
+    // Pasamos el raw (pero sin caracteres de control extremos) a la función unificada
+    // La función unificada ya tiene su propia limpieza robusta.
+    const resultado = parsearDatosEscaneados(raw);
+    
     if (resultado) {
       onScan(resultado);
     } else {
-      onScan({ tipo: "CODIGO_SIMPLE", codigo: data });
+      onScan({ tipo: "CODIGO_SIMPLE", codigo: dataLimpia });
     }
     onClose();
   }, [limpiarBuffer, onScan, onClose]);
@@ -571,227 +554,95 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     const handleBeforeUnload = (e) => {
       if (bufferRef.current.length > 0) {
         e.preventDefault();
-        e.returnValue = "Hay un escaneo en proceso. ¿Seguro que quieres salir?";
+        e.returnValue = 'Hay un escaneo en proceso. ¿Seguro que quieres salir?';
         return e.returnValue;
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [isOpen]);
 
-  // --- MANEJO DE ESCÁNER FÍSICO CON BLOQUEO COMPLETO ---
+  // --- MANEJO DE ESCÁNER FÍSICO CON BLOQUEO AGRESIVO ---
   useEffect(() => {
     if (!isOpen || activeMode !== "physical") return;
 
-    // ... dentro de handleKeyDown ...
     const handleKeyDown = (e) => {
       const key = e.key;
       
-      // BLOQUEO DE TECLAS DE FUNCIÓN Y COMANDOS
-      // Si es F1-F12, Tab, Alt, etc., bloquéalo y no hagas nada
-      if (key.length > 1 && key !== "Enter" && key !== "Backspace") {
-         e.preventDefault();
-         e.stopPropagation();
-         return false;
+      // 1. BLOQUEO DE SEGURIDAD (ANTI-COMANDOS / ANTI-LOCURA)
+      // Bloqueamos F1-F12, Tabs, Alt, Ctrl, Meta, Escape, Backspace (si no estamos escribiendo en input)
+      if (
+        key.startsWith("F") || // F1 (Ayuda), F5 (Refresh), F12, etc.
+        key === "Tab" || 
+        key === "Alt" || 
+        key === "Control" || 
+        key === "Meta" || 
+        key === "ContextMenu" ||
+        key === "Escape" ||
+        (key === "Backspace" && e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA")
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation(); // Detiene al navegador de hacer cualquier cosa
+        return false;
       }
-      
-      // Bloquear si se presiona Ctrl o Alt
-      if (e.ctrlKey || e.altKey) {
-         e.preventDefault();
-         e.stopPropagation();
-         return false;
-      }
 
-      // ... resto de tu lógica de medición de tiempo ...
-      const now = Date.now();
-      const timeDiff = now - lastKeyTimeRef.current;
-      lastKeyTimeRef.current = now;
-
-      // ========== LISTA DE COMANDOS PELIGROSOS A BLOQUEAR ==========
-      const comandosPeligrosos = [
-        // Teclas de función
-        "F1",
-        "F2",
-        "F3",
-        "F4",
-        "F5",
-        "F6",
-        "F7",
-        "F8",
-        "F9",
-        "F10",
-        "F11",
-        "F12",
-
-        // Navegación
-        "Escape",
-        "Tab",
-        "PrintScreen",
-        "ScrollLock",
-        "Pause",
-
-        // Edición
-        "Insert",
-        "Delete",
-        "Home",
-        "End",
-        "PageUp",
-        "PageDown",
-
-        // Navegador
-        "BrowserBack",
-        "BrowserForward",
-        "BrowserRefresh",
-        "BrowserStop",
-        "BrowserSearch",
-        "BrowserFavorites",
-        "BrowserHome",
-
-        // Multimedia
-        "VolumeMute",
-        "VolumeDown",
-        "VolumeUp",
-        "MediaNextTrack",
-        "MediaPreviousTrack",
-        "MediaStop",
-        "MediaPlayPause",
-
-        // Sistema
-        "LaunchMail",
-        "LaunchApp1",
-        "LaunchApp2",
-        "ContextMenu",
-      ];
-
-      // ========== COMBINACIONES PELIGROSAS ==========
-      const combinacionesPeligrosas = [
-        // Ctrl + cualquier cosa peligrosa
-        (e.ctrlKey || e.metaKey) && (key === "r" || key === "R"), // Recargar
-        (e.ctrlKey || e.metaKey) && (key === "n" || key === "N"), // Nueva ventana
-        (e.ctrlKey || e.metaKey) && (key === "t" || key === "T"), // Nueva pestaña
-        (e.ctrlKey || e.metaKey) && (key === "w" || key === "W"), // Cerrar pestaña
-        (e.ctrlKey || e.metaKey) && (key === "q" || key === "Q"), // Salir (Mac/Linux)
-
-        // Alt + comandos peligrosos
-        e.altKey && e.key === "F4", // Cerrar ventana
-        e.altKey && e.key === "Tab", // Cambiar ventana
-
-        // Shift + F10 (menú contextual)
-        e.shiftKey && e.key === "F10",
-
-        // Ctrl + Shift + combos
-        e.ctrlKey && e.shiftKey && (key === "r" || key === "R"), // Recarga forzada
-        e.ctrlKey && e.shiftKey && (key === "n" || key === "N"), // Nueva ventana incógnito
-      ];
-
-      // MOSTRAR ADVERTENCIA DE SEGURIDAD
-      const mostrarAdvertencia = (comando) => {
-        console.warn(` Comando bloqueado: ${comando}`);
-        setShowSecurityWarning(true);
-
-        if (securityTimeoutRef.current) {
-          clearTimeout(securityTimeoutRef.current);
-        }
-
-        securityTimeoutRef.current = setTimeout(() => {
-          setShowSecurityWarning(false);
-        }, 1500);
-      };
-
-      // BLOQUEAR TECLAS ESPECÍFICAS
-      if (comandosPeligrosos.includes(key)) {
+      // Bloquear combinaciones (Ctrl+R, Ctrl+F, Alt+Left, etc.)
+      if (e.ctrlKey || e.altKey || e.metaKey) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-        mostrarAdvertencia(key);
         return false;
       }
 
-      // BLOQUEAR COMBINACIONES
-      for (const combo of combinacionesPeligrosas) {
-        if (combo) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          mostrarAdvertencia(
-            `${e.ctrlKey ? "Ctrl+" : ""}${e.altKey ? "Alt+" : ""}${
-              e.shiftKey ? "Shift+" : ""
-            }${key}`
-          );
-          return false;
-        }
-      }
-
-      // MANEJO DE ESCAPE (solo cierra si no hay datos)
-      if (key === "Escape") {
-        if (bufferRef.current.length === 0) {
-          onClose();
-        } else {
-          bufferRef.current = "";
-        }
-        e.preventDefault();
-        return false;
-      }
-
-      // ENTER = procesar buffer
+      // 2. LÓGICA DE CAPTURA
+      // Enter suele marcar el final del código de barras
       if (key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
-        if (bufferRef.current.length > 0) {
+        if (bufferRef.current.length > 5) {
           procesarBuffer();
         }
-        return false;
-      }
-
-      // DETECTAR VELOCIDAD DE ESCÁNER (vs escritura humana)
-      const isScannerSpeed = timeDiff < 50;
-
-      // Solo aceptar caracteres si es velocidad de escáner o ya hay datos
-      if (!isScannerSpeed && bufferRef.current.length === 0) {
         return;
       }
 
-      // CARACTERES NORMALES
+      // Si es un caracter imprimible (letra, número, símbolo)
       if (key.length === 1) {
-        e.preventDefault();
+        e.preventDefault(); // IMPORTANTE: Evita que escriba en inputs ajenos o active menús
         e.stopPropagation();
+        
         bufferRef.current += key;
 
-        // Auto-procesar después de 300ms de inactividad
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        
+        // Timeout generoso para códigos largos (Cédula Antigua es muy larga)
         timeoutRef.current = setTimeout(() => {
-          if (bufferRef.current.length >= 3) {
+          if (bufferRef.current.length >= 8) {
             procesarBuffer();
           }
-        }, 500);
+        }, 500); 
       }
     };
 
-    // AGREGAR LISTENER CON CAPTURA (alta prioridad)
-    window.addEventListener("keydown", handleKeyDown, {
-      capture: true,
-      passive: false,
-    });
+    // Usar { capture: true } para interceptar el evento ANTES que el navegador
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown, { capture: true });
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (securityTimeoutRef.current) clearTimeout(securityTimeoutRef.current);
-      bufferRef.current = "";
-      setShowSecurityWarning(false);
     };
-  }, [isOpen, activeMode, procesarBuffer, onClose]);
+  }, [isOpen, activeMode, procesarBuffer]);
 
   // --- INPUT TRAMPA MEJORADO ---
   useEffect(() => {
     if (isOpen && activeMode === "physical" && physicalInputRef.current) {
       // Enfocar el input trampa inmediatamente
       physicalInputRef.current.focus();
-
+      
       // Configurar para re-enfocar automáticamente
       const handleBlur = () => {
         setTimeout(() => {
@@ -801,21 +652,18 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
         }, 10);
       };
 
-      physicalInputRef.current.addEventListener("blur", handleBlur);
-
+      physicalInputRef.current.addEventListener('blur', handleBlur);
+      
       // También usar interval para asegurar el foco
       const focusInterval = setInterval(() => {
-        if (
-          physicalInputRef.current &&
-          document.activeElement !== physicalInputRef.current
-        ) {
+        if (physicalInputRef.current && document.activeElement !== physicalInputRef.current) {
           physicalInputRef.current.focus();
         }
       }, 100);
 
       return () => {
         if (physicalInputRef.current) {
-          physicalInputRef.current.removeEventListener("blur", handleBlur);
+          physicalInputRef.current.removeEventListener('blur', handleBlur);
         }
         clearInterval(focusInterval);
       };
@@ -834,14 +682,10 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
       }
     };
 
-    window.addEventListener("contextmenu", handleContextMenu, {
-      capture: true,
-    });
-
+    window.addEventListener('contextmenu', handleContextMenu, { capture: true });
+    
     return () => {
-      window.removeEventListener("contextmenu", handleContextMenu, {
-        capture: true,
-      });
+      window.removeEventListener('contextmenu', handleContextMenu, { capture: true });
     };
   }, [isOpen, activeMode]);
 
@@ -851,25 +695,25 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
     if (!file) return;
 
     setUploadedFileName(file.name);
-
-    const validTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+    
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      setError("Formato de archivo no soportado. Use JPG, PNG o WEBP.");
+      setError('Formato de archivo no soportado. Use JPG, PNG o WEBP.');
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setError("El archivo es demasiado grande. Máximo 10MB.");
-      setUploadedFileName("");
+      setError('El archivo es demasiado grande. Máximo 10MB.');
+      setUploadedFileName('');
       return;
     }
 
     setIsUploading(true);
     setError("");
-
+    
     try {
       const imageUrl = URL.createObjectURL(file);
-
+      
       const hints = new Map();
       hints.set(DecodeHintType.POSSIBLE_FORMATS, [
         BarcodeFormat.PDF_417,
@@ -885,25 +729,25 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
         BarcodeFormat.RSS_14,
         BarcodeFormat.RSS_EXPANDED,
         BarcodeFormat.AZTEC,
-        BarcodeFormat.DATA_MATRIX,
+        BarcodeFormat.DATA_MATRIX
       ]);
       hints.set(DecodeHintType.TRY_HARDER, true);
       hints.set(DecodeHintType.PURE_BARCODE, false);
 
       const codeReader = new BrowserMultiFormatReader(hints);
-
+      
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Tiempo de espera agotado")), 15000);
+        setTimeout(() => reject(new Error('Tiempo de espera agotado')), 15000);
       });
 
       const decodePromise = codeReader.decodeFromImageUrl(imageUrl);
       const result = await Promise.race([decodePromise, timeoutPromise]);
-
+      
       if (result) {
         const textoEscaneado = result.getText();
         const dataLimpia = limpiarBuffer(textoEscaneado);
         const resultado = parsearDatosEscaneados(dataLimpia);
-
+        
         if (resultado) {
           onScan(resultado);
           onClose();
@@ -912,57 +756,47 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
           onClose();
         }
       } else {
-        setError("No se encontraron códigos de barras en la imagen.");
+        setError('No se encontraron códigos de barras en la imagen.');
       }
 
       URL.revokeObjectURL(imageUrl);
     } catch (error) {
-      console.error("Error procesando archivo:", error);
-
-      if (
-        error.message.includes("Tiempo de espera") ||
-        error.message.includes("No se pudo leer")
-      ) {
+      console.error('Error procesando archivo:', error);
+      
+      if (error.message.includes('Tiempo de espera') || error.message.includes('No se pudo leer')) {
         try {
-          setError("Intentando lectura OCR...");
-
+          setError('Intentando lectura OCR...');
+          
           const imageUrl = URL.createObjectURL(file);
-          const {
-            data: { text },
-          } = await Tesseract.recognize(imageUrl, "spa+eng", {
-            logger: (m) => console.log("OCR:", m.status),
-            tessedit_char_whitelist:
-              "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz- ",
+          const { data: { text } } = await Tesseract.recognize(imageUrl, 'spa+eng', {
+            logger: m => console.log('OCR:', m.status),
+            tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz- ',
           });
-
+          
           URL.revokeObjectURL(imageUrl);
-
+          
           const regexCodigos = /\b\d{8,20}\b/g;
           const matches = text.match(regexCodigos);
-
+          
           if (matches && matches.length > 0) {
             const codigoProbable = matches[0];
             onScan({ tipo: "CODIGO_SIMPLE", codigo: codigoProbable });
             onClose();
           } else {
-            setError(
-              "No se pudo detectar ningún código. Asegúrese de que la imagen sea clara."
-            );
+            setError('No se pudo detectar ningún código. Asegúrese de que la imagen sea clara.');
           }
         } catch (ocrError) {
-          console.error("Error OCR:", ocrError);
-          setError(
-            "No se pudo procesar la imagen. Intente con una imagen más clara."
-          );
+          console.error('Error OCR:', ocrError);
+          setError('No se pudo procesar la imagen. Intente con una imagen más clara.');
         }
       } else {
         setError(`Error: ${error.message}`);
       }
     } finally {
       setIsUploading(false);
-      setUploadedFileName("");
+      setUploadedFileName('');
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
     }
   };
@@ -1067,16 +901,12 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
 
   return (
     <div className={styles.modalOverlay}>
-      <div
-        className={`${styles.modalContent} ${
-          isMobile ? styles.mobileModal : ""
-        }`}
-      >
+      <div className={`${styles.modalContent} ${isMobile ? styles.mobileModal : ''}`}>
         <div className={styles.modalHeader}>
           <h2>Escanear Código</h2>
-          <button
-            type="button"
-            onClick={onClose}
+          <button 
+            type="button" 
+            onClick={onClose} 
             className={styles.closeButton}
             aria-label="Cerrar"
           >
@@ -1084,11 +914,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
           </button>
         </div>
 
-        <div
-          className={`${styles.scannerTabs} ${
-            isMobile ? styles.mobileTabs : ""
-          }`}
-        >
+        <div className={`${styles.scannerTabs} ${isMobile ? styles.mobileTabs : ''}`}>
           <button
             type="button"
             className={`${styles.scannerTab} ${
@@ -1143,10 +969,10 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                   <div
                     ref={scannerRef}
                     className={styles.qrReader}
-                    style={{
-                      minHeight: isMobile ? "250px" : "300px",
+                    style={{ 
+                      minHeight: isMobile ? "250px" : "300px", 
                       background: "#000",
-                      position: "relative",
+                      position: 'relative'
                     }}
                   />
                   <div className={styles.scannerOverlay}>
@@ -1158,7 +984,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
               ) : activeMode === "physical" ? (
                 <div
                   className={styles.physicalScannerContainer}
-                  style={{ position: "relative" }}
+                  style={{ position: 'relative' }}
                 >
                   {/* ADVERTENCIA DE SEGURIDAD */}
                   {showSecurityWarning && (
@@ -1166,38 +992,30 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                       <div className={styles.securityWarning}>
                         ⚠️ COMANDO BLOQUEADO
                         <br />
-                        <small>
-                          No use teclas de navegación durante el escaneo
-                        </small>
+                        <small>No use teclas de navegación durante el escaneo</small>
                       </div>
                     </div>
                   )}
 
                   <div className={styles.physicalScannerIcon}>
-                    <FontAwesomeIcon
-                      icon={faBarcode}
-                      className={isMobile ? styles.mobileIcon : ""}
+                    <FontAwesomeIcon 
+                      icon={faBarcode} 
+                      className={isMobile ? styles.mobileIcon : ''} 
                     />
                   </div>
-
+                  
                   <h3>Modo Escáner Físico</h3>
-
+                  
                   <p className={styles.physicalScannerInstructions}>
-                    <span
-                      style={{
-                        color: showSecurityWarning ? "#ef4444" : "#22c55e",
-                        fontWeight: "bold",
-                        fontSize: showSecurityWarning ? "1.1rem" : "1rem",
-                      }}
-                    >
-                      {showSecurityWarning
-                        ? "MODO SEGURIDAD ACTIVADO"
-                        : "LISTO PARA ESCANEAR"}
+                    <span style={{ 
+                      color: showSecurityWarning ? "#ef4444" : "#22c55e", 
+                      fontWeight: "bold",
+                      fontSize: showSecurityWarning ? "1.1rem" : "1rem"
+                    }}>
+                      {showSecurityWarning ? "MODO SEGURIDAD ACTIVADO" : "LISTO PARA ESCANEAR"}
                     </span>
                     <br />
-                    {showSecurityWarning
-                      ? "Se bloquearon comandos de navegación"
-                      : "Escanee la cédula o escarapela"}
+                    El escáner está listo. No necesita hacer clic.
                   </p>
 
                   {/* INPUT TRAMPA MEJORADO */}
@@ -1217,21 +1035,17 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                       }, 10);
                     }}
                     onChange={(e) => {
-                      e.target.value = "";
+                      e.target.value = '';
                     }}
                   />
 
                   <div className={styles.scannerStatus}>
                     <small>
-                      {showSecurityWarning
-                        ? "Teclas de navegación bloqueadas"
-                        : "Detectando entrada del escáner..."}
+                      Detectando entrada del escáner...
                     </small>
                     {bufferRef.current.length > 0 && (
                       <div className={styles.bufferPreview}>
-                        <small>
-                          Datos recibidos: <strong>{bufferRef.current}</strong>
-                        </small>
+                        <small>Datos recibidos: <strong>{bufferRef.current}</strong></small>
                       </div>
                     )}
                   </div>
@@ -1239,19 +1053,17 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
               ) : (
                 <div className={styles.uploadContainer}>
                   <div className={styles.uploadIcon}>
-                    <FontAwesomeIcon
-                      icon={faFile}
-                      className={isMobile ? styles.mobileIcon : ""}
-                    />
+                    <FontAwesomeIcon icon={faFile} className={isMobile ? styles.mobileIcon : ''} />
                   </div>
                   <h3>Subir Imagen para Escanear</h3>
                   <p className={styles.uploadInstructions}>
                     Suba una foto del código de barras de:
                     <br />
                     • Cédula colombiana (parte posterior)
-                    <br />• Escarapela o carnet
+                    <br />
+                    • Escarapela o carnet
                   </p>
-
+                  
                   <div className={styles.uploadArea}>
                     <input
                       ref={fileInputRef}
@@ -1262,11 +1074,9 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                       disabled={isUploading}
                       className={styles.fileInput}
                     />
-                    <label
-                      htmlFor="barcode-file"
-                      className={`${styles.uploadButton} ${
-                        isUploading ? styles.uploading : ""
-                      }`}
+                    <label 
+                      htmlFor="barcode-file" 
+                      className={`${styles.uploadButton} ${isUploading ? styles.uploading : ''}`}
                     >
                       {isUploading ? (
                         <>
@@ -1280,7 +1090,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                         </>
                       )}
                     </label>
-
+                    
                     {uploadedFileName && !isUploading && (
                       <div className={styles.fileInfo}>
                         <FontAwesomeIcon icon={faFile} />
@@ -1288,7 +1098,7 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
                       </div>
                     )}
                   </div>
-
+                  
                   <div className={styles.supportedFormats}>
                     <small>Formatos: JPG, PNG, WEBP</small>
                     <br />
@@ -1309,9 +1119,9 @@ const ScannerModal = ({ isOpen, onClose, onScan }) => {
         </div>
 
         <div className={styles.modalActions}>
-          <button
-            type="button"
-            onClick={onClose}
+          <button 
+            type="button" 
+            onClick={onClose} 
             className={styles.cancelButton}
           >
             Cancelar
@@ -1332,16 +1142,11 @@ const PhotoModal = React.memo(({ isOpen, onClose, onPhotoTaken }) => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(
-        window.innerWidth <= 768 ||
-          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-          )
-      );
+      setIsMobile(window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     };
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const capturePhoto = useCallback(() => {
@@ -1370,7 +1175,7 @@ const PhotoModal = React.memo(({ isOpen, onClose, onPhotoTaken }) => {
 
   // Limpiar al cerrar
   useEffect(() => {
-    if (!isOpen) {
+    if (! isOpen) {
       setPhoto(null);
       setError("");
     }
@@ -1380,11 +1185,7 @@ const PhotoModal = React.memo(({ isOpen, onClose, onPhotoTaken }) => {
 
   return (
     <div className={styles.modalOverlay}>
-      <div
-        className={`${styles.modalContent} ${
-          isMobile ? styles.mobileModal : ""
-        }`}
-      >
+      <div className={`${styles.modalContent} ${isMobile ? styles.mobileModal : ''}`}>
         <div className={styles.modalHeader}>
           <h2>Tomar Foto del Visitante</h2>
           <button onClick={onClose} className={styles.closeButton}>
@@ -1400,11 +1201,7 @@ const PhotoModal = React.memo(({ isOpen, onClose, onPhotoTaken }) => {
                 alt="Foto del visitante"
                 className={styles.photoImage}
               />
-              <div
-                className={`${styles.photoActions} ${
-                  isMobile ? styles.mobilePhotoActions : ""
-                }`}
-              >
+              <div className={`${styles.photoActions} ${isMobile ? styles.mobilePhotoActions : ''}`}>
                 <button
                   onClick={() => setPhoto(null)}
                   className={styles.retryButton}
@@ -1418,7 +1215,7 @@ const PhotoModal = React.memo(({ isOpen, onClose, onPhotoTaken }) => {
             </div>
           ) : (
             <>
-              {error ? (
+              {error ?  (
                 <div className={styles.photoError}>
                   <p>{error}</p>
                   <input
@@ -1452,12 +1249,8 @@ const PhotoModal = React.memo(({ isOpen, onClose, onPhotoTaken }) => {
           )}
         </div>
 
-        {!photo && !error && (
-          <div
-            className={`${styles.modalActions} ${
-              isMobile ? styles.mobileModalActions : ""
-            }`}
-          >
+        {! photo && ! error && (
+          <div className={`${styles.modalActions} ${isMobile ? styles.mobileModalActions : ''}`}>
             <button onClick={onClose} className={styles.cancelButton}>
               Cancelar
             </button>
@@ -1480,16 +1273,14 @@ const GestionVisitantes = () => {
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(
-        window.innerWidth <= 768 ||
-          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-          )
+        window.innerWidth <= 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
       );
     };
-
+    
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -1520,8 +1311,8 @@ const GestionVisitantes = () => {
     fecha_arl_vigencia: "",
     archivo_arl: "",
     empresa_actual_codigo: "",
-    empresa_actual_nombre: "",
-    foto: "",
+    empresa_actual_nombre:  "",
+    foto:  "",
   });
 
   const [visitaData, setVisitaData] = useState({
@@ -1590,7 +1381,7 @@ const GestionVisitantes = () => {
     async (cedula) => {
       if (!cedula || cedula.length < 5) {
         addNotification({
-          message: "Ingrese una cédula válida",
+          message:  "Ingrese una cédula válida",
           type: "warning",
         });
         return;
@@ -1604,15 +1395,15 @@ const GestionVisitantes = () => {
           setVisitanteEncontrado(response.data);
           setFormData({
             cedula: response.data.cedula,
-            nombres: response.data.nombres,
+            nombres:  response.data.nombres,
             apellidos: response.data.apellidos,
-            fecha_nacimiento: response.data.fecha_nacimiento || "",
+            fecha_nacimiento:  response.data.fecha_nacimiento || "",
             telefono: response.data.telefono || "",
-            email: response.data.email || "",
-            arl_vigente: response.data.arl_vigente || false,
+            email:  response.data.email || "",
+            arl_vigente:  response.data.arl_vigente || false,
             fecha_arl_vigencia: response.data.fecha_arl_vigencia || "",
             archivo_arl: response.data.archivo_arl || "",
-            empresa_actual_codigo: response.data.empresa_actual_codigo || "",
+            empresa_actual_codigo:  response.data.empresa_actual_codigo || "",
             empresa_actual_nombre: response.data.empresa_actual_nombre || "",
             foto: response.data.foto || "",
           });
@@ -1628,12 +1419,12 @@ const GestionVisitantes = () => {
             cedula: cedula,
             nombres: "",
             apellidos: "",
-            fecha_nacimiento: "",
+            fecha_nacimiento:  "",
             telefono: "",
             email: "",
-            arl_vigente: false,
+            arl_vigente:  false,
             fecha_arl_vigencia: "",
-            archivo_arl: "",
+            archivo_arl:  "",
             empresa_actual_codigo: "",
             empresa_actual_nombre: "",
             foto: "",
@@ -1646,8 +1437,8 @@ const GestionVisitantes = () => {
         }
       } catch (error) {
         addNotification({
-          message: "Error buscando visitante:  " + error.message,
-          type: "error",
+          message:  "Error buscando visitante:  " + error.message,
+          type:  "error",
         });
       } finally {
         setBuscandoVisitante(false);
@@ -1687,12 +1478,12 @@ const GestionVisitantes = () => {
       if (value.length === 0) {
         setVisitanteEncontrado(null);
         setFormData({
-          cedula: "",
-          nombres: "",
+          cedula:  "",
+          nombres:  "",
           apellidos: "",
           fecha_nacimiento: "",
-          telefono: "",
-          email: "",
+          telefono:  "",
+          email:  "",
           arl_vigente: false,
           fecha_arl_vigencia: "",
           archivo_arl: "",
@@ -1757,7 +1548,7 @@ const GestionVisitantes = () => {
   const procesarDocumentoInteligente = useCallback(
     async (file) => {
       setIsProcessing(true);
-      addNotification({ message: "Procesando documento.. .", type: "info" });
+      addNotification({ message:  "Procesando documento.. .", type: "info" });
 
       let imageUrl = null;
 
@@ -1789,11 +1580,11 @@ const GestionVisitantes = () => {
                   cedula: datos.cedula,
                   nombres: datos.nombres || "",
                   apellidos: datos.apellidos || datos.nombresCompletos || "",
-                  fecha_nacimiento: datos.fecha_nacimiento || "",
+                  fecha_nacimiento:  datos.fecha_nacimiento || "",
                 }));
                 addNotification({
                   message: "Datos extraídos del código.  Por favor verifique.",
-                  type: "success",
+                  type:  "success",
                 });
               } else {
                 buscarVisitantePorCedula(datos.cedula);
@@ -1848,7 +1639,7 @@ const GestionVisitantes = () => {
               });
             } else {
               addNotification({
-                message:
+                message: 
                   "No se pudo leer automáticamente.  Ingrese manualmente.",
                 type: "warning",
               });
@@ -1870,7 +1661,7 @@ const GestionVisitantes = () => {
       } catch (error) {
         console.error("Error procesando documento:", error);
         addNotification({
-          message: "Error procesando la imagen",
+          message:  "Error procesando la imagen",
           type: "error",
         });
         setIsProcessing(false);
@@ -1883,8 +1674,8 @@ const GestionVisitantes = () => {
   const handleFormChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      ... prev,
+      [name]: type === "checkbox" ? checked :  value,
     }));
   }, []);
 
@@ -1901,6 +1692,7 @@ const GestionVisitantes = () => {
       ...prev,
       empresa_actual_codigo: proveedor.codigo,
       empresa_actual_nombre: proveedor.establecimiento,
+
     }));
   }, []);
 
@@ -1915,13 +1707,13 @@ const GestionVisitantes = () => {
   const handleFileSelect = useCallback(
     (e, tipoDocumento) => {
       const file = e.target.files[0];
-      if (!file) return;
+      if (! file) return;
 
       const previewUrl = URL.createObjectURL(file);
 
       setDocumentos((prev) => ({
-        ...prev,
-        [tipoDocumento]: previewUrl,
+        ... prev,
+        [tipoDocumento]:  previewUrl,
       }));
 
       // Si subieron la cédula, intentar leerla
@@ -1933,7 +1725,7 @@ const GestionVisitantes = () => {
   );
 
   const guardarVisitante = useCallback(async () => {
-    if (!formData.cedula || !formData.nombres || !formData.apellidos) {
+    if (! formData.cedula || !formData.nombres || ! formData.apellidos) {
       addNotification({
         message: "Cédula, nombres y apellidos son requeridos",
         type: "warning",
@@ -1968,7 +1760,7 @@ const GestionVisitantes = () => {
           type: "success",
         });
       } else {
-        await apiService.createVisitante(datosParaEnviar);
+        await apiService. createVisitante(datosParaEnviar);
         addNotification({
           message: "Visitante registrado exitosamente",
           type: "success",
@@ -1979,12 +1771,12 @@ const GestionVisitantes = () => {
       setCedulaInput("");
       setVisitanteEncontrado(null);
       setFormData({
-        cedula: "",
-        nombres: "",
+        cedula:  "",
+        nombres:  "",
         apellidos: "",
         fecha_nacimiento: "",
-        telefono: "",
-        email: "",
+        telefono:  "",
+        email:  "",
         arl_vigente: false,
         fecha_arl_vigencia: "",
         archivo_arl: "",
@@ -1992,7 +1784,7 @@ const GestionVisitantes = () => {
         empresa_actual_nombre: "",
         foto: "",
       });
-      setDocumentos({ foto_cedula: null, foto_escarapela: null });
+      setDocumentos({ foto_cedula:  null, foto_escarapela: null });
     } catch (error) {
       addNotification({
         message: "Error guardando visitante: " + error.message,
@@ -2011,12 +1803,12 @@ const GestionVisitantes = () => {
       // Si es string crudo, parsearlo
       if (typeof datosEscaneados === "string") {
         datos = parsearDatosEscaneados(datosEscaneados);
-        if (!datos) {
+        if (! datos) {
           datos = { tipo: "CODIGO_SIMPLE", codigo: datosEscaneados };
         }
       }
 
-      if (!datos || (!datos.cedula && !datos.codigo)) return;
+      if (! datos || (! datos.cedula && !datos.codigo)) return;
 
       const cedulaABuscar = datos.cedula || datos.codigo;
 
@@ -2031,11 +1823,11 @@ const GestionVisitantes = () => {
           // Visitante existe
           setVisitanteEncontrado(response.data);
           setFormData({
-            cedula: response.data.cedula,
+            cedula:  response.data.cedula,
             nombres: response.data.nombres,
-            apellidos: response.data.apellidos,
+            apellidos:  response.data.apellidos,
             fecha_nacimiento: response.data.fecha_nacimiento || "",
-            telefono: response.data.telefono || "",
+            telefono:  response.data.telefono || "",
             email: response.data.email || "",
             arl_vigente: response.data.arl_vigente || false,
             fecha_arl_vigencia: response.data.fecha_arl_vigencia || "",
@@ -2053,18 +1845,18 @@ const GestionVisitantes = () => {
           setVisitanteEncontrado(null);
 
           if (
-            datos.tipo === "CEDULA_COLOMBIANA" ||
+            datos.tipo === "CEDULA_ANTIGUA" || // <-- CORREGIDO AQUÍ
             datos.tipo === "CEDULA_DIGITAL"
           ) {
             setFormData({
-              cedula: cedulaABuscar,
+              cedula:  cedulaABuscar,
               nombres: datos.nombres || "",
               apellidos: datos.apellidos || datos.nombresCompletos || "",
               fecha_nacimiento: datos.fecha_nacimiento || "",
-              telefono: "",
+              telefono:  "",
               email: "",
               arl_vigente: false,
-              fecha_arl_vigencia: "",
+              fecha_arl_vigencia:  "",
               archivo_arl: "",
               empresa_actual_codigo: "",
               empresa_actual_nombre: "",
@@ -2072,7 +1864,7 @@ const GestionVisitantes = () => {
             });
 
             addNotification({
-              message:
+              message: 
                 "Visitante nuevo.  Datos extraídos de la cédula.  Por favor verifique y complete.",
               type: "warning",
             });
@@ -2081,7 +1873,7 @@ const GestionVisitantes = () => {
               ...prev,
               cedula: cedulaABuscar,
               nombres: "",
-              apellidos: "",
+              apellidos:  "",
             }));
             addNotification({
               message: "Código registrado.  Complete los datos del visitante.",
@@ -2091,7 +1883,7 @@ const GestionVisitantes = () => {
         }
       } catch (error) {
         console.error("Error buscando visitante", error);
-        addNotification({ message: "Error en la búsqueda", type: "error" });
+        addNotification({ message:  "Error en la búsqueda", type: "error" });
       } finally {
         setBuscandoVisitante(false);
       }
@@ -2103,7 +1895,7 @@ const GestionVisitantes = () => {
     (photoData) => {
       setFormData((prev) => ({
         ...prev,
-        foto: photoData,
+        foto:  photoData,
       }));
       addNotification({
         message: "Foto guardada exitosamente",
@@ -2126,11 +1918,11 @@ const GestionVisitantes = () => {
       arl_vigente: false,
       fecha_arl_vigencia: "",
       archivo_arl: "",
-      empresa_actual_codigo: "",
+      empresa_actual_codigo:  "",
       empresa_actual_nombre: "",
       foto: "",
     });
-    setDocumentos({ foto_cedula: null, foto_escarapela: null });
+    setDocumentos({ foto_cedula:  null, foto_escarapela: null });
   }, []);
 
   const estadosVisitas = useMemo(
@@ -2144,17 +1936,17 @@ const GestionVisitantes = () => {
       {
         value: "en_operacion",
         label: "En operación",
-        icon: faTruckLoading,
+        icon:  faTruckLoading,
         color: "#3b82f6",
       },
       {
         value: "terminado",
         label: "Terminado",
-        icon: faCheckCircle,
+        icon:  faCheckCircle,
         color: "#10b981",
       },
       {
-        value: "cancelado",
+        value:  "cancelado",
         label: "Cancelado",
         icon: faSignOutAlt,
         color: "#ef4444",
@@ -2168,9 +1960,7 @@ const GestionVisitantes = () => {
   }
 
   return (
-    <div
-      className={`${styles.container} ${isMobile ? styles.mobileSafeArea : ""}`}
-    >
+    <div className={`${styles.container} ${isMobile ? styles.mobileSafeArea : ''}`}>
       <ScannerModal
         isOpen={showScanner}
         onClose={() => setShowScanner(false)}
@@ -2185,104 +1975,70 @@ const GestionVisitantes = () => {
 
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1
-            className={`${styles.title} ${isMobile ? styles.mobileTitle : ""}`}
-          >
-            Gestión de Visitantes
-          </h1>
-          <p
-            className={`${styles.subtitle} ${
-              isMobile ? styles.mobileSubtitle : ""
-            }`}
-          >
+          <h1 className={`${styles.title} ${isMobile ? styles.mobileTitle : ''}`}>Gestión de Visitantes</h1>
+          <p className={`${styles.subtitle} ${isMobile ? styles.mobileSubtitle : ''}`}>
             Registro y control de visitantes proveedores
           </p>
         </div>
       </div>
 
-      <div className={`${styles.tabs} ${isMobile ? styles.mobileTabs : ""}`}>
+      <div className={`${styles.tabs} ${isMobile ? styles.mobileTabs : ''}`}>
         <button
           className={`${styles.tab} ${
             activeTab === "registro" ? styles.active : ""
-          } ${isMobile ? styles.mobileTab : ""}`}
+          } ${isMobile ? styles.mobileTab : ''}`}
           onClick={() => setActiveTab("registro")}
         >
           <FontAwesomeIcon icon={faIdCard} />
-          <span className={isMobile ? styles.mobileTabText : ""}>
-            Registro/Consulta
-          </span>
+          <span className={isMobile ? styles.mobileTabText : ''}>Registro/Consulta</span>
         </button>
         <button
           className={`${styles.tab} ${
             activeTab === "visitas" ? styles.active : ""
-          } ${isMobile ? styles.mobileTab : ""}`}
+          } ${isMobile ? styles.mobileTab : ''}`}
           onClick={() => setActiveTab("visitas")}
         >
           <FontAwesomeIcon icon={faHistory} />
-          <span className={isMobile ? styles.mobileTabText : ""}>
-            Historial Visitas
-          </span>
+          <span className={isMobile ? styles.mobileTabText : ''}>Historial Visitas</span>
         </button>
         <button
           className={`${styles.tab} ${
             activeTab === "consulta" ? styles.active : ""
-          } ${isMobile ? styles.mobileTab : ""}`}
+          } ${isMobile ? styles.mobileTab : ''}`}
           onClick={() => setActiveTab("consulta")}
         >
           <FontAwesomeIcon icon={faSearch} />
-          <span className={isMobile ? styles.mobileTabText : ""}>
-            Consulta Visitantes
-          </span>
+          <span className={isMobile ? styles.mobileTabText : ''}>Consulta Visitantes</span>
         </button>
       </div>
 
-      <div
-        className={`${styles.content} ${isMobile ? styles.mobileContent : ""}`}
-      >
+      <div className={`${styles.content} ${isMobile ? styles.mobileContent : ''}`}>
         {activeTab === "registro" && (
-          <div
-            className={`${styles.registroContainer} ${
-              isMobile ? styles.mobileRegistroContainer : ""
-            }`}
-          >
+          <div className={`${styles.registroContainer} ${isMobile ? styles.mobileRegistroContainer : ''}`}>
             <div className={styles.busquedaSection}>
-              <div
-                className={`${styles.searchBox} ${
-                  isMobile ? styles.mobileSearchBox : ""
-                }`}
-              >
+              <div className={`${styles.searchBox} ${isMobile ? styles.mobileSearchBox : ''}`}>
                 <FontAwesomeIcon
                   icon={faSearch}
                   className={styles.searchIcon}
                 />
                 <input
                   type="text"
-                  className={`${styles.searchInput} ${
-                    isMobile ? styles.mobileSearchInput : ""
-                  }`}
+                  className={`${styles.searchInput} ${isMobile ? styles.mobileSearchInput : ''}`}
                   value={cedulaInput}
                   onChange={handleCedulaChange}
                   placeholder="Escanear o ingresar cédula (10 dígitos)"
                   maxLength={10}
                 />
-                <div
-                  className={`${styles.buttonContainer} ${
-                    isMobile ? styles.mobileButtonContainer : ""
-                  }`}
-                >
+                <div className={`${styles.buttonContainer} ${isMobile ? styles.mobileButtonContainer : ''}`}>
                   <button
-                    className={`${styles.scanButton} ${
-                      isMobile ? styles.mobileButton : ""
-                    }`}
+                    className={`${styles.scanButton} ${isMobile ? styles.mobileButton : ''}`}
                     onClick={() => setShowScanner(true)}
                   >
                     <FontAwesomeIcon icon={faQrcode} />
                     <span>Escanear</span>
                   </button>
                   <button
-                    className={`${styles.cameraButton} ${
-                      isMobile ? styles.mobileButton : ""
-                    }`}
+                    className={`${styles.cameraButton} ${isMobile ? styles.mobileButton : ''}`}
                     onClick={() => setShowPhotoModal(true)}
                   >
                     <FontAwesomeIcon icon={faCamera} />
@@ -2299,11 +2055,7 @@ const GestionVisitantes = () => {
             </div>
 
             {visitanteEncontrado && (
-              <div
-                className={`${styles.visitanteInfo} ${
-                  isMobile ? styles.mobileVisitanteInfo : ""
-                }`}
-              >
+              <div className={`${styles.visitanteInfo} ${isMobile ? styles.mobileVisitanteInfo : ''}`}>
                 <div className={styles.infoHeader}>
                   <h3>Visitante Encontrado</h3>
                   <span
@@ -2314,14 +2066,10 @@ const GestionVisitantes = () => {
                     }`}
                   >
                     ARL:{" "}
-                    {visitanteEncontrado.arl_vigente ? "VIGENTE" : "NO VIGENTE"}
+                    {visitanteEncontrado.arl_vigente ?  "VIGENTE" : "NO VIGENTE"}
                   </span>
                 </div>
-                <div
-                  className={`${styles.infoGrid} ${
-                    isMobile ? styles.mobileInfoGrid : ""
-                  }`}
-                >
+                <div className={`${styles.infoGrid} ${isMobile ? styles.mobileInfoGrid : ''}`}>
                   <div className={styles.infoItem}>
                     <label>Cédula:</label>
                     <strong>{visitanteEncontrado.cedula}</strong>
@@ -2354,22 +2102,14 @@ const GestionVisitantes = () => {
               </div>
             )}
 
-            <div
-              className={`${styles.formSection} ${
-                isMobile ? styles.mobileFormSection : ""
-              }`}
-            >
+            <div className={`${styles.formSection} ${isMobile ? styles.mobileFormSection : ''}`}>
               <h3>
                 {visitanteEncontrado
                   ? "Actualizar Datos"
-                  : "Registrar Nuevo Visitante"}
+                  :  "Registrar Nuevo Visitante"}
               </h3>
 
-              <div
-                className={`${styles.formGrid} ${
-                  isMobile ? styles.mobileFormGrid : ""
-                }`}
-              >
+              <div className={`${styles.formGrid} ${isMobile ? styles.mobileFormGrid : ''}`}>
                 <FloatingInput
                   label="Cédula"
                   name="cedula"
@@ -2456,7 +2196,7 @@ const GestionVisitantes = () => {
                       label="Fecha Vigencia ARL"
                       name="fecha_arl_vigencia"
                       type="date"
-                      value={formData.fecha_arl_vigencia}
+                      value={formData. fecha_arl_vigencia}
                       onChange={handleFormChange}
                     />
                     <FloatingInput
@@ -2469,19 +2209,14 @@ const GestionVisitantes = () => {
                 )}
               </div>
 
-              <div
-                className={`${styles.formActions} ${
-                  isMobile ? styles.mobileFormActions : ""
-                }`}
-              >
+              
+              <div className={`${styles.formActions} ${isMobile ? styles.mobileFormActions : ''}`}>
                 <button
-                  className={`${styles.saveButton} ${
-                    isMobile ? styles.mobileSaveButton : ""
-                  }`}
+                  className={`${styles.saveButton} ${isMobile ? styles.mobileSaveButton : ''}`}
                   onClick={guardarVisitante}
                   disabled={loading}
                 >
-                  {loading ? (
+                  {loading ?  (
                     <>
                       <FontAwesomeIcon icon={faSyncAlt} spin /> Guardando...
                     </>
@@ -2493,9 +2228,7 @@ const GestionVisitantes = () => {
                 </button>
 
                 <button
-                  className={`${styles.clearButton} ${
-                    isMobile ? styles.mobileClearButton : ""
-                  }`}
+                  className={`${styles.clearButton} ${isMobile ? styles.mobileClearButton : ''}`}
                   onClick={limpiarFormulario}
                   disabled={loading}
                 >
@@ -2506,11 +2239,7 @@ const GestionVisitantes = () => {
 
             {/* Sección de registro de visita */}
             {visitanteEncontrado && (
-              <div
-                className={`${styles.visitaSection} ${
-                  isMobile ? styles.mobileVisitaSection : ""
-                }`}
-              >
+              <div className={`${styles.visitaSection} ${isMobile ? styles.mobileVisitaSection : ''}`}>
                 <h3>Registrar Visita</h3>
 
                 <div className={styles.visitaForm}>
@@ -2521,7 +2250,7 @@ const GestionVisitantes = () => {
                     onChange={handleVisitaChange}
                     required={true}
                     options={sedesMemo.map((sede) => ({
-                      value: sede.id,
+                      value: sede. id,
                       label: sede.nombre,
                     }))}
                     placeholderOption="Seleccionar sede"
@@ -2559,13 +2288,11 @@ const GestionVisitantes = () => {
                   />
 
                   <button
-                    className={`${styles.registrarVisitaButton} ${
-                      isMobile ? styles.mobileRegistrarVisitaButton : ""
-                    }`}
+                    className={`${styles.registrarVisitaButton} ${isMobile ? styles.mobileRegistrarVisitaButton : ''}`}
                     onClick={async () => {
-                      if (!visitanteEncontrado) {
+                      if (! visitanteEncontrado) {
                         addNotification({
-                          message:
+                          message: 
                             "Primero debe buscar y seleccionar un visitante",
                           type: "warning",
                         });
@@ -2577,7 +2304,7 @@ const GestionVisitantes = () => {
                         !visitaData.empresa_entrega_id
                       ) {
                         addNotification({
-                          message: "Sede y proveedor de entrega son requeridos",
+                          message:  "Sede y proveedor de entrega son requeridos",
                           type: "warning",
                         });
                         return;
@@ -2590,40 +2317,32 @@ const GestionVisitantes = () => {
                           sede_id: visitaData.sede_id,
                           usuario_id: user.id,
                           empresa_entrega_id: visitaData.empresa_entrega_id,
-                          empresa_entrega_codigo:
-                            visitaData.empresa_entrega_codigo,
+                          empresa_entrega_codigo: visitaData.empresa_entrega_codigo,
                           motivo_visita: visitaData.motivo_visita,
                           observaciones: visitaData.observaciones,
-                        };
+                      };
                         console.log("Visita Payload:", visitaPayload);
                         await apiService.createVisita(visitaPayload);
-                        console.log(
-                          "Empresa Entrega ID:",
-                          visitaData.empresa_entrega_id
-                        );
+                        console.log("Empresa Entrega ID:", visitaData.empresa_entrega_id);
                         console.log("Proveedores disponibles:", proveedores);
                         await apiService.createVisita(visitaPayload);
-                        console.log(
-                          "Empresa Entrega ID:",
-                          visitaData.empresa_entrega_id
-                        );
+                        console.log("Empresa Entrega ID:", visitaData.empresa_entrega_id);
 
                         addNotification({
-                          message:
+                          message: 
                             "Visita registrada exitosamente.  Estado: En espera",
-                          type: "success",
+                          type:  "success",
                         });
 
                         setVisitaData({
                           sede_id: "",
-                          empresa_entrega_id: "",
-                          motivo_visita: "Entrega de mercancía",
+                          empresa_entrega_id:  "",
+                          motivo_visita:  "Entrega de mercancía",
                           observaciones: "",
                         });
                       } catch (error) {
                         addNotification({
-                          message:
-                            "Error registrando visita:  " + error.message,
+                          message: "Error registrando visita:  " + error.message,
                           type: "error",
                         });
                       } finally {
@@ -2633,7 +2352,7 @@ const GestionVisitantes = () => {
                     disabled={
                       loading ||
                       !visitaData.sede_id ||
-                      !visitaData.empresa_entrega_id
+                      ! visitaData.empresa_entrega_id
                     }
                   >
                     <FontAwesomeIcon icon={faUserPlus} />
@@ -2686,7 +2405,7 @@ const VisitasTab = React.memo(
     const [filters, setFilters] = useState({
       search: "",
       sede_id: "",
-      estado: "",
+      estado:  "",
       proveedor_id: "",
       fecha_desde: "",
       fecha_hasta: "",
@@ -2707,13 +2426,13 @@ const VisitasTab = React.memo(
         } catch (error) {
           addNotification({
             message: "Error cargando visitas:  " + error.message,
-            type: "error",
+            type:  "error",
           });
         } finally {
           setLoading(false);
         }
       },
-      [filters, pagination.por_pagina, addNotification]
+      [filters, pagination. por_pagina, addNotification]
     );
 
     useEffect(() => {
@@ -2733,7 +2452,7 @@ const VisitasTab = React.memo(
         try {
           const payload = {
             id: visitaId,
-            usuario_id: user.id,
+            usuario_id: user. id,
             estado: nuevoEstado,
           };
 
@@ -2741,7 +2460,7 @@ const VisitasTab = React.memo(
             payload.carnet_asignado = carnet;
           }
 
-          await apiService.updateVisita(visitaId, payload);
+          await apiService. updateVisita(visitaId, payload);
 
           addNotification({
             message: `Visita actualizada a:  ${nuevoEstado}`,
@@ -2752,30 +2471,22 @@ const VisitasTab = React.memo(
         } catch (error) {
           addNotification({
             message: "Error actualizando visita:  " + error.message,
-            type: "error",
+            type:  "error",
           });
         }
       },
-      [user.id, addNotification, cargarVisitas, pagination.pagina]
+      [user.id, addNotification, cargarVisitas, pagination. pagina]
     );
 
     const formatearFecha = useCallback((fecha) => {
-      if (!fecha) return "";
+      if (! fecha) return "";
       return new Date(fecha).toLocaleString("es-CO");
     }, []);
 
     return (
       <div className={styles.visitasContainer}>
-        <div
-          className={`${styles.filtersSection} ${
-            isMobile ? styles.mobileFiltersSection : ""
-          }`}
-        >
-          <div
-            className={`${styles.filterGrid} ${
-              isMobile ? styles.mobileFilterGrid : ""
-            }`}
-          >
+        <div className={`${styles.filtersSection} ${isMobile ? styles.mobileFiltersSection : ''}`}>
+          <div className={`${styles.filterGrid} ${isMobile ? styles.mobileFilterGrid : ''}`}>
             <div className={`${styles.formGroup} ${styles.floating}`}>
               <input
                 type="text"
@@ -2816,7 +2527,7 @@ const VisitasTab = React.memo(
               >
                 <option value="">Todos los estados</option>
                 {estadosVisitas.map((estado) => (
-                  <option key={estado.value} value={estado.value}>
+                  <option key={estado. value} value={estado. value}>
                     {estado.label}
                   </option>
                 ))}
@@ -2830,8 +2541,8 @@ const VisitasTab = React.memo(
                 value={filters.proveedor_id}
                 onChange={(proveedor) => {
                   setFilters((prev) => ({
-                    ...prev,
-                    proveedor_id: proveedor?.codigo || "",
+                    ... prev,
+                    proveedor_id: proveedor?. codigo || "",
                   }));
                 }}
                 proveedores={proveedores}
@@ -2841,15 +2552,9 @@ const VisitasTab = React.memo(
             </div>
           </div>
 
-          <div
-            className={`${styles.filterActions} ${
-              isMobile ? styles.mobileFilterActions : ""
-            }`}
-          >
+          <div className={`${styles.filterActions} ${isMobile ? styles.mobileFilterActions : ''}`}>
             <button
-              className={`${styles.filterButton} ${
-                isMobile ? styles.mobileFilterButton : ""
-              }`}
+              className={`${styles.filterButton} ${isMobile ? styles.mobileFilterButton : ''}`}
               onClick={() => cargarVisitas(1)}
             >
               <FontAwesomeIcon icon={faFilter} />
@@ -2857,9 +2562,7 @@ const VisitasTab = React.memo(
             </button>
 
             <button
-              className={`${styles.refreshButton} ${
-                isMobile ? styles.mobileRefreshButton : ""
-              }`}
+              className={`${styles.refreshButton} ${isMobile ? styles.mobileRefreshButton : ''}`}
               onClick={() => cargarVisitas(pagination.pagina)}
             >
               <FontAwesomeIcon icon={faSyncAlt} />
@@ -2877,12 +2580,8 @@ const VisitasTab = React.memo(
               {visitas.map((visita) => (
                 <div key={visita.id} className={styles.visitaCard}>
                   <div className={styles.cardHeader}>
-                    <h4>
-                      {visita.visitante_nombres} {visita.visitante_apellidos}
-                    </h4>
-                    <span className={styles.cedulaMobile}>
-                      C.C. {visita.cedula}
-                    </span>
+                    <h4>{visita.visitante_nombres} {visita.visitante_apellidos}</h4>
+                    <span className={styles.cedulaMobile}>C.C. {visita.cedula}</span>
                   </div>
                   <div className={styles.cardContent}>
                     <div className={styles.cardRow}>
@@ -2895,24 +2594,14 @@ const VisitasTab = React.memo(
                     </div>
                     <div className={styles.cardRow}>
                       <span>Estado:</span>
-                      <span
-                        className={styles.estadoBadge}
-                        style={{
-                          backgroundColor: estadosVisitas.find(
-                            (e) => e.value === visita.estado
-                          )?.color,
-                        }}
-                      >
-                        {estadosVisitas.find((e) => e.value === visita.estado)
-                          ?.label || visita.estado}
+                      <span className={styles.estadoBadge} style={{ backgroundColor: estadosVisitas.find(e => e.value === visita.estado)?.color }}>
+                        {estadosVisitas.find(e => e.value === visita.estado)?.label || visita.estado}
                       </span>
                     </div>
                     <div className={styles.cardRow}>
                       <span>Carnet:</span>
                       {visita.carnet_asignado ? (
-                        <span className={styles.carnetBadge}>
-                          {visita.carnet_asignado}
-                        </span>
+                        <span className={styles.carnetBadge}>{visita.carnet_asignado}</span>
                       ) : (
                         <span className={styles.carnetEmpty}>No asignado</span>
                       )}
@@ -2928,11 +2617,7 @@ const VisitasTab = React.memo(
                           onClick={() => {
                             const carnet = prompt("Ingrese número de carnet:");
                             if (carnet) {
-                              cambiarEstadoVisita(
-                                visita.id,
-                                "en_operacion",
-                                carnet
-                              );
+                              cambiarEstadoVisita(visita.id, "en_operacion", carnet);
                             }
                           }}
                           title="Aprobar ingreso"
@@ -2944,9 +2629,7 @@ const VisitasTab = React.memo(
                       {visita.estado === "en_operacion" && (
                         <button
                           className={styles.actionButton}
-                          onClick={() =>
-                            cambiarEstadoVisita(visita.id, "terminado")
-                          }
+                          onClick={() => cambiarEstadoVisita(visita.id, "terminado")}
                           title="Finalizar visita"
                         >
                           <FontAwesomeIcon icon={faSignOutAlt} />
@@ -2990,7 +2673,7 @@ const VisitasTab = React.memo(
                       <span
                         className={styles.estadoBadge}
                         style={{
-                          backgroundColor:
+                          backgroundColor: 
                             estadosVisitas.find(
                               (e) => e.value === visita.estado
                             )?.color || "#6b7280",
@@ -3052,22 +2735,16 @@ const VisitasTab = React.memo(
             </table>
           )}
 
-          {visitas.length === 0 && !loading && (
+          {visitas. length === 0 && ! loading && (
             <div className={styles.emptyState}>
               <p>No hay visitas registradas con los filtros actuales</p>
             </div>
           )}
 
           {pagination.total_paginas > 1 && (
-            <div
-              className={`${styles.pagination} ${
-                isMobile ? styles.mobilePagination : ""
-              }`}
-            >
+            <div className={`${styles.pagination} ${isMobile ? styles.mobilePagination : ''}`}>
               <button
-                className={`${styles.paginationButton} ${
-                  isMobile ? styles.mobilePaginationButton : ""
-                }`}
+                className={`${styles.paginationButton} ${isMobile ? styles.mobilePaginationButton : ''}`}
                 onClick={() => cargarVisitas(pagination.pagina - 1)}
                 disabled={pagination.pagina === 1}
               >
@@ -3079,9 +2756,7 @@ const VisitasTab = React.memo(
               </span>
 
               <button
-                className={`${styles.paginationButton} ${
-                  isMobile ? styles.mobilePaginationButton : ""
-                }`}
+                className={`${styles.paginationButton} ${isMobile ? styles.mobilePaginationButton : ''}`}
                 onClick={() => cargarVisitas(pagination.pagina + 1)}
                 disabled={pagination.pagina === pagination.total_paginas}
               >
@@ -3099,13 +2774,7 @@ const VisitasTab = React.memo(
 // COMPONENTE: ConsultaTab
 // ============================================================================
 const ConsultaTab = React.memo(
-  ({
-    proveedores,
-    setActiveTab,
-    buscarVisitantePorCedula,
-    addNotification,
-    isMobile,
-  }) => {
+  ({ proveedores, setActiveTab, buscarVisitantePorCedula, addNotification, isMobile }) => {
     const [visitantes, setVisitantes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [filters, setFilters] = useState({
@@ -3119,7 +2788,7 @@ const ConsultaTab = React.memo(
           const response = await apiService.getVisitantes(
             page,
             20,
-            filters.search
+            filters. search
           );
 
           setVisitantes(response.data || []);
@@ -3132,7 +2801,7 @@ const ConsultaTab = React.memo(
           setLoading(false);
         }
       },
-      [filters.search, addNotification]
+      [filters. search, addNotification]
     );
 
     useEffect(() => {
@@ -3155,20 +2824,14 @@ const ConsultaTab = React.memo(
     return (
       <div className={styles.consultaContainer}>
         <div className={styles.filtersSection}>
-          <div
-            className={`${styles.searchBox} ${
-              isMobile ? styles.mobileSearchBox : ""
-            }`}
-          >
+          <div className={`${styles.searchBox} ${isMobile ? styles.mobileSearchBox : ''}`}>
             <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
             <input
               type="text"
               name="search"
               value={filters.search}
               onChange={handleFilterChange}
-              className={`${styles.searchInput} ${
-                isMobile ? styles.mobileSearchInput : ""
-              }`}
+              className={`${styles.searchInput} ${isMobile ? styles.mobileSearchInput : ''}`}
               placeholder="Buscar por cédula, nombre o empresa"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -3178,9 +2841,7 @@ const ConsultaTab = React.memo(
               }}
             />
             <button
-              className={`${styles.scanButton} ${
-                isMobile ? styles.mobileButton : ""
-              }`}
+              className={`${styles.scanButton} ${isMobile ? styles.mobileButton : ''}`}
               onClick={() => cargarVisitantes(1)}
             >
               Buscar
@@ -3197,29 +2858,19 @@ const ConsultaTab = React.memo(
               {visitantes.map((visitante) => (
                 <div key={visitante.id} className={styles.visitanteCard}>
                   <div className={styles.cardHeader}>
-                    <h4>
-                      {visitante.nombres} {visitante.apellidos}
-                    </h4>
-                    <span className={styles.cedulaMobile}>
-                      C.C. {visitante.cedula}
-                    </span>
+                    <h4>{visitante.nombres} {visitante.apellidos}</h4>
+                    <span className={styles.cedulaMobile}>C.C. {visitante.cedula}</span>
                   </div>
                   <div className={styles.cardContent}>
                     <div className={styles.cardRow}>
                       <span>Empresa:</span>
-                      <strong>
-                        {visitante.empresa_actual_nombre || "No asignada"}
-                      </strong>
+                      <strong>{visitante.empresa_actual_nombre || "No asignada"}</strong>
                     </div>
                     <div className={styles.cardRow}>
                       <span>ARL Vigente:</span>
-                      <span
-                        className={`${styles.arlIndicator} ${
-                          visitante.arl_vigente
-                            ? styles.vigente
-                            : styles.noVigente
-                        }`}
-                      >
+                      <span className={`${styles.arlIndicator} ${
+                        visitante.arl_vigente ? styles.vigente : styles.noVigente
+                      }`}>
                         {visitante.arl_vigente ? "SÍ" : "NO"}
                       </span>
                     </div>
@@ -3233,10 +2884,7 @@ const ConsultaTab = React.memo(
                     </div>
                     <div className={styles.cardRow}>
                       <span>Última Visita:</span>
-                      <span>
-                        {formatearFechaCorta(visitante.ultima_visita) ||
-                          "Nunca"}
-                      </span>
+                      <span>{formatearFechaCorta(visitante.ultima_visita) || "Nunca"}</span>
                     </div>
                     <div className={styles.cardActions}>
                       <button
@@ -3275,7 +2923,7 @@ const ConsultaTab = React.memo(
               <tbody>
                 {visitantes.map((visitante) => (
                   <tr key={visitante.id}>
-                    <td>{visitante.cedula}</td>
+                    <td>{visitante. cedula}</td>
                     <td>
                       <strong>
                         {visitante.nombres} {visitante.apellidos}
@@ -3320,7 +2968,7 @@ const ConsultaTab = React.memo(
             </table>
           )}
 
-          {visitantes.length === 0 && !loading && (
+          {visitantes.length === 0 && ! loading && (
             <div className={styles.emptyState}>
               <p>No hay visitantes registrados</p>
             </div>
