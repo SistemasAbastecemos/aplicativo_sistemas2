@@ -68,22 +68,33 @@ export const informesConfig = [
   },
 
   // Tobar
+
   {
-    id: "tobar sanchez azul",
-    title: "Tobar - Pantalla Azul",
-    description: "Informe de ventas Tobar Sanchez - Azul",
+    id: "belalcazar bi - tobar",
+    title: "Belalcazar Bi - Tobar",
+    description: "Informe de Belalcazar Bi - Tobar",
     area: "Tobar",
     areaPermitida: ["Sistemas", "Tobar", "Compras", "Auditoria"],
     color: "#dc3545",
   },
-  {
-    id: "tobar sanchez roja",
-    title: "Tobar - Pantalla Roja",
-    description: "Informe de ventas Tobar Sanchez - Roja",
-    area: "Tobar",
-    areaPermitida: ["Sistemas", "Tobar", "Compras", "Auditoria"],
-    color: "#dc3545",
-  },
+
+  // {
+  //   id: "tobar sanchez azul",
+  //   title: "Tobar - Pantalla Azul",
+  //   description: "Informe de ventas Tobar Sanchez - Azul",
+  //   area: "Tobar",
+  //   areaPermitida: ["Sistemas", "Tobar", "Compras", "Auditoria"],
+  //   color: "#dc3545",
+  // },
+
+  // {
+  //   id: "tobar sanchez roja",
+  //   title: "Tobar - Pantalla Roja",
+  //   description: "Informe de ventas Tobar Sanchez - Roja",
+  //   area: "Tobar",
+  //   areaPermitida: ["Sistemas", "Tobar", "Compras", "Auditoria"],
+  //   color: "#dc3545",
+  // },
 
   // Fruver
   {

@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./Informes.module.css";
 import Vista from "./Vista";
-import { informesConfig } from "./informesConfig";
+import { informesConfig } from "./InformesConfig";
 import { useNotification } from "../../contexts/NotificationContext";
 import { useAuth } from "../../contexts/AuthContext";
 

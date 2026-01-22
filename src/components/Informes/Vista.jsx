@@ -15,11 +15,13 @@ const powerBIUrls = {
   "proveedores y acreedores":
     "https://app.powerbi.com/view?r=eyJrIjoiNzhiM2MzODUtMmM3Zi00ZDliLWFhZGYtZDdlMGFiMmM1YzlhIiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
   "belalcazar bi":
-    "https://app.powerbi.com/view?r=eyJrIjoiY2RhNzFkNTktZmIyZS00ZDFmLWFkNmItMzJlYzY3MDBlYmUxIiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
+    "https://app.powerbi.com/view?r=eyJrIjoiNTkxODFhZDEtYmM0Ni00MzA5LTkzMjEtZjA5Mzk5NjNhYzc2IiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
   "venta x cliente":
     "https://app.powerbi.com/view?r=eyJrIjoiYzYyNzkwNGQtZmI1Yi00Yzg0LTk3NjUtMmMxOTIwNTkwYjZiIiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
   "rotaciones y existencias":
     "https://app.powerbi.com/view?r=eyJrIjoiZmYwNDMxZmEtZjBjMi00MDNhLTg3OWMtNTEyNjU3YTUwZGUxIiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
+  "belalcazar bi - tobar":
+    "https://app.powerbi.com/view?r=eyJrIjoiYjgwNDg5OWMtNGFmZC00NTY3LTg2MDQtNDg2NjViOTE3YmZmIiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
   "tobar sanchez azul":
     "https://app.powerbi.com/view?r=eyJrIjoiNDllZTI5YzctNDhkNi00NjAyLWE3MGQtNGRiNDY4ZWVlNjI2IiwidCI6IjhkNTMwOTY3LTk3ZTgtNDJiMS1iOWEwLWNiZGVjNjNkOGQwYiJ9",
   "tobar sanchez roja":
