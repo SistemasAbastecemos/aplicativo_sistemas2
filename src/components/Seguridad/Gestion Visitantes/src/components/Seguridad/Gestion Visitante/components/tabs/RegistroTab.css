@@ -1,0 +1,94 @@
+/* RegistroTab.css */
+.registro-tab {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+/* Encabezado del Tab */
+.registro-tab .tab-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.registro-tab .tab-header h2 {
+    color: #064e3b; /* Verde oscuro institucional */
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    position: relative;
+    display: inline-block;
+}
+
+/* Línea decorativa debajo del título (como en tu imagen) */
+.registro-tab .tab-header h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: #10b981;
+    margin: 8px auto 0;
+    border-radius: 2px;
+}
+
+.tab-description {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+/* Pie de página y Acciones Rápidas */
+.registro-tab .tab-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.quick-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-quick {
+    background-color: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-quick:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+    transform: translateY(-1px);
+}
+
+/* Estilo para el botón de imprimir específicamente */
+.btn-quick:first-child:hover {
+    color: #0d9488;
+    border-color: #0d9488;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .registro-tab {
+        padding: 10px;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .btn-quick {
+        width: 100%;
+        justify-content: center;
+    }
+}

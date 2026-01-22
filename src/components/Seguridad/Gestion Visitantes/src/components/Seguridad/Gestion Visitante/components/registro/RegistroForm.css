@@ -1,0 +1,573 @@
+/* RegistroForm.css - Tema Belalcazar */
+.registro-form {
+  background: var(--belalcazar-white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 10px;
+  box-shadow: var(--shadow-md);
+  max-width: 100%;
+  overflow-x: hidden;
+  border: 1px solid var(--belalcazar-gray-200);
+}
+
+.form-section {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--belalcazar-primary-lightest);
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.form-section h3 {
+  color: var(--belalcazar-primary-dark);
+  font-size: 18px;
+  margin-bottom: 15px;
+  padding-left: 10px;
+  border-left: 4px solid var(--belalcazar-primary);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: var(--belalcazar-primary-dark);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group label::after {
+  content: ' *';
+  color: var(--belalcazar-danger);
+  opacity: 0.8;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--belalcazar-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: var(--belalcazar-white);
+  color: var(--belalcazar-gray-800);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--belalcazar-primary);
+  background: var(--belalcazar-white);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.form-group input[type="text"]:disabled {
+  background: var(--belalcazar-gray-100);
+  color: var(--belalcazar-gray-500);
+  cursor: not-allowed;
+}
+
+.input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.input-with-button input {
+  flex: 1;
+}
+
+.btn-scan {
+  background: var(--belalcazar-success);
+  color: var(--belalcazar-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0 20px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.btn-scan:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-scan:active {
+  transform: translateY(0);
+}
+
+/* Photo Capture Styles */
+.photo-capture {
+  margin-top: 15px;
+}
+
+.btn-camera {
+  width: 100%;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, var(--belalcazar-primary) 0%, var(--belalcazar-primary-dark) 100%);
+  color: var(--belalcazar-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-camera:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
+}
+
+.camera-preview {
+  position: relative;
+  background: var(--belalcazar-gray-900);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 15px;
+  border: 2px solid var(--belalcazar-gray-700);
+}
+
+.camera-preview video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.camera-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 15px;
+  background: rgba(31, 41, 55, 0.9);
+}
+
+.btn-capture {
+  padding: 12px 30px;
+  background: var(--belalcazar-success);
+  color: var(--belalcazar-white);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-capture:hover {
+  transform: scale(1.05);
+}
+
+.btn-cancel {
+  padding: 12px 30px;
+  background: var(--belalcazar-danger);
+  color: var(--belalcazar-white);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  transform: scale(1.05);
+}
+
+.photo-preview {
+  text-align: center;
+  background: var(--belalcazar-gray-50);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--belalcazar-gray-300);
+}
+
+.photo-preview img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: var(--radius-sm);
+  border: 3px solid var(--belalcazar-white);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-retake {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: var(--belalcazar-warning);
+  color: var(--belalcazar-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.btn-retake:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.photo-status {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Fichas seleccionada info */
+.ficha-seleccionada-info {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--belalcazar-primary-lightest) 0%, #d1fae5 100%);
+  border-radius: var(--radius-lg);
+  margin-top: 20px;
+  border: 2px solid var(--belalcazar-primary);
+  animation: pulse 2s infinite;
+}
+
+.ficha-seleccionada-info strong {
+  font-size: 24px;
+  color: var(--belalcazar-primary-dark);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.ficha-seleccionada-info span {
+  color: var(--belalcazar-gray-600);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(46, 125, 50, 0);
+  }
+}
+
+/* Form Actions */
+.form-actions {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.btn-submit {
+  width: 100%;
+  max-width: 400px;
+  padding: 18px 30px;
+  background: linear-gradient(135deg, var(--belalcazar-primary) 0%, var(--belalcazar-primary-dark) 100%);
+  color: var(--belalcazar-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: var(--shadow-md);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  background: var(--belalcazar-gray-400);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.validation-hint {
+  display: block;
+  margin-top: 10px;
+  color: var(--belalcazar-danger);
+  font-size: 14px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.connection-status {
+  margin-top: 20px;
+  padding: 15px;
+  text-align: center;
+  background: var(--belalcazar-gray-100);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--belalcazar-gray-600);
+  border: 1px solid var(--belalcazar-gray-300);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .registro-form {
+    padding: 15px;
+    margin: 5px;
+  }
+  
+  .form-group {
+    flex: 1 1 100%;
+  }
+  
+  .form-row {
+    gap: 10px;
+  }
+  
+  .btn-submit {
+    padding: 16px 20px;
+    font-size: 16px;
+    min-height: 52px;
+  }
+  
+  .ficha-seleccionada-info {
+    padding: 15px;
+  }
+  
+  .ficha-seleccionada-info strong {
+    font-size: 20px;
+  }
+}
+
+/* RegistroForm.css */
+
+/* Contenedor de botones de acción */
+.form-actions {
+    display: flex;
+    flex-direction: column; /* Apila el botón y la leyenda de validación */
+    align-items: center;    /* Centra horizontalmente */
+    justify-content: center;
+    margin-top: 30px;
+    padding: 20px 0;
+    gap: 12px;              /* Espacio entre el botón y el texto pequeño */
+}
+
+/* El botón principal de registro */
+.btn-submit {
+    min-width: 280px;       /* Le da un tamaño consistente */
+    padding: 14px 40px;
+    background-color: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:hover:not(:disabled) {
+    background-color: #0f766e;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit:disabled {
+    background-color: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Centrado del estado de conexión */
+.connection-status {
+    text-align: center;      /* Centra el texto */
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 1px solid #f1f5f9;
+    color: #64748b;
+}
+
+.connection-status small {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra el contenido si hay iconos */
+    gap: 6px;
+    font-weight: 500;
+}
+
+/* Estilo para la leyenda de campos obligatorios debajo del botón */
+.validation-hint {
+    color: #ef4444;
+    font-size: 0.85rem;
+    text-align: center;
+}/* RegistroForm.css */
+
+/* Grupo de input con botón de lupa integrado */
+.input-search-group {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.input-search-group:focus-within {
+    border-color: #0d9488;
+}
+
+.input-search-group input {
+    border: none !important; /* Quita el borde interno */
+    flex: 1;
+    padding: 10px;
+}
+
+.inline-search-btn {
+    background: #f1f5f9;
+    border: none;
+    border-left: 1px solid #cbd5e1;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #475569;
+    display: flex;
+    align-items: center;
+}
+
+.inline-search-btn:hover {
+    background: #e2e8f0;
+    color: #0d9488;
+}
+
+/* Centrado del Footer */
+.form-footer-actions {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.btn-submit-main {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    background: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.dot.online { background: #22c55e; }
+.dot.offline { background: #f97316; }
+/* RegistroForm.css */
+
+.form-footer-actions {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.btn-submit-main {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: not-allowed;
+    transition: all 0.3s ease;
+    color: #fff;
+}
+
+/* ESTADO: Campos incompletos (Gris) */
+.btn-disabled {
+    background-color: #94a3b8; /* Gris pizarra */
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+/* ESTADO: Formulario válido (Verde) */
+.btn-valid {
+    background-color: #22c55e; /* Verde vibrante */
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);
+    opacity: 1;
+}
+
+.btn-valid:hover {
+    background-color: #16a34a; /* Verde un poco más oscuro al pasar el mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -3px rgba(34, 197, 94, 0.4);
+}
+
+.btn-valid:active {
+    transform: translateY(0);
+}

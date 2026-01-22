@@ -1,0 +1,97 @@
+/* SearchSection.css */
+.search-section {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 25px;
+}
+
+.search-section .form-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+/* Proporciones de las columnas */
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+
+.search-section .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+/* Grupo de Input + Botón */
+.input-with-button {
+    display: flex;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.input-documento {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-right: none; /* Quitamos el borde derecho para unirlo al botón */
+    border-radius: 8px 0 0 8px;
+    padding: 10px 14px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-documento:focus {
+    border-color: #0d9488;
+}
+
+.btn-scan-trigger {
+    background: #1e293b;
+    color: white;
+    border: 1px solid #1e293b;
+    border-radius: 0 8px 8px 0;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-scan-trigger:hover {
+    background: #334155;
+}
+
+.btn-scan-trigger svg {
+    font-size: 1.2rem;
+}
+
+/* Estilo del Select */
+.select-documento {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background-color: white;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.select-documento:focus {
+    border-color: #0d9488;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    .search-section .form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-scan-trigger span {
+        display: none; /* En móvil solo mostramos el icono para ahorrar espacio */
+    }
+}

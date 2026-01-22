@@ -1,0 +1,42 @@
+/* Usamos el nombre del contenedor para asegurar que solo afecte a las pestañas */
+.tabs-navigation-wrapper {
+  display: flex !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  margin: 15px 0 !important;
+  padding: 0 !important;
+  background: white !important;
+  gap: 5px !important;
+}
+
+.tabs-navigation-wrapper .tab-button {
+  /* Quitamos el estilo de botón gris por defecto */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 3px solid transparent !important;
+  
+  /* Ajustamos el texto y espacio */
+  padding: 12px 20px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  font-size: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+/* Estado cuando la pestaña está seleccionada */
+.tabs-navigation-wrapper .tab-button.active {
+  color: #00897b !important; /* El verde de tu header */
+  border-bottom-color: #00897b !important;
+  background-color: rgba(0, 137, 123, 0.05) !important;
+}
+
+.tabs-navigation-wrapper .tab-button:hover:not(.active) {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+}
