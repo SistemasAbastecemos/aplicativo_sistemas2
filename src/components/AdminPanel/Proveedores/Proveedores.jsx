@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./Proveedores.module.css";
 import { apiService } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import {
@@ -27,6 +29,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Proveedores = () => {
   const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const { puedeVer, puedeCrear, loading: permisosLoading } = usePermisos();
+
+  // Expulsion en vivo si se revoca el permiso de ver durante la sesion.
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
+    }
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
 
   // Estados principales
   const [proveedores, setProveedores] = useState([]);
@@ -52,7 +67,8 @@ const Proveedores = () => {
     activo: 1,
   });
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // Acceso regido por permisos del menu (no por rol fijo).
+  const esAdministrador = puedeVer;
 
   // Memoized computed values
   const camposIncompletos = useMemo(
@@ -61,7 +77,7 @@ const Proveedores = () => {
       !formData.correo.trim() ||
       (!modoEdicion && !formData.contrasena.trim()) ||
       (!!errorContrasena && (formData.contrasena || confirmarContrasena)),
-    [formData, modoEdicion, errorContrasena, confirmarContrasena]
+    [formData, modoEdicion, errorContrasena, confirmarContrasena],
   );
 
   const proveedoresFiltrados = useMemo(() => {
@@ -70,8 +86,8 @@ const Proveedores = () => {
     const texto = search.toLowerCase();
     return proveedores.filter((p) =>
       Object.values(p).some(
-        (value) => value && value.toString().toLowerCase().includes(texto)
-      )
+        (value) => value && value.toString().toLowerCase().includes(texto),
+      ),
     );
   }, [proveedores, search]);
 
@@ -93,7 +109,7 @@ const Proveedores = () => {
       setErrorContrasena(
         formData.contrasena !== confirmarContrasena
           ? "Las contraseñas no coinciden"
-          : ""
+          : "",
       );
     } else {
       setErrorContrasena("");
@@ -263,7 +279,7 @@ const Proveedores = () => {
     );
   }
 
-  if (cargando && pagina === 1) {
+  if (cargando && pagina === 1 && proveedores.length === 0) {
     return <LoadingScreen message="Cargando proveedores..." />;
   }
 
@@ -283,7 +299,10 @@ const Proveedores = () => {
       <div className={styles.controls}>
         <div className={styles.filters}>
           <div className={styles.searchGroup}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <FontAwesomeIcon
+              icon={cargando ? faSyncAlt : faSearch}
+              className={`${styles.searchIcon} ${cargando ? styles.spin : ""}`}
+            />
             <input
               type="text"
               className={styles.searchInput}
@@ -302,10 +321,12 @@ const Proveedores = () => {
           </button>
         </div>
 
-        <button className={styles.createButton} onClick={abrirModalNuevo}>
-          <FontAwesomeIcon icon={faUserPlus} />
-          Nuevo Proveedor
-        </button>
+        {puedeCrear && (
+          <button className={styles.createButton} onClick={abrirModalNuevo}>
+            <FontAwesomeIcon icon={faUserPlus} />
+            Nuevo Proveedor
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -425,60 +446,48 @@ const ProveedorCard = React.memo(({ proveedor, onEdit }) => {
 
   return (
     <div
-      className={`${styles.proveedorCard} ${
-        proveedor.activo ? styles.activo : styles.inactivo
-      }`}
+      className={`${styles.proveedorCard} ${proveedor.activo ? styles.activo : styles.inactivo}`}
     >
-      <div className={styles.cardHeader}>
+      {/* Indicador de estado minimalista */}
+      <span
+        className={styles.statusDot}
+        title={proveedor.activo ? "Activo" : "Inactivo"}
+      />
+
+      <div className={styles.cardMain}>
         <div className={styles.avatar}>
-          <FontAwesomeIcon icon={faBuilding} />
+          {proveedor.razon_social?.charAt(0)?.toUpperCase() || "P"}
         </div>
-        <div className={styles.proveedorMain}>
-          <h4 className={styles.proveedorNit}>{proveedor.nit}</h4>
-          <p className={styles.proveedorEmail}>{proveedor.correo}</p>
+
+        <div className={styles.details}>
+          <div className={styles.nameRow}>
+            <h4 className={styles.companyName}>{proveedor.razon_social}</h4>
+            <span className={styles.nitText}>NIT: {proveedor.nit}</span>
+          </div>
+          <p className={styles.contactEmail}>
+            {proveedor.correo || "Sin correo de contacto"}
+          </p>
         </div>
-        <button
-          className={styles.editButton}
-          onClick={handleEdit}
-          title="Editar proveedor"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </button>
       </div>
 
-      <div className={styles.cardContent}>
-        <div className={styles.proveedorInfo}>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faIdCard} className={styles.infoIcon} />
-            <span className={styles.infoText}>NIT: {proveedor.nit}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faEnvelope} className={styles.infoIcon} />
-            <span className={styles.infoText}>
-              {proveedor.correo || "Sin correo"}
-            </span>
-          </div>
+      <div className={styles.cardMeta}>
+        <div className={styles.metaBadge} title="Contacto">
+          <FontAwesomeIcon icon={faIdCard} className={styles.metaIcon} />
+          <span>{proveedor.contacto || "Sin contacto asignado"}</span>
         </div>
+        {proveedor.telefono && (
+          <div className={styles.metaBadge} title="Teléfono">
+            <FontAwesomeIcon icon={faBuilding} className={styles.metaIcon} />
+            <span>{proveedor.telefono}</span>
+          </div>
+        )}
+      </div>
 
-        <div className={styles.cardFooter}>
-          <span
-            className={`${styles.statusBadge} ${
-              proveedor.activo ? styles.active : styles.inactive
-            }`}
-          >
-            {proveedor.activo ? (
-              <>
-                <FontAwesomeIcon icon={faCheckCircle} />
-                Activo
-              </>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faTimesCircle} />
-                Inactivo
-              </>
-            )}
-          </span>
-        </div>
+      <div className={styles.cardActions}>
+        <button className={styles.editActionBtn} onClick={handleEdit}>
+          <FontAwesomeIcon icon={faEdit} />
+          <span>Editar proveedor</span>
+        </button>
       </div>
     </div>
   );
@@ -647,7 +656,7 @@ const ProveedorModal = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export default Proveedores;

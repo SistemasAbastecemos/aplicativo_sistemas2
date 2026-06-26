@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         apiService
           .logout(token)
           .catch((err) =>
-            console.error("Error al cerrar sesión en el servidor:", err)
+            console.error("Error al cerrar sesión en el servidor:", err),
           );
       }
 
@@ -58,13 +58,14 @@ export const AuthProvider = ({ children }) => {
         navigate("/login", { replace: true });
       }
     },
-    [navigate]
+    [navigate],
   );
 
   const verifyToken = useCallback(async () => {
     const token = localStorage.getItem("authToken");
+
+    // Si no hay token, no limpiamos estados ni hacemos nada si ya esta cargando un login
     if (!token) {
-      // Solo actualizar estado si hay un cambio real
       if (userRef.current !== null) {
         setUser(null);
         userRef.current = null;
@@ -77,7 +78,6 @@ export const AuthProvider = ({ children }) => {
       const result = await apiService.verifyToken(token);
 
       if (result.success && result.user) {
-        // Solo actualizar si el usuario realmente cambió
         const userChanged =
           JSON.stringify(userRef.current) !== JSON.stringify(result.user);
 
@@ -88,22 +88,19 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem("userRole", result.user.rol);
         }
       } else {
-        // Solo hacer logout si realmente había un usuario activo
         if (userRef.current !== null) {
-          logout(result.message || "Sesión expirada o usuario inactivo");
+          logout(result.message || "Sesion expirada o usuario inactivo");
         }
       }
     } catch (err) {
-      // Solo hacer logout si realmente había un usuario activo
       if (userRef.current !== null) {
-        logout(err.message || "Error de conexión al verificar la sesión");
+        logout(err.message || "Error de conexion al verificar la sesion");
       }
     } finally {
-      if (loading) {
-        setLoading(false);
-      }
+      // Solo alteramos el loading general si no estamos en un proceso de transicion inicial
+      setLoading(false);
     }
-  }, [logout, loading]);
+  }, [logout]);
 
   const login = async (credentials) => {
     try {
@@ -129,6 +126,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithMicrosoft = async (code, redirectUri) => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await apiService.loginMicrosoft(code, redirectUri);
+
+      if (response.success) {
+        setUser(response.user);
+        userRef.current = response.user;
+        localStorage.setItem("authToken", response.token);
+        localStorage.setItem(
+          "userRole",
+          response.user.rol || response.user.id_rol,
+        );
+        return { success: true };
+      } else {
+        setError(response.message || "Error en el login corporativo");
+        return { success: false, message: response.message };
+      }
+    } catch (error) {
+      setError(error.message || "Error de conexion con el servidor");
+      return { success: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     verifyToken(); // primera verificación
 
@@ -144,6 +168,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     login,
+    loginWithMicrosoft,
     logout,
     setError,
   };

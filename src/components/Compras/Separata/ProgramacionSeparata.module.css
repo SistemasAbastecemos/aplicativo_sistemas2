@@ -1,7 +1,12 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* Header */
@@ -1636,6 +1641,263 @@
 
 .closeSidebar:hover {
   background: #dc2626;
+}
+
+.tableHeaderGroup {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.tableHeaderLeft h3 {
+  margin: 0 0 0.25rem 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+.searchListContainer {
+  position: relative;
+  width: 300px;
+}
+
+.searchListIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.searchListInput {
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.searchListInput:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Estilos para el Modal de Historial y Sugerencias */
+.historyModalContent {
+  max-width: 980px;
+  width: 95%;
+  border-radius: 16px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.historyModalBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.searchGroupContainer {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.searchGroupContainer.floating {
+  position: relative;
+  margin-top: 1.2rem;
+}
+
+.searchBarContainer {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+  position: relative;
+}
+
+.inputFloatingWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.inputFloatingWrapper .formInput {
+  width: 100% !important;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  background-color: #ffffff;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+/* El label se queda permanentemente fijo arriba (comportamiento flotante por defecto).
+   Selector con mayor especificidad (4 clases) para ganarle a
+   `.searchGroupContainer.floating .formLabel` y a las reglas de :focus /
+   :not(:placeholder-shown), de modo que flote aunque el input no tenga
+   foco ni valor. `transform: none` anula el translateY que inyectan esas reglas. */
+.searchGroupContainer.floating .inputFloatingWrapper .formLabel {
+  position: absolute;
+  left: 0.6rem;
+  top: -0.45rem; /* Forzado arriba siempre */
+  transform: none; /* Anula el translateY(-50%) de las reglas de focus/valor */
+  background: #f8fafc; /* Mismo fondo gris de .searchGroupContainer para ocultar la línea */
+  padding: 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #009b6d; /* Verde corporativo constante */
+  pointer-events: none;
+  z-index: 2;
+  margin: 0;
+  border-radius: 3px;
+}
+
+.searchBarContainer input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.searchBarContainer input:focus {
+  border-color: #009b6d;
+  box-shadow: 0 0 0 3px rgba(0, 155, 109, 0.12);
+}
+
+.searchGroupContainer.floating .formLabel {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ffffff; /* Fondo blanco para tapar el borde gris del input */
+  padding: 0 0.4rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  pointer-events: none; /* Permite clickear el input aunque el texto esté encima */
+  transition: all 0.2s ease;
+  z-index: 2;
+  margin: 0;
+}
+
+.formInput:focus ~ .formLabel,
+.formInput:not(:placeholder-shown) ~ .formLabel {
+  top: 0;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #009b6d; /* Mismo color verde de los precios de tu tabla */
+}
+
+.suggestionsList {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 6px 0;
+  margin: 8px 0 0 0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.suggestionItem {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.suggestionItem:hover {
+  background-color: #f0fdf4;
+}
+
+.suggestionItem strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.suggestionItem span {
+  color: #64748b;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyTableWrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #ffffff;
+}
+
+.historyTableWrapper thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f8fafc;
+  box-shadow: 0 1px 0 #cbd5e1;
+}
+
+/* Estilo para el boton de historial del Header */
+.actionButtonHistory {
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.actionButtonHistory:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.historyTableWrapper::-webkit-scrollbar,
+.suggestionsList::-webkit-scrollbar {
+  width: 10px;
+}
+
+.historyTableWrapper::-webkit-scrollbar-thumb,
+.suggestionsList::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
 }
 
 /* Animations */

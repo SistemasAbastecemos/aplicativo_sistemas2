@@ -13,7 +13,6 @@ import {
   faUsers,
   faBell,
   faEdit,
-  faChartLine,
   faShieldAlt,
   faRocket,
   faPhoneAlt,
@@ -26,6 +25,7 @@ import {
   faClock,
   faSearch,
   faTimes,
+  faCalendarDay,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Dashboard = () => {
@@ -36,23 +36,20 @@ const Dashboard = () => {
   const { addNotification } = useNotification();
   const navigate = useNavigate();
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    // VERIFICAR SI ES LA PRIMERA VEZ QUE INGRESA EN ESTA SESIÓN
-    // sessionStorage se limpia automáticamente al cerrar la pestaña/navegador
     const hasRedirectedThisSession = sessionStorage.getItem(
-      "hasRedirectedThisSession"
+      "hasRedirectedThisSession",
     );
 
     if (!hasRedirectedThisSession && currentUser) {
-      // Mostrar notificación de bienvenida solo la primera vez
       addNotification({
-        message: "Ha iniciado sesión correctamente.",
+        message: "Ha iniciado sesion correctamente.",
         type: "success",
       });
 
-      // Solo redirigir si es la primera vez en esta sesión
       if (currentUser.area_nombre === "Cajas" && isMobile) {
         sessionStorage.setItem("hasRedirectedThisSession", "true");
         navigate("/CVM");
@@ -65,7 +62,6 @@ const Dashboard = () => {
         return;
       }
 
-      // Marcar que ya se verificó la redirección para esta sesión
       sessionStorage.setItem("hasRedirectedThisSession", "true");
     }
 
@@ -85,8 +81,14 @@ const Dashboard = () => {
     };
   }, [isSmallScreen, currentUser, navigate, addNotification]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const [stats, setStats] = useState({
-    usuariosActivos: 0,
     funcionesDisponibles: 0,
     permisosTotales: 0,
     ultimoAcceso: new Date().toLocaleDateString(),
@@ -106,12 +108,12 @@ const Dashboard = () => {
       ...currentUser,
       ...userInfo,
     }),
-    [currentUser, userInfo]
+    [currentUser, userInfo],
   );
 
   const saludo = useMemo(() => {
     const hora = new Date().getHours();
-    if (hora < 12) return "Buenos días";
+    if (hora < 12) return "Buenos dias";
     if (hora < 18) return "Buenas tardes";
     return "Buenas noches";
   }, []);
@@ -119,32 +121,42 @@ const Dashboard = () => {
   const funcionesDisponibles = useMemo(() => {
     if (!Array.isArray(menu)) return [];
 
-    return menu.flatMap((item) => {
-      const items = [];
-      if (item.ruta && item.ruta !== "#") {
-        items.push({ ...item, tipo: "principal" });
-      }
-      if (item.children && item.children.length > 0) {
-        items.push(
-          ...item.children.map((child) => ({
-            ...child,
-            tipo: "submenu",
-            parent: item.nombre,
-          }))
-        );
-      }
-      return items;
-    });
+    const extraerFuncionesNavegables = (items, parentName = "") => {
+      let listaFunciones = [];
+
+      items.forEach((item) => {
+        if (item.ruta && item.ruta !== "#" && item.ruta.trim() !== "") {
+          listaFunciones.push({
+            ...item,
+            tipo: parentName ? "submenu" : "principal",
+            parent: parentName || null,
+          });
+        }
+
+        if (
+          item.children &&
+          Array.isArray(item.children) &&
+          item.children.length > 0
+        ) {
+          listaFunciones = listaFunciones.concat(
+            extraerFuncionesNavegables(item.children, item.nombre),
+          );
+        }
+      });
+
+      return listaFunciones;
+    };
+
+    return extraerFuncionesNavegables(menu);
   }, [menu]);
 
-  // Filtrar funciones basado en búsqueda
   useEffect(() => {
     if (searchTerm) {
       const filtered = funcionesDisponibles.filter(
         (item) =>
           item.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (item.descripcion &&
-            item.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
+            item.descripcion.toLowerCase().includes(searchTerm.toLowerCase())),
       );
       setFilteredFunciones(filtered);
     } else {
@@ -152,7 +164,6 @@ const Dashboard = () => {
     }
   }, [searchTerm, funcionesDisponibles]);
 
-  // Simular estadísticas
   useEffect(() => {
     if (funcionesDisponibles.length > 0) {
       setStats((prev) => ({
@@ -166,6 +177,24 @@ const Dashboard = () => {
       }));
     }
   }, [funcionesDisponibles]);
+
+  const formatTimeString = (date) => {
+    return date.toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+  const formatDateString = (date) => {
+    return date.toLocaleDateString("es-CO", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const handleEditarPerfil = () => {
     navigate("/perfil");
@@ -202,7 +231,7 @@ const Dashboard = () => {
     : funcionesDisponibles;
 
   if (!currentUser) {
-    return <LoadingScreen message="Cargando información del usuario..." />;
+    return <LoadingScreen message="Cargando informacion del usuario..." />;
   }
 
   if (error) {
@@ -228,7 +257,6 @@ const Dashboard = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.title}>Dashboard</h1>
@@ -239,7 +267,6 @@ const Dashboard = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Welcome Card */}
         <div className={styles.welcomeCard}>
           <div className={styles.welcomeContent}>
             <div className={styles.welcomeText}>
@@ -248,9 +275,8 @@ const Dashboard = () => {
                 <span className={styles.userHighlight}>
                   {usuarioCompleto.nombres_completos || "Usuario"}
                 </span>
-                👋
               </h2>
-              <p>Bienvenido al sistema de gestión empresarial</p>
+              <p>Bienvenido al sistema de gestion empresarial</p>
               <div className={styles.userBadges}>
                 <span className={styles.userBadge}>
                   <FontAwesomeIcon icon={faUser} />
@@ -260,7 +286,7 @@ const Dashboard = () => {
                 </span>
                 <span className={styles.userBadge}>
                   <FontAwesomeIcon icon={faClock} />
-                  Último acceso: {stats.ultimoAcceso}
+                  Ultimo acceso: {stats.ultimoAcceso}
                 </span>
               </div>
             </div>
@@ -276,7 +302,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
             <div className={styles.statIcon}>
@@ -300,18 +325,18 @@ const Dashboard = () => {
 
           <div className={styles.statCard}>
             <div className={styles.statIcon}>
-              <FontAwesomeIcon icon={faChartLine} />
+              <FontAwesomeIcon icon={faCalendarDay} />
             </div>
             <div className={styles.statContent}>
-              <h3>100%</h3>
-              <p>Sistema Operativo</p>
+              <h3>{formatTimeString(currentTime)}</h3>
+              <p className={styles.capitalizeText}>
+                {formatDateString(currentTime)}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Main Content Grid */}
         <div className={styles.mainGrid}>
-          {/* Funciones Disponibles */}
           <div className={styles.infoCard}>
             <div className={styles.cardHeader}>
               <div className={styles.cardTitleSection}>
@@ -365,7 +390,7 @@ const Dashboard = () => {
                       className={styles.clearFilterButton}
                       onClick={() => setSearchTerm("")}
                     >
-                      Limpiar búsqueda
+                      Limpiar busqueda
                     </button>
                   )}
                 </div>
@@ -410,7 +435,7 @@ const Dashboard = () => {
                                       className={styles.permisoIcon}
                                     />
                                   </div>
-                                )
+                                ),
                             )}
                           </div>
                         </div>
@@ -427,7 +452,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Información de Contacto */}
           <div className={styles.infoCard}>
             <div className={styles.cardHeader}>
               <FontAwesomeIcon icon={faUsers} className={styles.cardIcon} />
@@ -440,7 +464,7 @@ const Dashboard = () => {
                     <FontAwesomeIcon icon={faPhoneAlt} />
                   </div>
                   <div className={styles.contactInfo}>
-                    <span className={styles.contactLabel}>Teléfono</span>
+                    <span className={styles.contactLabel}>Telefono</span>
                     <span className={styles.contactValue}>
                       669 5778 | Ext 132 - 109
                     </span>
@@ -484,7 +508,7 @@ const Dashboard = () => {
                     <FontAwesomeIcon icon={faMapMarkerAlt} />
                   </div>
                   <div className={styles.contactInfo}>
-                    <span className={styles.contactLabel}>Dirección</span>
+                    <span className={styles.contactLabel}>Direccion</span>
                     <span className={styles.contactValue}>
                       Cra. 5 # 5-48, Yumbo, Valle del Cauca
                     </span>
@@ -493,20 +517,20 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Información del Sistema */}
-        <div className={styles.systemCard}>
-          <div className={styles.systemContent}>
-            <div className={styles.systemIcon}>
-              <FontAwesomeIcon icon={faBell} />
-            </div>
-            <div className={styles.systemInfo}>
-              <h4>¿Necesitas ayuda?</h4>
-              <p>
-                Si tienes alguna pregunta o necesitas asistencia con el sistema,
-                no dudes en contactar a nuestro equipo de soporte técnico.
-              </p>
+          <div className={styles.systemCard}>
+            <div className={styles.systemContent}>
+              <div className={styles.systemIcon}>
+                <FontAwesomeIcon icon={faBell} />
+              </div>
+              <div className={styles.systemInfo}>
+                <h4>¿Necesita ayuda tecnica?</h4>
+                <p>
+                  Si experimenta alguna lentitud en el acceso a los modulos o
+                  requiere asignar nuevos permisos, comuniquese directamente a
+                  la extension del area de sistemas.
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -1,7 +1,14 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import styles from "./Menus.module.css";
 import { apiService } from "../../../services/api";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import {
@@ -23,14 +30,25 @@ import {
   faEye,
   faUserShield,
   faFilter,
+  faGripLines,
+  faComputer,
+  faStore,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Menus = () => {
-  const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
-  // Estados principales
+  // Permisos del usuario sobre ESTE modulo (/configuracion/menus), resueltos
+  // por la ruta actual. Reemplazan al antiguo control "rol === 1".
+  const {
+    puedeVer,
+    puedeCrear,
+    puedeEditar,
+    loading: permisosLoading,
+  } = usePermisos();
+
   const [menus, setMenus] = useState([]);
   const [roles, setRoles] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -42,17 +60,14 @@ const Menus = () => {
   const [search, setSearch] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
 
-  // Estados del modal
   const [mostrarModal, setMostrarModal] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [menuActual, setMenuActual] = useState(null);
   const [pestañaActiva, setPestañaActiva] = useState("datos");
 
-  // Filtros de permisos
   const [cargosFiltrados, setCargosFiltrados] = useState([]);
   const [areaSeleccionada, setAreaSeleccionada] = useState("");
 
-  // Datos del formulario
   const [formData, setFormData] = useState({
     nombre: "",
     ruta: "",
@@ -67,38 +82,55 @@ const Menus = () => {
     cargos: {},
   });
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // ── Drag & Drop state ──────────────────────────────────────────────
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
+  // Snapshot de orden antes de que empiece el drag (para restaurar en cancel)
+  const originalOrderRef = useRef(null);
+  // Lista con reordenamiento en vivo durante el drag
+  const [liveMenus, setLiveMenus] = useState([]);
 
-  // Memoized computed values
   const camposIncompletos = useMemo(
     () => !formData.nombre.trim() || !formData.ruta.trim(),
-    [formData.nombre, formData.ruta]
+    [formData.nombre, formData.ruta],
   );
 
+  // Cuando no hay drag activo usa `menus` ordenados; durante el drag usa `liveMenus`
   const menusFiltrados = useMemo(() => {
-    if (!search) return menus;
+    const base = draggingId
+      ? [...liveMenus]
+      : [...menus].sort(
+          (a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0),
+        );
 
+    if (!search) return base;
     const texto = search.toLowerCase();
-    return menus.filter((m) =>
+    return base.filter((m) =>
       Object.values(m).some(
-        (value) => value && value.toString().toLowerCase().includes(texto)
-      )
+        (value) => value && value.toString().toLowerCase().includes(texto),
+      ),
     );
-  }, [menus, search]);
+  }, [menus, liveMenus, draggingId, search]);
 
-  // Efectos
   useEffect(() => {
-    if (esAdministrador) {
-      cargarDatos();
+    if (puedeVer) cargarDatos();
+  }, [puedeVer]);
+
+  // Expulsion en vivo: si se revoca el permiso de ver mientras el usuario
+  // esta dentro, se le saca del modulo (el arbol se refresca periodicamente).
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
     }
-  }, [esAdministrador]);
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
 
   useEffect(() => {
     if (areaSeleccionada) {
-      const filtrados = cargos.filter(
-        (cargo) => cargo.id_area == areaSeleccionada
-      );
-      setCargosFiltrados(filtrados);
+      setCargosFiltrados(cargos.filter((c) => c.id_area == areaSeleccionada));
     } else {
       setCargosFiltrados(cargos);
     }
@@ -106,13 +138,10 @@ const Menus = () => {
 
   useEffect(() => {
     return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
+      if (searchTimeout) clearTimeout(searchTimeout);
     };
   }, [searchTimeout]);
 
-  // Funciones principales
   const cargarDatos = async () => {
     setCargando(true);
     try {
@@ -123,45 +152,139 @@ const Menus = () => {
         apiService.getCargos(),
       ]);
 
-      // Adaptar según la estructura de respuesta de tu API
-      setMenus(menusRes.data ?? menusRes);
+      const menusObtenidos = menusRes.data ?? menusRes;
+      menusObtenidos.sort(
+        (a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0),
+      );
+
+      setMenus(menusObtenidos);
       setRoles(rolesRes.data ?? rolesRes);
       setAreas(areasRes.data ?? areasRes);
       setCargos(cargosRes.data ?? cargosRes);
       setCargosFiltrados(cargosRes.data ?? cargosRes);
-
       setTotalPaginas(1);
-      setTotalMenus(menusRes.data?.length ?? menusRes.length ?? 0);
-    } catch (error) {
-      console.error("Error cargando datos:", error);
-      addNotification({ message: "Error cargando datos", type: "error" });
+      setTotalMenus(menusObtenidos.length ?? 0);
+    } catch {
+      addNotification({
+        message: "Error en la comunicacion con el servidor",
+        type: "error",
+      });
     } finally {
       setCargando(false);
     }
   };
 
+  // Drag handlers
+  const handleDragStart = useCallback(
+    (e, id) => {
+      e.dataTransfer.effectAllowed = "move";
+      // Snapshot + inicializar lista en vivo
+      const sorted = [...menus].sort(
+        (a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0),
+      );
+      originalOrderRef.current = sorted;
+      setLiveMenus(sorted);
+      setDraggingId(id);
+      setDragOverId(id); // inicialmente apunta a sí mismo
+    },
+    [menus],
+  );
+
+  const handleDragEnter = useCallback(
+    (e, id) => {
+      e.preventDefault();
+      if (!draggingId || id === draggingId) return;
+
+      setDragOverId(id);
+
+      // Reordenar la lista en vivo para mostrar el intercambio
+      setLiveMenus((prev) => {
+        const next = [...prev];
+        const fromIdx = next.findIndex((m) => m.id === draggingId);
+        const toIdx = next.findIndex((m) => m.id === id);
+        if (fromIdx === -1 || toIdx === -1) return prev;
+        const [removed] = next.splice(fromIdx, 1);
+        next.splice(toIdx, 0, removed);
+        return next;
+      });
+    },
+    [draggingId],
+  );
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const handleDragEnd = useCallback(
+    async (e) => {
+      if (!draggingId) return;
+
+      const finalList = liveMenus.length
+        ? liveMenus
+        : (originalOrderRef.current ?? []);
+
+      const listaActualizada = finalList.map((item, index) => ({
+        ...item,
+        orden: index + 1,
+      }));
+
+      const payloadMasivo = listaActualizada
+        .filter((item) => {
+          const original = menus.find((m) => m.id === item.id);
+          return original && original.orden !== item.orden;
+        })
+        .map((item) => ({ id: item.id, orden: item.orden }));
+
+      // Actualización optimista
+      setMenus(listaActualizada);
+
+      // Limpiar estado drag
+      setDraggingId(null);
+      setDragOverId(null);
+      setLiveMenus([]);
+      originalOrderRef.current = null;
+
+      if (payloadMasivo.length > 0) {
+        setCargando(true);
+        try {
+          await apiService.updateMenuBulkOrder(payloadMasivo);
+          addNotification({
+            message: "Estructura de navegacion actualizada",
+            type: "success",
+          });
+        } catch {
+          addNotification({
+            message:
+              "Error de sincronizacion. Se restaurara la estructura anterior.",
+            type: "error",
+          });
+          cargarDatos();
+        } finally {
+          setCargando(false);
+        }
+      }
+    },
+    [draggingId, liveMenus, menus],
+  );
+
+  const handleDragLeaveGrid = useCallback((e) => {
+    // Solo cancela si realmente sale del grid (no entre hijos)
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragOverId(null);
+    }
+  }, []);
+
+  // ── Resto de handlers sin cambios ─────────────────────────────────
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    const newTimeout = setTimeout(() => {
-      setPagina(1);
-      // Implementar búsqueda en API si está disponible
-      cargarDatos();
-    }, 500);
-
-    setSearchTimeout(newTimeout);
+    if (searchTimeout) clearTimeout(searchTimeout);
+    setSearchTimeout(setTimeout(() => setPagina(1), 500));
   };
 
   const abrirModalNuevo = async () => {
-    if (!roles.length || !areas.length || !cargos.length) {
-      await cargarDatos();
-    }
-
+    if (!roles.length || !areas.length || !cargos.length) await cargarDatos();
     setModoEdicion(false);
     setMenuActual(null);
     setFormData({
@@ -179,10 +302,7 @@ const Menus = () => {
   };
 
   const abrirModalEditar = async (menu) => {
-    if (!roles.length || !areas.length || !cargos.length) {
-      await cargarDatos();
-    }
-
+    if (!roles.length || !areas.length || !cargos.length) await cargarDatos();
     setModoEdicion(true);
     setMenuActual(menu);
     setFormData({
@@ -203,43 +323,49 @@ const Menus = () => {
   const guardarMenu = async () => {
     try {
       if (!formData.nombre || formData.nombre.trim() === "") {
-        addNotification({ message: "El nombre es obligatorio", type: "error" });
-        return;
-      }
-
-      if (camposIncompletos) {
         addNotification({
-          message: "Por favor complete todos los campos obligatorios",
+          message: "El nombre es un parametro obligatorio",
           type: "error",
         });
         return;
       }
-
-      let payload = {
+      if (camposIncompletos) {
+        addNotification({
+          message: "Por favor complete todos los campos requeridos",
+          type: "error",
+        });
+        return;
+      }
+      if ((modoEdicion && !puedeEditar) || (!modoEdicion && !puedeCrear)) {
+        addNotification({
+          message: "No tienes permiso para realizar esta accion.",
+          type: "error",
+        });
+        return;
+      }
+      const payload = {
         ...formData,
         permisos,
         id_parent: formData.id_parent || null,
       };
-
       if (modoEdicion) {
         await apiService.updateMenu(menuActual.id, payload);
         addNotification({
-          message: "Menú actualizado correctamente",
+          message: "Menu actualizado exitosamente",
           type: "success",
         });
       } else {
         await apiService.createMenu(payload);
         addNotification({
-          message: "Menú creado correctamente",
+          message: "Menu registrado exitosamente",
           type: "success",
         });
       }
       setMostrarModal(false);
       cargarDatos();
     } catch (error) {
-      console.error("Error guardando menú:", error);
       addNotification({
-        message: "Error guardando menú: " + (error.message || ""),
+        message: "Fallo en operacion: " + (error.message || ""),
         type: "error",
       });
     }
@@ -253,145 +379,169 @@ const Menus = () => {
     }));
   };
 
-  const handleAreaChange = (e) => {
-    setAreaSeleccionada(e.target.value);
-  };
+  const handleAreaChange = (e) => setAreaSeleccionada(e.target.value);
 
   const togglePermiso = (tipo, id, campo) => {
-    setPermisos((prev) => ({
-      ...prev,
-      [tipo]: {
-        ...prev[tipo],
-        [id]: {
-          ...prev[tipo][id],
-          [campo]: !prev[tipo][id]?.[campo],
+    setPermisos((prev) => {
+      const actual = prev[tipo]?.[id] || {};
+      const nuevoValor = !actual[campo];
+      let entrada = { ...actual, [campo]: nuevoValor };
+
+      // Coherencia con get_menu_user.php (exige ver=1 para mostrar el menú):
+      // - Si se desactiva "ver", se limpian las acciones dependientes.
+      // - Si se activa una acción dependiente, se fuerza "ver".
+      if (campo === "ver" && !nuevoValor) {
+        entrada = { ver: false, crear: false, editar: false, eliminar: false };
+      } else if (campo !== "ver" && nuevoValor) {
+        entrada.ver = true;
+      }
+
+      return {
+        ...prev,
+        [tipo]: {
+          ...prev[tipo],
+          [id]: entrada,
         },
-      },
-    }));
+      };
+    });
   };
 
-  const resetFilters = useCallback(() => {
-    setSearch("");
-    setPagina(1);
-    cargarDatos();
-  }, []);
+  if (permisosLoading) {
+    return <LoadingScreen message="Verificando permisos..." />;
+  }
 
-  if (!esAdministrador) {
+  if (!puedeVer) {
     return (
       <div className={styles.container}>
         <div className={styles.errorPermisos}>
-          <h2>Acceso restringido</h2>
-          <p>No tienes permisos para acceder a esta sección</p>
+          <h2>Restriccion de Seguridad</h2>
+          <p>
+            Credenciales insuficientes para acceder al modulo de configuracion.
+          </p>
         </div>
       </div>
     );
   }
 
   if (cargando && pagina === 1) {
-    return <LoadingScreen message="Cargando menús..." />;
+    return <LoadingScreen message="Procesando datos del servidor..." />;
   }
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Gestión de Menús</h1>
+          <h1 className={styles.title}>Gestion Estructural de Menus</h1>
           <p className={styles.subtitle}>
-            Administra y gestiona los menús del sistema
+            Administracion jerarquica y asignacion de atributos de acceso
           </p>
         </div>
       </div>
 
-      {/* Controls */}
       <div className={styles.controls}>
         <div className={styles.filters}>
           <div className={styles.searchGroup}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <FontAwesomeIcon
+              icon={cargando ? faSyncAlt : faSearch}
+              className={`${styles.searchIcon} ${cargando ? styles.spin : ""}`}
+            />
             <input
               type="text"
               className={styles.searchInput}
-              placeholder="Buscar menús por nombre, ruta o icono..."
+              placeholder="Filtro global..."
               value={search}
               onChange={handleSearchChange}
             />
           </div>
-
           <button
             className={styles.refreshButton}
             onClick={cargarDatos}
-            title="Actualizar datos"
+            title="Sincronizar base de datos"
           >
             <FontAwesomeIcon icon={faSyncAlt} />
           </button>
         </div>
-
-        <button className={styles.createButton} onClick={abrirModalNuevo}>
-          <FontAwesomeIcon icon={faPlus} />
-          Nuevo Menú
-        </button>
+        {puedeCrear && (
+          <button className={styles.createButton} onClick={abrirModalNuevo}>
+            <FontAwesomeIcon icon={faPlus} /> Nuevo Menu
+          </button>
+        )}
       </div>
 
-      {/* Stats */}
       <div className={styles.stats}>
         <div className={styles.statCard}>
           <span className={styles.statNumber}>{totalMenus}</span>
-          <span className={styles.statLabel}>Total menús</span>
+          <span className={styles.statLabel}>Registros totales</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statNumber}>
             {menus.filter((m) => m.activo).length}
           </span>
-          <span className={styles.statLabel}>Activos</span>
+          <span className={styles.statLabel}>Modulos activos</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statNumber}>
             {menus.filter((m) => !m.activo).length}
           </span>
-          <span className={styles.statLabel}>Inactivos</span>
+          <span className={styles.statLabel}>Modulos inactivos</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statNumber}>
             {menus.filter((m) => !m.id_parent).length}
           </span>
-          <span className={styles.statLabel}>Menús principales</span>
+          <span className={styles.statLabel}>Nodos principales</span>
         </div>
       </div>
 
-      {/* Content */}
       <div className={styles.content}>
         {menusFiltrados.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>📋</div>
             <h3>
-              {search ? "No se encontraron menús" : "No hay menús registrados"}
+              {search ? "Sin coincidencias de filtro" : "Repositorio vacio"}
             </h3>
             <p>
               {search
-                ? "No se encontraron menús que coincidan con tu búsqueda."
-                : "Puedes crear uno nuevo usando el botón + Nuevo Menú."}
+                ? "Modifique los parametros de la busqueda actual."
+                : "Utilice la herramienta de creacion para añadir el primer nodo."}
             </p>
-            {!search && (
-              <button className={styles.resetButton} onClick={abrirModalNuevo}>
-                <FontAwesomeIcon icon={faPlus} />
-                Crear el primero
-              </button>
-            )}
           </div>
         ) : (
           <>
-            <div className={styles.menusGrid}>
-              {menusFiltrados.map((menu) => (
+            {/* Hint de drag cuando hay más de un elemento y no se está buscando */}
+            {search.length === 0 &&
+              puedeEditar &&
+              menusFiltrados.length > 1 &&
+              !draggingId && (
+                <p className={styles.dragHint}>
+                  <FontAwesomeIcon icon={faGripLines} /> Arrastra las tarjetas
+                  para reordenar los menús
+                </p>
+              )}
+
+            <div
+              className={`${styles.menusGrid} ${draggingId ? styles.gridDragging : ""}`}
+              onDragLeave={handleDragLeaveGrid}
+            >
+              {menusFiltrados.map((menu, index) => (
                 <MenuCard
                   key={menu.id}
                   menu={menu}
+                  index={index}
                   onEdit={abrirModalEditar}
                   menus={menus}
+                  isDraggable={search.length === 0 && puedeEditar}
+                  isDragging={draggingId === menu.id}
+                  isDragOver={dragOverId === menu.id && draggingId !== menu.id}
+                  isDragActive={!!draggingId}
+                  onDragStart={handleDragStart}
+                  onDragEnter={handleDragEnter}
+                  onDragOver={handleDragOver}
+                  onDragEnd={handleDragEnd}
                 />
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPaginas > 1 && (
               <div className={styles.pagination}>
                 <button
@@ -399,15 +549,12 @@ const Menus = () => {
                   onClick={() => setPagina((p) => Math.max(p - 1, 1))}
                   disabled={pagina === 1}
                 >
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                  Anterior
+                  <FontAwesomeIcon icon={faChevronLeft} /> Anterior
                 </button>
-
                 <div className={styles.paginationInfo}>
-                  Página <strong>{pagina}</strong> de{" "}
+                  Pagina <strong>{pagina}</strong> de{" "}
                   <strong>{totalPaginas}</strong>
                 </div>
-
                 <button
                   className={styles.paginationButton}
                   onClick={() =>
@@ -415,8 +562,7 @@ const Menus = () => {
                   }
                   disabled={pagina === totalPaginas}
                 >
-                  Siguiente
-                  <FontAwesomeIcon icon={faChevronRight} />
+                  Siguiente <FontAwesomeIcon icon={faChevronRight} />
                 </button>
               </div>
             )}
@@ -424,7 +570,6 @@ const Menus = () => {
         )}
       </div>
 
-      {/* Modal */}
       {mostrarModal && (
         <MenuModal
           modoEdicion={modoEdicion}
@@ -437,6 +582,7 @@ const Menus = () => {
           cargosFiltrados={cargosFiltrados}
           menus={menus}
           camposIncompletos={camposIncompletos}
+          puedeGuardar={modoEdicion ? puedeEditar : puedeCrear}
           onChange={handleChange}
           onAreaChange={handleAreaChange}
           onTogglePermiso={togglePermiso}
@@ -450,82 +596,95 @@ const Menus = () => {
 };
 
 // Componente de Tarjeta de Menú
-const MenuCard = React.memo(({ menu, onEdit, menus }) => {
-  const handleEdit = useCallback(() => {
-    onEdit(menu);
-  }, [menu, onEdit]);
+const MenuCard = React.memo(
+  ({
+    menu,
+    index,
+    onEdit,
+    menus,
+    isDraggable,
+    isDragging,
+    isDragOver,
+    isDragActive,
+    onDragStart,
+    onDragEnter,
+    onDragOver,
+    onDragEnd,
+  }) => {
+    const handleEdit = useCallback(() => onEdit(menu), [menu, onEdit]);
+    const menuPadre = menus.find((m) => m.id === menu.id_parent);
 
-  const menuPadre = menus.find((m) => m.id === menu.id_parent);
+    const cardClass = [
+      styles.menuCard,
+      menu.activo ? styles.activo : styles.inactivo,
+      isDragging ? styles.cardDragging : "",
+      isDragOver ? styles.cardDragOver : "",
+      isDragActive && !isDragging && !isDragOver ? styles.cardDimmed : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
-  return (
-    <div
-      className={`${styles.menuCard} ${
-        menu.activo ? styles.activo : styles.inactivo
-      }`}
-    >
-      <div className={styles.cardHeader}>
-        <div className={styles.avatar}>
-          <FontAwesomeIcon icon={faBars} />
-        </div>
-        <div className={styles.menuMain}>
-          <h4 className={styles.menuName}>{menu.nombre}</h4>
-          <p className={styles.menuPath}>
-            <FontAwesomeIcon icon={faLink} />
-            {menu.ruta || "Sin ruta"}
-          </p>
-        </div>
-        <button
-          className={styles.editButton}
-          onClick={handleEdit}
-          title="Editar menú"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </button>
-      </div>
+    return (
+      <div
+        className={cardClass}
+        style={{ "--card-index": index }}
+        draggable={isDraggable}
+        onDragStart={(e) => isDraggable && onDragStart(e, menu.id)}
+        onDragEnter={(e) => isDraggable && onDragEnter(e, menu.id)}
+        onDragOver={isDraggable ? onDragOver : undefined}
+        onDragEnd={isDraggable ? onDragEnd : undefined}
+      >
+        {/* Indicador de destino visual */}
+        {isDragOver && <div className={styles.dropIndicator} />}
 
-      <div className={styles.cardContent}>
-        <div className={styles.menuInfo}>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faIcons} className={styles.infoIcon} />
-            <span className={styles.infoText}>{menu.icono || "Sin icono"}</span>
+        {/* Punto de estado minimalista */}
+        <span
+          className={styles.statusDot}
+          title={menu.activo ? "En línea" : "Fuera de servicio"}
+        />
+
+        <div className={styles.cardTop}>
+          <div className={styles.avatar}>
+            <FontAwesomeIcon icon={menu.icono ? faIcons : faBars} />
           </div>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faListOl} className={styles.infoIcon} />
-            <span className={styles.infoText}>Orden: {menu.orden || "—"}</span>
+
+          <div className={styles.menuDetails}>
+            <div className={styles.titleRow}>
+              <h4 className={styles.menuName}>{menu.nombre}</h4>
+              <span className={styles.orderLabel}>#{menu.orden}</span>
+            </div>
+            <p className={styles.menuPath}>{menu.ruta || "Ruta no definida"}</p>
           </div>
-          {menuPadre && (
-            <div className={styles.infoRow}>
-              <FontAwesomeIcon icon={faFolder} className={styles.infoIcon} />
-              <span className={styles.infoText}>Padre: {menuPadre.nombre}</span>
+        </div>
+
+        <div className={styles.cardMeta}>
+          <div className={styles.metaBadge}>
+            <FontAwesomeIcon icon={faFolder} className={styles.metaIcon} />
+            <span>{menuPadre ? menuPadre.nombre : "Menú Raíz"}</span>
+          </div>
+          <div className={styles.metaBadge}>
+            <FontAwesomeIcon icon={faLink} className={styles.metaIcon} />
+            <span>{menu.icono || "faBars"}</span>
+          </div>
+        </div>
+
+        <div className={styles.cardActions}>
+          {isDraggable && (
+            <div className={styles.dragHandle} title="Reordenar">
+              <FontAwesomeIcon icon={faGripLines} />
             </div>
           )}
-        </div>
-
-        <div className={styles.cardFooter}>
-          <span
-            className={`${styles.statusBadge} ${
-              menu.activo ? styles.active : styles.inactive
-            }`}
-          >
-            {menu.activo ? (
-              <>
-                <FontAwesomeIcon icon={faCheckCircle} />
-                Activo
-              </>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faTimesCircle} />
-                Inactivo
-              </>
-            )}
-          </span>
+          <button className={styles.editActionBtn} onClick={handleEdit}>
+            <FontAwesomeIcon icon={faEdit} />
+            <span>Propiedades</span>
+          </button>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
-// Componente Modal de Menú
+// MenuModa
 const MenuModal = React.memo(
   ({
     modoEdicion,
@@ -538,6 +697,7 @@ const MenuModal = React.memo(
     cargosFiltrados,
     menus,
     camposIncompletos,
+    puedeGuardar,
     onChange,
     onAreaChange,
     onTogglePermiso,
@@ -545,6 +705,52 @@ const MenuModal = React.memo(
     onSave,
     onClose,
   }) => {
+    const [tipoPermisoTab, setTipoPermisoTab] = useState("roles");
+
+    // Lógica para alternar masivamente los Roles visibles basados en tu objeto de permisos
+    const toggleTodosRoles = () => {
+      const todosMarcados = roles.every((r) => !!permisos?.roles?.[r.id]?.ver);
+      roles.forEach((r) => {
+        if (todosMarcados) {
+          // Si todos estan marcados, los desmarcamos quitando todos los flags
+          if (permisos?.roles?.[r.id]?.ver)
+            onTogglePermiso("roles", r.id, "ver");
+          if (permisos?.roles?.[r.id]?.crear)
+            onTogglePermiso("roles", r.id, "crear");
+          if (permisos?.roles?.[r.id]?.editar)
+            onTogglePermiso("roles", r.id, "editar");
+          if (permisos?.roles?.[r.id]?.eliminar)
+            onTogglePermiso("roles", r.id, "eliminar");
+        } else {
+          // Si falta alguno, marcamos la visualizacion basica 'ver'
+          if (!permisos?.roles?.[r.id]?.ver)
+            onTogglePermiso("roles", r.id, "ver");
+        }
+      });
+    };
+
+    // Lógica para alternar masivamente los Cargos filtrados actuales
+    const toggleTodosCargos = () => {
+      const todosMarcados = cargosFiltrados.every(
+        (c) => !!permisos?.cargos?.[c.id]?.ver,
+      );
+      cargosFiltrados.forEach((c) => {
+        if (todosMarcados) {
+          if (permisos?.cargos?.[c.id]?.ver)
+            onTogglePermiso("cargos", c.id, "ver");
+          if (permisos?.cargos?.[c.id]?.crear)
+            onTogglePermiso("cargos", c.id, "crear");
+          if (permisos?.cargos?.[c.id]?.editar)
+            onTogglePermiso("cargos", c.id, "editar");
+          if (permisos?.cargos?.[c.id]?.eliminar)
+            onTogglePermiso("cargos", c.id, "eliminar");
+        } else {
+          if (!permisos?.cargos?.[c.id]?.ver)
+            onTogglePermiso("cargos", c.id, "ver");
+        }
+      });
+    };
+
     return (
       <div className={styles.modalOverlay} onClick={onClose}>
         <div
@@ -558,32 +764,24 @@ const MenuModal = React.memo(
             </button>
           </div>
 
-          {/* Pestañas */}
           <div className={styles.tabContainer}>
             <button
-              className={`${styles.tab} ${
-                pestañaActiva === "datos" ? styles.activeTab : ""
-              }`}
+              className={`${styles.tab} ${pestañaActiva === "datos" ? styles.activeTab : ""}`}
               onClick={() => onPestañaChange("datos")}
             >
-              <FontAwesomeIcon icon={faBars} />
-              Datos del Menú
+              <FontAwesomeIcon icon={faBars} /> Datos del Menú
             </button>
             <button
-              className={`${styles.tab} ${
-                pestañaActiva === "permisos" ? styles.activeTab : ""
-              }`}
+              className={`${styles.tab} ${pestañaActiva === "permisos" ? styles.activeTab : ""}`}
               onClick={() => onPestañaChange("permisos")}
             >
-              <FontAwesomeIcon icon={faUserShield} />
-              Permisos
+              <FontAwesomeIcon icon={faUserShield} /> Permisos
             </button>
           </div>
 
           <div className={styles.modalBody}>
             {pestañaActiva === "datos" && (
               <div className={styles.formColumns}>
-                {/* Columna Izquierda */}
                 <div className={styles.formColumn}>
                   <div className={`${styles.formGroup} ${styles.floating}`}>
                     <input
@@ -591,34 +789,26 @@ const MenuModal = React.memo(
                       name="nombre"
                       value={formData.nombre}
                       onChange={onChange}
-                      className={`${styles.formInput} ${
-                        !formData.nombre ? styles.inputError : ""
-                      }`}
+                      className={`${styles.formInput} ${!formData.nombre ? styles.inputError : ""}`}
                       placeholder="Ej: Dashboard, Usuarios"
                     />
                     <label className={styles.formLabel}>
-                      <FontAwesomeIcon icon={faBars} />
-                      Nombre del Menú *
+                      <FontAwesomeIcon icon={faBars} /> Nombre del Menú *
                     </label>
                   </div>
-
                   <div className={`${styles.formGroup} ${styles.floating}`}>
                     <input
                       type="text"
                       name="ruta"
                       value={formData.ruta}
                       onChange={onChange}
-                      className={`${styles.formInput} ${
-                        !formData.ruta ? styles.inputError : ""
-                      }`}
+                      className={`${styles.formInput} ${!formData.ruta ? styles.inputError : ""}`}
                       placeholder="Ej: /dashboard, /usuarios"
                     />
                     <label className={styles.formLabel}>
-                      <FontAwesomeIcon icon={faLink} />
-                      Ruta *
+                      <FontAwesomeIcon icon={faLink} /> Ruta *
                     </label>
                   </div>
-
                   <div className={`${styles.formGroup} ${styles.floating}`}>
                     <input
                       type="text"
@@ -629,13 +819,10 @@ const MenuModal = React.memo(
                       placeholder="Ej: faHome, faUsers"
                     />
                     <label className={styles.formLabel}>
-                      <FontAwesomeIcon icon={faIcons} />
-                      Icono
+                      <FontAwesomeIcon icon={faIcons} /> Icono
                     </label>
                   </div>
                 </div>
-
-                {/* Columna Derecha */}
                 <div className={styles.formColumn}>
                   <div className={`${styles.formGroup} ${styles.floating}`}>
                     <input
@@ -647,11 +834,9 @@ const MenuModal = React.memo(
                       placeholder="Número de orden"
                     />
                     <label className={styles.formLabel}>
-                      <FontAwesomeIcon icon={faListOl} />
-                      Orden
+                      <FontAwesomeIcon icon={faListOl} /> Orden
                     </label>
                   </div>
-
                   <div className={`${styles.formGroup} ${styles.floating}`}>
                     <select
                       name="id_parent"
@@ -660,18 +845,16 @@ const MenuModal = React.memo(
                       className={styles.formSelect}
                     >
                       <option value="">(Menú principal)</option>
-                      {menus.map((menu) => (
-                        <option key={menu.id} value={menu.id}>
-                          {menu.nombre}
+                      {menus.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.nombre}
                         </option>
                       ))}
                     </select>
                     <label className={styles.formLabel}>
-                      <FontAwesomeIcon icon={faFolder} />
-                      Menú Padre
+                      <FontAwesomeIcon icon={faFolder} /> Menú Padre
                     </label>
                   </div>
-
                   <div className={`${styles.formGroup} ${styles.floating}`}>
                     <select
                       name="activo"
@@ -683,8 +866,7 @@ const MenuModal = React.memo(
                       <option value={0}>Inactivo</option>
                     </select>
                     <label className={styles.formLabel}>
-                      <FontAwesomeIcon icon={faCheckCircle} />
-                      Estado
+                      <FontAwesomeIcon icon={faCheckCircle} /> Estado
                     </label>
                   </div>
                 </div>
@@ -692,81 +874,111 @@ const MenuModal = React.memo(
             )}
 
             {pestañaActiva === "permisos" && (
-              <div className={styles.permisosContainer}>
-                <div className={styles.filtroArea}>
-                  <h4>
-                    <FontAwesomeIcon icon={faFilter} />
-                    Filtrar cargos por área:
-                  </h4>
-                  <select
-                    value={areaSeleccionada}
-                    onChange={onAreaChange}
-                    className={styles.areaSelector}
+              <div className={styles.politicasAccesoContainer}>
+                <div className={styles.tipoPermisoNavbar}>
+                  <button
+                    type="button"
+                    className={`${styles.subTabBtn} ${tipoPermisoTab === "roles" ? styles.subTabActive : ""}`}
+                    onClick={() => setTipoPermisoTab("roles")}
                   >
-                    <option value="">Todas las áreas</option>
-                    {areas.map((area) => (
-                      <option key={area.id} value={area.id}>
-                        {area.nombre}
-                      </option>
-                    ))}
-                  </select>
+                    Roles del Sistema
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.subTabBtn} ${tipoPermisoTab === "cargos" ? styles.subTabActive : ""}`}
+                    onClick={() => setTipoPermisoTab("cargos")}
+                  >
+                    Estructura por Cargos
+                  </button>
                 </div>
 
-                <div className={styles.permisosSection}>
-                  <h4>
-                    <FontAwesomeIcon icon={faUserShield} />
-                    Permisos por Rol
-                  </h4>
-                  <PermisosTabla
-                    tipo="roles"
-                    items={roles}
-                    permisos={permisos}
-                    togglePermiso={onTogglePermiso}
-                  />
-                </div>
+                {tipoPermisoTab === "roles" ? (
+                  <div className={styles.seccionPermisosDinamica}>
+                    <div className={styles.headerLine}>
+                      <h4>Roles con Autorizacion</h4>
+                      <button
+                        type="button"
+                        className={styles.btnToggleAll}
+                        onClick={toggleTodosRoles}
+                      >
+                        {roles.every((r) => !!permisos?.roles?.[r.id]?.ver)
+                          ? "Desmarcar Todos"
+                          : "Seleccionar Todos"}
+                      </button>
+                    </div>
+                    <PermisosTabla
+                      tipo="roles"
+                      items={roles}
+                      permisos={permisos}
+                      togglePermiso={onTogglePermiso}
+                    />
+                  </div>
+                ) : (
+                  <div className={styles.seccionPermisosDinamica}>
+                    <div className={styles.filtroAreaRow}>
+                      <label>
+                        <FontAwesomeIcon icon={faFilter} /> Filtrar Estructura
+                        por Area:
+                      </label>
+                      <select value={areaSeleccionada} onChange={onAreaChange}>
+                        <option value="">[ Mostrar Todas las Areas ]</option>
+                        {areas.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {a.descripcion || a.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className={styles.permisosSection}>
-                  <h4>
-                    <FontAwesomeIcon icon={faUserShield} />
-                    Permisos por Cargo{" "}
-                    {areaSeleccionada && "(Filtrado por área)"}
-                  </h4>
-                  <PermisosTabla
-                    tipo="cargos"
-                    items={cargosFiltrados}
-                    permisos={permisos}
-                    togglePermiso={onTogglePermiso}
-                    mostrarArea={true}
-                    areas={areas}
-                  />
-                </div>
+                    <div className={styles.headerLine}>
+                      <h4>Cargos Corporativos</h4>
+                      <button
+                        type="button"
+                        className={styles.btnToggleAll}
+                        onClick={toggleTodosCargos}
+                      >
+                        {cargosFiltrados.every(
+                          (c) => !!permisos?.cargos?.[c.id]?.ver,
+                        )
+                          ? "Desmarcar Filtrados"
+                          : "Seleccionar Filtrados"}
+                      </button>
+                    </div>
+
+                    <PermisosTabla
+                      tipo="cargos"
+                      items={cargosFiltrados}
+                      permisos={permisos}
+                      togglePermiso={onTogglePermiso}
+                      mostrarArea
+                      areas={areas}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           <div className={styles.modalActions}>
             <button className={styles.cancelButton} onClick={onClose}>
-              <FontAwesomeIcon icon={faTimes} />
-              Cancelar
+              <FontAwesomeIcon icon={faTimes} /> Cancelar
             </button>
             <button
-              className={`${styles.saveButton} ${
-                camposIncompletos ? styles.disabled : ""
-              }`}
+              className={`${styles.saveButton} ${camposIncompletos || !puedeGuardar ? styles.disabled : ""}`}
               onClick={onSave}
-              disabled={camposIncompletos}
+              disabled={camposIncompletos || !puedeGuardar}
             >
-              <FontAwesomeIcon icon={faCheck} />
+              <FontAwesomeIcon icon={faCheck} />{" "}
               {modoEdicion ? "Actualizar" : "Crear"} Menú
             </button>
           </div>
         </div>
       </div>
     );
-  }
+  },
 );
 
-// Componente de Tabla de Permisos
+// PermisosTabla
 const PermisosTabla = React.memo(
   ({
     tipo,
@@ -796,12 +1008,12 @@ const PermisosTabla = React.memo(
             <tr>
               <th>{tipo === "roles" ? "Rol" : "Cargo"}</th>
               {mostrarArea && <th>Área</th>}
-              <th title="Ver">
-                <FontAwesomeIcon icon={faEye} />
+              <th title="Acceder / ver el menú">
+                <FontAwesomeIcon icon={faEye} /> Ver
               </th>
-              <th title="Crear">C</th>
-              <th title="Editar">E</th>
-              <th title="Eliminar">D</th>
+              <th title="Crear registros">Crear</th>
+              <th title="Editar registros">Editar</th>
+              <th title="Eliminar registros">Eliminar</th>
             </tr>
           </thead>
           <tbody>
@@ -815,23 +1027,34 @@ const PermisosTabla = React.memo(
                     {getAreaNombre(item.id_area)}
                   </td>
                 )}
-                {["ver", "crear", "editar", "eliminar"].map((perm) => (
-                  <td key={perm} className={styles.permisoCheckbox}>
-                    <input
-                      type="checkbox"
-                      checked={!!permisos?.[tipo]?.[item.id]?.[perm]}
-                      onChange={() => togglePermiso(tipo, item.id, perm)}
-                      className={styles.permisoInput}
-                    />
-                  </td>
-                ))}
+                {["ver", "crear", "editar", "eliminar"].map((perm) => {
+                  const puedeVer = !!permisos?.[tipo]?.[item.id]?.ver;
+                  const dependiente = perm !== "ver" && !puedeVer;
+                  return (
+                    <td key={perm} className={styles.permisoCheckbox}>
+                      <input
+                        type="checkbox"
+                        checked={!!permisos?.[tipo]?.[item.id]?.[perm]}
+                        onChange={() => togglePermiso(tipo, item.id, perm)}
+                        disabled={dependiente}
+                        title={
+                          dependiente
+                            ? 'Requiere activar "Ver" primero'
+                            : undefined
+                        }
+                        className={styles.permisoInput}
+                        style={dependiente ? { opacity: 0.35 } : undefined}
+                      />
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     );
-  }
+  },
 );
 
 export default Menus;

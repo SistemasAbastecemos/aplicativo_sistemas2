@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./Sedes.module.css";
 import { apiService } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import {
@@ -27,6 +29,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Sedes = () => {
   const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const { puedeVer, puedeCrear, loading: permisosLoading } = usePermisos();
+
+  // Expulsion en vivo si se revoca el permiso de ver durante la sesion.
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
+    }
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
 
   // Estados principales
   const [sedes, setSedes] = useState([]);
@@ -53,12 +68,13 @@ const Sedes = () => {
     activo: 1,
   });
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // Acceso regido por permisos del menu (no por rol fijo).
+  const esAdministrador = puedeVer;
 
   // Memoized computed values
   const camposIncompletos = useMemo(
     () => !formData.codigo.trim() || !formData.nombre.trim(),
-    [formData.codigo, formData.nombre]
+    [formData.codigo, formData.nombre],
   );
 
   const sedesFiltradas = useMemo(() => {
@@ -67,8 +83,8 @@ const Sedes = () => {
     const texto = search.toLowerCase();
     return sedes.filter((s) =>
       Object.values(s).some(
-        (value) => value && value.toString().toLowerCase().includes(texto)
-      )
+        (value) => value && value.toString().toLowerCase().includes(texto),
+      ),
     );
   }, [sedes, search]);
 
@@ -243,7 +259,7 @@ const Sedes = () => {
     );
   }
 
-  if (cargando && pagina === 1) {
+  if (cargando && pagina === 1 && sedes.length === 0) {
     return <LoadingScreen message="Cargando sedes..." />;
   }
 
@@ -263,7 +279,10 @@ const Sedes = () => {
       <div className={styles.controls}>
         <div className={styles.filters}>
           <div className={styles.searchGroup}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <FontAwesomeIcon
+              icon={cargando ? faSyncAlt : faSearch}
+              className={`${styles.searchIcon} ${cargando ? styles.spin : ""}`}
+            />
             <input
               type="text"
               className={styles.searchInput}
@@ -282,10 +301,12 @@ const Sedes = () => {
           </button>
         </div>
 
-        <button className={styles.createButton} onClick={abrirModalNueva}>
-          <FontAwesomeIcon icon={faBuilding} />
-          Nueva Sede
-        </button>
+        {puedeCrear && (
+          <button className={styles.createButton} onClick={abrirModalNueva}>
+            <FontAwesomeIcon icon={faBuilding} />
+            Nueva Sede
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -389,77 +410,64 @@ const Sedes = () => {
 };
 
 // Componente de Tarjeta de Sede
+// Componente de Tarjeta de Sede - Corregido para leer enteros (1 / 0)
 const SedeCard = React.memo(({ sede, onEdit }) => {
   const handleEdit = useCallback(() => {
     onEdit(sede);
   }, [sede, onEdit]);
 
-  const ubicacion =
-    [sede.barrio, sede.ciudad, sede.departamento].filter(Boolean).join(", ") ||
-    "Ubicación no especificada";
+  // CORRECCIÓN: Evaluamos si es 1, "1" o true
+  const isActivo = sede.activo == 1 || sede.activo === true;
 
   return (
     <div
-      className={`${styles.sedeCard} ${
-        sede.activo ? styles.activa : styles.inactiva
-      }`}
+      className={`${styles.sedeCard} ${isActivo ? styles.activo : styles.inactivo}`}
     >
-      <div className={styles.cardHeader}>
+      {/* Indicador de estado dinámico con clases independientes */}
+      <span
+        className={`${styles.statusDot} ${isActivo ? styles.dotActivo : styles.dotInactivo}`}
+        title={isActivo ? "Sucursal Activa" : "Sucursal Inactiva"}
+      />
+
+      <div className={styles.cardMain}>
         <div className={styles.avatar}>
           <FontAwesomeIcon icon={faBuilding} />
         </div>
-        <div className={styles.sedeMain}>
+
+        <div className={styles.details}>
           <h4 className={styles.sedeName}>{sede.nombre}</h4>
-          <p className={styles.sedeCode}>
-            <FontAwesomeIcon icon={faHashtag} />
-            {sede.codigo}
+          <p className={styles.locationSummary}>
+            {sede.ciudad || "Sin ciudad"}
+            {sede.departamento ? `, ${sede.departamento}` : ""}
           </p>
         </div>
-        <button
-          className={styles.editButton}
-          onClick={handleEdit}
-          title="Editar sede"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </button>
       </div>
 
-      <div className={styles.cardContent}>
-        <div className={styles.sedeInfo}>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon
-              icon={faMapMarkerAlt}
-              className={styles.infoIcon}
-            />
-            <span className={styles.infoText}>
-              {sede.direccion || "Sin dirección"}
-            </span>
-          </div>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faLocationDot} className={styles.infoIcon} />
-            <span className={styles.infoText}>{ubicacion}</span>
-          </div>
+      {(sede.direccion || sede.telefono) && (
+        <div className={styles.cardMeta}>
+          {sede.direccion && (
+            <div className={styles.metaBadge} title="Dirección">
+              <FontAwesomeIcon
+                icon={faMapMarkerAlt}
+                className={styles.metaIcon}
+              />
+              <span>{sede.direccion}</span>
+            </div>
+          )}
+          {sede.telefono && (
+            <div className={styles.metaBadge} title="Teléfono">
+              <FontAwesomeIcon icon={faHashtag} className={styles.metaIcon} />
+              <span>{sede.telefono}</span>
+            </div>
+          )}
         </div>
+      )}
 
-        <div className={styles.cardFooter}>
-          <span
-            className={`${styles.statusBadge} ${
-              sede.activo ? styles.active : styles.inactive
-            }`}
-          >
-            {sede.activo ? (
-              <>
-                <FontAwesomeIcon icon={faCheckCircle} />
-                Activa
-              </>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faTimesCircle} />
-                Inactiva
-              </>
-            )}
-          </span>
-        </div>
+      <div className={styles.cardActions}>
+        <button className={styles.editActionBtn} onClick={handleEdit}>
+          <FontAwesomeIcon icon={faEdit} />
+          <span>Editar sucursal</span>
+        </button>
       </div>
     </div>
   );
@@ -622,7 +630,7 @@ const SedeModal = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export default Sedes;

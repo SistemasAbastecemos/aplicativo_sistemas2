@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./Cargos.module.css";
 import { apiService } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import {
@@ -26,6 +28,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Cargos = () => {
   const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const { puedeVer, puedeCrear, loading: permisosLoading } = usePermisos();
+
+  // Expulsion en vivo si se revoca el permiso de ver durante la sesion.
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
+    }
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
 
   // Estados principales
   const [cargos, setCargos] = useState([]);
@@ -51,7 +66,8 @@ const Cargos = () => {
     activo: 1,
   });
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // Acceso regido por permisos del menu (no por rol fijo).
+  const esAdministrador = puedeVer;
 
   // Memoized computed values
   const camposIncompletos = useMemo(
@@ -59,7 +75,7 @@ const Cargos = () => {
       !formData.nombre.trim() ||
       !formData.descripcion.trim() ||
       !formData.id_area,
-    [formData.nombre, formData.descripcion, formData.id_area]
+    [formData.nombre, formData.descripcion, formData.id_area],
   );
 
   const cargosFiltrados = useMemo(() => {
@@ -69,11 +85,11 @@ const Cargos = () => {
     return cargos.filter(
       (c) =>
         Object.values(c).some(
-          (value) => value && value.toString().toLowerCase().includes(texto)
+          (value) => value && value.toString().toLowerCase().includes(texto),
         ) ||
         (areas.find((a) => a.id === c.id_area)?.nombre || "")
           .toLowerCase()
-          .includes(texto)
+          .includes(texto),
     );
   }, [cargos, search, areas]);
 
@@ -253,7 +269,7 @@ const Cargos = () => {
     );
   }
 
-  if (cargando && pagina === 1) {
+  if (cargando && pagina === 1 && cargos.length === 0) {
     return <LoadingScreen message="Cargando cargos..." />;
   }
 
@@ -273,7 +289,10 @@ const Cargos = () => {
       <div className={styles.controls}>
         <div className={styles.filters}>
           <div className={styles.searchGroup}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <FontAwesomeIcon
+              icon={cargando ? faSyncAlt : faSearch}
+              className={`${styles.searchIcon} ${cargando ? styles.spin : ""}`}
+            />
             <input
               type="text"
               className={styles.searchInput}
@@ -292,10 +311,12 @@ const Cargos = () => {
           </button>
         </div>
 
-        <button className={styles.createButton} onClick={abrirModalNuevo}>
-          <FontAwesomeIcon icon={faUserPlus} />
-          Nuevo Cargo
-        </button>
+        {puedeCrear && (
+          <button className={styles.createButton} onClick={abrirModalNuevo}>
+            <FontAwesomeIcon icon={faUserPlus} />
+            Nuevo Cargo
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -414,65 +435,49 @@ const CargoCard = React.memo(({ cargo, areas, onEdit }) => {
 
   const area = areas.find((a) => a.id === cargo.id_area);
 
+  // Mapear etiquetas de nivel de jerarquía de forma limpia
+  const getNivelLabel = (nivel) => {
+    if (nivel === 1) return "Operativo";
+    if (nivel === 2) return "Táctico";
+    if (nivel === 3) return "Estratégico";
+    return "No asignado";
+  };
+
   return (
     <div
-      className={`${styles.cargoCard} ${
-        cargo.activo ? styles.activo : styles.inactivo
-      }`}
+      className={`${styles.cargoCard} ${cargo.activo ? styles.activo : styles.inactivo}`}
     >
-      <div className={styles.cardHeader}>
+      <span
+        className={styles.statusDot}
+        title={cargo.activo ? "Activo" : "Inactivo"}
+      />
+
+      <div className={styles.cardMain}>
         <div className={styles.avatar}>
           <FontAwesomeIcon icon={faBriefcase} />
         </div>
-        <div className={styles.cargoMain}>
+
+        <div className={styles.details}>
           <h4 className={styles.cargoName}>{cargo.nombre}</h4>
-          <p className={styles.cargoArea}>
-            <FontAwesomeIcon icon={faLayerGroup} />
-            {area?.nombre || "Sin área asignada"}
-          </p>
-        </div>
-        <button
-          className={styles.editButton}
-          onClick={handleEdit}
-          title="Editar cargo"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </button>
-      </div>
-
-      <div className={styles.cardContent}>
-        <div className={styles.cargoInfo}>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faFileLines} className={styles.infoIcon} />
-            <span className={styles.infoText}>
-              {cargo.descripcion || "Sin descripción"}
-            </span>
-          </div>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faChartSimple} className={styles.infoIcon} />
-            <span className={styles.infoText}>Nivel {cargo.nivel || "—"}</span>
-          </div>
-        </div>
-
-        <div className={styles.cardFooter}>
-          <span
-            className={`${styles.statusBadge} ${
-              cargo.activo ? styles.active : styles.inactive
-            }`}
-          >
-            {cargo.activo ? (
-              <>
-                <FontAwesomeIcon icon={faCheckCircle} />
-                Activo
-              </>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faTimesCircle} />
-                Inactivo
-              </>
-            )}
+          <span className={styles.areaText}>
+            {area?.descripcion || "Sin área asociada"}
           </span>
         </div>
+      </div>
+
+      <div className={styles.cardMeta}>
+        <div
+          className={`${styles.levelBadge} ${styles[`level${cargo.nivel}`]}`}
+        >
+          <span>Nivel: {getNivelLabel(cargo.nivel)}</span>
+        </div>
+      </div>
+
+      <div className={styles.cardActions}>
+        <button className={styles.editActionBtn} onClick={handleEdit}>
+          <FontAwesomeIcon icon={faEdit} />
+          <span>Editar cargo</span>
+        </button>
       </div>
     </div>
   );
@@ -621,7 +626,7 @@ const CargoModal = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export default Cargos;

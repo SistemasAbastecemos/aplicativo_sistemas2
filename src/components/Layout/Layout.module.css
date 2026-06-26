@@ -1,7 +1,8 @@
 .layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh; /* Restriccion estricta al viewport */
+  overflow: hidden; /* Previene scroll general de la ventana */
   background: #f5f5f5;
 }
 
@@ -11,6 +12,7 @@
   justify-content: center;
   padding: 1rem;
   box-sizing: border-box;
+  overflow: hidden; /* Encapsula el desbordamiento de sus hijos */
 }
 
 .card {
@@ -21,12 +23,22 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  min-height: calc(100vh - 80px);
+  height: 100%; /* Forzar adopcion del alto calculado por .main */
+}
+
+.sidebar {
+  height: 100%;
+  overflow: visible; /* Permite que los tooltips se extiendan fuera del limite de la barra */
+  flex-shrink: 0;
+  position: relative; /* Requerido para que z-index tenga efecto */
+  z-index: 100; /* Fuerza la barra lateral a renderizarse sobre el contenido */
 }
 
 .content {
   flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
   transition: margin-left 0.3s ease;
 }
 
@@ -34,10 +46,10 @@
 .sidebarCollapsed {
   width: 80px !important;
   transition: width 0.3s ease;
-  z-index: 99 !important;
+  z-index: 110 !important; /* Prioridad maxima al estar colapsada */
 }
 
-/* Contenido expandido cuando sidebar está colapsada */
+/* Contenido expandido cuando sidebar esta colapsada */
 .contentCollapsed {
   transition: margin-left 0.3s ease;
 }
@@ -51,13 +63,14 @@
     flex-direction: column;
     max-width: 100%;
     border-radius: 8px;
-    min-height: calc(100vh - 70px);
+    height: 100%;
   }
 
   .sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #eee;
+    height: auto;
   }
 
   .sidebarCollapsed {

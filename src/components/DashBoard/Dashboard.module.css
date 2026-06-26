@@ -1,10 +1,14 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
-/* Header */
 .header {
   background: #ffffff;
   padding: 0.3rem 0;
@@ -36,7 +40,6 @@
   font-weight: 400;
 }
 
-/* Content */
 .content {
   margin: 0 auto;
   padding: 1.5rem 1rem;
@@ -45,7 +48,6 @@
   gap: 1.25rem;
 }
 
-/* Welcome Card */
 .welcomeCard {
   background: linear-gradient(
     135deg,
@@ -139,7 +141,6 @@
   transform: translateY(-1px);
 }
 
-/* Stats Grid */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -183,10 +184,6 @@
 }
 
 .statCard:nth-child(3) .statIcon {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.statCard:nth-child(4) .statIcon {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 }
 
@@ -205,14 +202,16 @@
   margin: 0;
 }
 
-/* Main Grid */
+.capitalizeText {
+  text-transform: capitalize;
+}
+
 .mainGrid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 1.25rem;
 }
 
-/* Info Cards */
 .infoCard {
   background: #ffffff;
   border-radius: 12px;
@@ -347,7 +346,6 @@
   background: #94a3b8;
 }
 
-/* Funciones Grid */
 .funcionesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -490,25 +488,6 @@
   gap: 0.4rem;
 }
 
-.permisoBadge {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  color: white;
-  background-color: var(--permiso-color);
-  cursor: help;
-  transition: all 0.2s ease;
-}
-
-.permisoBadge:hover {
-  transform: scale(1.1);
-}
-
-/* Contact Grid */
 .contactGrid {
   display: flex;
   flex-direction: column;
@@ -570,13 +549,13 @@
   text-decoration: underline;
 }
 
-/* System Card */
 .systemCard {
   background: linear-gradient(135deg, #10b981, #059669);
   border-radius: 12px;
   padding: 1.5rem;
   color: white;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  grid-column: 1 / -1;
 }
 
 .systemContent {
@@ -605,7 +584,6 @@
   line-height: 1.4;
 }
 
-/* Loading and Empty States */
 .loadingState {
   display: flex;
   flex-direction: column;
@@ -639,7 +617,6 @@
   opacity: 0.5;
 }
 
-/* Error Card */
 .errorCard {
   background: #ffffff;
   border-radius: 12px;
@@ -707,7 +684,6 @@
   }
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .mainGrid {
     grid-template-columns: 1fr;

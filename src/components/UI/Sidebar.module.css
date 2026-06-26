@@ -44,6 +44,7 @@
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   transform: translateX(0);
   transition: transform 0.3s ease;
+  z-index: 1050; /* AÑADIDO: Fuerza la capa gráfica sobre el contenido general */
 }
 
 /* Sidebar Header */
@@ -86,6 +87,9 @@
 .nav {
   flex: 1;
   padding: 1rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 80px;
 }
 
 .menuList {
@@ -245,6 +249,10 @@
   width: 80px !important;
 }
 
+.sidebarCollapsed .nav {
+  overflow: visible !important;
+}
+
 /* Ocultar textos */
 .sidebarCollapsed .navText,
 .sidebarCollapsed .subText,
@@ -347,6 +355,26 @@
 /* Mejorar el hover en modo colapsado para menús con hijos */
 .sidebarCollapsed .navLink.collapsed:hover {
   z-index: 10003;
+}
+
+.nestedMenuContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.nestedHeader {
+  cursor: pointer;
+}
+
+.nestedArrowIcon {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.submenuOpen .nestedArrowIcon {
+  transform: rotate(90deg);
 }
 
 /* Responsive Design */

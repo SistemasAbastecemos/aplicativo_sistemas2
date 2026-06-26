@@ -6,7 +6,8 @@
 
 .leftPanel {
   flex: 1;
-  background: linear-gradient(135deg, #2a8a3a, #36b04b94),
+  background:
+    linear-gradient(135deg, #2a8a3a, #36b04b94),
     url(/src/assets/images/BELALCAZAR-1.jpg);
   color: white;
   display: flex;
@@ -137,7 +138,9 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease;
 }
 
 .loginButton:hover {
@@ -249,6 +252,171 @@
 
 .linkButton:hover {
   color: #2a8a3a;
+}
+
+/* ==========================================================================
+   Estilos para la Integracion de Microsoft SSO (Arquitectura Multilogin)
+   ========================================================================== */
+
+.microsoftContainer {
+  margin-top: 1.5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Separador elegante entre el login tradicional y el corporativo */
+.dividerOr {
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  line-height: 0.1em;
+  margin: 1rem 0 1.5rem;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.dividerOr span {
+  background: #ffffff; /* Sincronizado con el fondo de la tarjeta de login */
+  padding: 0 15px;
+  color: #888888;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Boton de Microsoft adaptado a las guias oficiales de la marca */
+.loginButtonMicrosoft {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+  color: #444444;
+  border: 1px solid #8c8c8c;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family:
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
+    Roboto,
+    sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.loginButtonMicrosoft:hover:not(:disabled) {
+  background-color: #fbfafa;
+  border-color: #4b4b4b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.loginButtonMicrosoft:active:not(:disabled) {
+  background-color: #f2f2f2;
+}
+
+.loginButtonMicrosoft:disabled {
+  background-color: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #aaaaaa;
+  cursor: not-allowed;
+}
+
+/* Ajuste del contenedor del icono SVG */
+.msIcon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Pantalla de Carga de Autenticacion (Single Sign-On Layer)
+   ========================================================================== */
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px); /* Efecto esmerilado profesional */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Asegura superposicion absoluta sobre cualquier panel */
+}
+
+.loadingContainer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.loadingLogo {
+  max-width: 130px;
+  height: auto;
+  margin-bottom: 2rem;
+}
+
+.loadingContainer h3 {
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 1.35rem;
+  color: #1e6d31; /* Verde corporativo oscuro */
+  font-weight: 600;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.loadingContainer p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666666;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Animacion del Spinner (Double Bounce) */
+.spinner {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.doubleBounce1,
+.doubleBounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #009b6d; /* Verde principal Supermercado Belalcazar */
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: sk-bounce 2s infinite ease-in-out;
+}
+
+.doubleBounce2 {
+  animation-delay: -1s;
+}
+
+@keyframes sk-bounce {
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1);
+  }
 }
 
 @keyframes float {

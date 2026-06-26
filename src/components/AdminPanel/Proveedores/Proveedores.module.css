@@ -1,7 +1,12 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 /* Header */
@@ -217,182 +222,171 @@
 /* Proveedores Grid */
 .proveedoresGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
 .proveedorCard {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  overflow: hidden;
+  padding: 1.25rem;
+  position: relative;
   display: flex;
   flex-direction: column;
-  height: fit-content;
+  gap: 1.25rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .proveedorCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 20px -5px rgba(15, 23, 42, 0.04),
+    0 4px 6px -2px rgba(15, 23, 42, 0.02);
 }
 
-.proveedorCard.activo {
-  border-left: 3px solid #10b981;
+.statusDot {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
 }
 
-.proveedorCard.inactivo {
-  border-left: 3px solid #ef4444;
-  opacity: 0.8;
+.proveedorCard.activo .statusDot {
+  background-color: #f59e0b; /* Color ámbar característico de tus proveedores */
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
 }
 
-/* Card Header */
-.cardHeader {
-  padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 1px solid #e2e8f0;
+.proveedorCard.inactivo .statusDot {
+  background-color: #94a3b8;
+}
+
+.cardMain {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-  font-size: 1rem;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #b45309;
+  font-weight: 700;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+  border: 1px solid #fde68a;
 }
 
-.proveedorMain {
+.proveedorCard.inactivo .avatar {
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #e2e8f0;
+  opacity: 0.6;
+}
+
+.details {
   flex: 1;
   min-width: 0;
 }
 
-.proveedorNit {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 0.25rem 0;
-  line-height: 1.2;
+.nameRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.35rem;
+}
+
+.companyName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.proveedorEmail {
+.nitText {
   font-size: 0.8rem;
   font-weight: 500;
-  color: #6b7280;
+  color: #64748b;
+}
+
+.contactEmail {
+  font-size: 0.85rem;
+  color: #475569;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.editButton {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #ffffff;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.cardMeta {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-  font-size: 0.8rem;
-}
-
-.editButton:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: white;
-}
-
-/* Card Content */
-.cardContent {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.proveedorInfo {
-  display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.5rem;
+  padding-top: 0.25rem;
 }
 
-.infoRow {
-  display: flex;
+.metaBadge {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
   background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
-  border: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-}
-
-.infoRow:hover {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-}
-
-.infoIcon {
-  color: #6b7280;
-  font-size: 0.7rem;
-  min-width: 12px;
-}
-
-.infoText {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #374151;
-  white-space: nowrap;
+  color: #475569;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.cardFooter {
-  display: flex;
-  justify-content: center;
-  padding-top: 0.5rem;
-  border-top: 1px solid #f1f5f9;
+.metaIcon {
+  color: #94a3b8;
+  font-shrink: 0;
 }
 
-.statusBadge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
+.cardActions {
+  margin-top: auto;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 0.85rem;
+}
+
+.editActionBtn {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.statusBadge.active {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.statusBadge.inactive {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+.editActionBtn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 
 /* Pagination */

@@ -1,62 +1,87 @@
-.loadingScreen {
+/* Capa base para ocupacion completa con desenfoque de fondo */
+.loadingOverlay {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: white;
-  color: var(--primary-600);
 }
 
+/* Variante para incrustar en componentes especificos sin romper el flujo */
+.inlineContainer {
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+}
+
+/* Contenedor central acotado */
+.loadingContainer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Arquitectura del Spinner de doble rebote */
 .spinner {
   width: 50px;
   height: 50px;
-  border: 5px solid var(--primary-600);
-  border-radius: 50%;
-  border-top-color: var(--primary-500);
-  animation: spin 1s ease-in-out infinite;
+  position: relative;
+  margin: 0 auto;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+.doubleBounce1,
+.doubleBounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(
+    --primary-modern,
+    #009b6d
+  ); /* Fallback seguro al verde corporativo */
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: sk-bounceGlobal 2s infinite ease-in-out;
+}
+
+.doubleBounce2 {
+  animation-delay: -1s;
+}
+
+/* Keyframes renombrados explicitamente para evitar colisiones en el DOM */
+@keyframes sk-bounceGlobal {
+  0%,
+  100% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1);
   }
 }
 
-.loadingText {
-  margin-top: 20px;
-  font-size: 1.5rem;
-  font-weight: 300;
-  text-align: center;
+/* Estilos de tipografia estructurada */
+.loadingTitle {
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 1.35rem;
+  color: var(--primary-modern, #1e6d31);
+  font-weight: 600;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Variantes de tamaño */
-.small .spinner {
-  width: 30px;
-  height: 30px;
-  border-width: 3px;
-}
-
-.small .loadingText {
-  font-size: 1rem;
-}
-
-.large .spinner {
-  width: 70px;
-  height: 70px;
-  border-width: 6px;
-}
-
-.large .loadingText {
-  font-size: 2rem;
-}
-
-.light {
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-  color: #333;
-}
-
-.light .spinner {
-  border: 5px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #333;
+.loadingSubtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #666666;
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.4;
 }

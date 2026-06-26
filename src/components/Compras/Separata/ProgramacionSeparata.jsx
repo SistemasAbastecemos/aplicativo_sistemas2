@@ -10,8 +10,8 @@ import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import styles from "./ProgramacionSeparata.module.css";
 import { useAuth } from "../../../contexts/AuthContext";
+import logo from "../../../assets/images/logo.png";
 import {
-  faSearch,
   faCalendarAlt,
   faSyncAlt,
   faSave,
@@ -33,6 +33,9 @@ import {
   faPercent,
   faBox,
   faStickyNote,
+  faSearch,
+  faHistory,
+  faSearchPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ExcelJS from "exceljs";
@@ -86,6 +89,7 @@ const ProgramacionSeparata = ({}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [editingItem, setEditingItem] = useState(null);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [listasPreciosSeleccionadas, setListasPreciosSeleccionadas] = useState([
     "01",
     "30",
@@ -110,8 +114,9 @@ const ProgramacionSeparata = ({}) => {
     const searchLower = searchInput.toLowerCase();
     return separataItems.filter((item) =>
       Object.values(item).some(
-        (value) => value && value.toString().toLowerCase().includes(searchLower)
-      )
+        (value) =>
+          value && value.toString().toLowerCase().includes(searchLower),
+      ),
     );
   }, [separataItems, searchInput]);
 
@@ -161,7 +166,7 @@ const ProgramacionSeparata = ({}) => {
         setLoading(false);
       }
     },
-    [addNotification]
+    [addNotification],
   );
 
   // Buscar datos del item
@@ -250,7 +255,7 @@ const ProgramacionSeparata = ({}) => {
           // Si no está en la lista actual, cargar los datos completos
           const separatasActualizadas = await fetchSeparatas();
           separataCompleta = separatasActualizadas.find(
-            (s) => s.id === response.data.id
+            (s) => s.id === response.data.id,
           );
         }
 
@@ -664,7 +669,7 @@ const ProgramacionSeparata = ({}) => {
     try {
       const response = await apiService.updateFechaLimite(
         currentSeparata.id,
-        fechaLimite
+        fechaLimite,
       );
 
       if (response.success) {
@@ -716,7 +721,7 @@ const ProgramacionSeparata = ({}) => {
       const response = await apiService.updateSeparataTitle(
         separataId,
         nuevoTitulo,
-        login
+        login,
       );
 
       if (response.success) {
@@ -839,7 +844,6 @@ const ProgramacionSeparata = ({}) => {
     return mensajeError;
   };
 
-  // Funciones de exportación - NUEVAS
   const exportarAExcel = async () => {
     if (!currentSeparata || separataItems.length === 0) {
       addNotification({
@@ -853,56 +857,170 @@ const ProgramacionSeparata = ({}) => {
       const libroTrabajo = new ExcelJS.Workbook();
       const hojaTrabajo = libroTrabajo.addWorksheet("Separata");
 
+      const localesUnicos = new Set();
+      separataItems.forEach((item) => {
+        if (item.existencias && typeof item.existencias === "object") {
+          Object.keys(item.existencias).forEach((local) => {
+            if (!["00402", "00702", "01002"].includes(local)) {
+              localesUnicos.add(local);
+            }
+          });
+        }
+      });
+
+      const localesArray = Array.from(localesUnicos).sort();
+      const totalColumnas = 10 + localesArray.length + 4;
+
+      try {
+        const response = await fetch(logo);
+        const arrayBuffer = await response.arrayBuffer();
+
+        const logoId = libroTrabajo.addImage({
+          buffer: arrayBuffer,
+          extension: "png",
+        });
+
+        hojaTrabajo.addImage(logoId, {
+          tl: { col: 0.6, row: 0.6 },
+          br: { col: 1.99, row: 3.6 },
+        });
+      } catch (error) {
+        console.error("Error procesando imagen local", error);
+      }
+
+      for (let r = 1; r <= 4; r++) {
+        for (let c = 1; c <= totalColumnas; c++) {
+          hojaTrabajo.getCell(r, c).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF2F9F6" },
+          };
+          if (r === 4) {
+            hojaTrabajo.getCell(r, c).border = {
+              bottom: { style: "thick", color: { argb: "FF009B6D" } },
+            };
+          }
+        }
+      }
+
+      for (let i = 1; i <= 4; i++) {
+        hojaTrabajo.mergeCells(i, 3, i, totalColumnas);
+      }
+      hojaTrabajo.mergeCells(1, 1, 4, 2);
+
+      hojaTrabajo.getRow(1).height = 25;
+      hojaTrabajo.getRow(2).height = 20;
+      hojaTrabajo.getRow(3).height = 20;
+      hojaTrabajo.getRow(4).height = 20;
+      hojaTrabajo.getRow(5).height = 15;
+
+      const tituloEmpresa = hojaTrabajo.getCell(1, 3);
+      tituloEmpresa.value =
+        "SUPERMERCADO BELALCAZAR - ABASTECEMOS DE OCCIDENTE S.A.S";
+      tituloEmpresa.font = {
+        name: "Arial",
+        size: 16,
+        bold: true,
+        color: { argb: "FF009B6D" },
+      };
+      tituloEmpresa.alignment = { vertical: "middle", horizontal: "left" };
+
+      const subtituloReporte = hojaTrabajo.getCell(2, 3);
+      subtituloReporte.value = "REPORTE DETALLADO DE SEPARATA PROMOCIONAL";
+      subtituloReporte.font = {
+        name: "Arial",
+        size: 12,
+        bold: true,
+        color: { argb: "FF404040" },
+      };
+      subtituloReporte.alignment = { vertical: "middle", horizontal: "left" };
+
+      const datosSeparata = hojaTrabajo.getCell(3, 3);
+      const nombreSeparata =
+        currentSeparata.titulo || `Separata ID: ${currentSeparata.id}`;
+      datosSeparata.value = `Documento: ${nombreSeparata}`;
+      datosSeparata.font = {
+        name: "Arial",
+        size: 11,
+        bold: true,
+        color: { argb: "FF202020" },
+      };
+      datosSeparata.alignment = { vertical: "middle", horizontal: "left" };
+
+      const fechasSeparata = hojaTrabajo.getCell(4, 3);
+      const fechaReporte = new Date().toLocaleDateString("es-CO");
+      fechasSeparata.value = `Vigencia: ${currentSeparata.fecha_inicio} al ${currentSeparata.fecha_final}  |  Generado: ${fechaReporte}`;
+      fechasSeparata.font = {
+        name: "Arial",
+        size: 10,
+        italic: true,
+        color: { argb: "FF606060" },
+      };
+      fechasSeparata.alignment = { vertical: "middle", horizontal: "left" };
+
       const estiloEncabezado = {
         fill: {
           type: "pattern",
           pattern: "solid",
-          fgColor: { argb: "FF4472C4" },
+          fgColor: { argb: "FF009B6D" },
         },
         font: {
           bold: true,
           color: { argb: "FFFFFFFF" },
+          size: 11,
         },
         border: {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" },
+          top: { style: "thin", color: { argb: "FFBFBFBF" } },
+          left: { style: "thin", color: { argb: "FFBFBFBF" } },
+          bottom: { style: "thin", color: { argb: "FFBFBFBF" } },
+          right: { style: "thin", color: { argb: "FFBFBFBF" } },
         },
         alignment: { vertical: "middle", horizontal: "center" },
       };
 
       const estiloCelda = {
         border: {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" },
+          top: { style: "thin", color: { argb: "FFE7E6E6" } },
+          left: { style: "thin", color: { argb: "FFE7E6E6" } },
+          bottom: { style: "thin", color: { argb: "FFE7E6E6" } },
+          right: { style: "thin", color: { argb: "FFE7E6E6" } },
         },
         alignment: { vertical: "middle" },
       };
 
-      const encabezados = [
+      const encabezadosBase = [
         "#",
         "Comprador",
-        "Línea 2",
+        "Linea 2",
         "Item",
-        "Descripción",
-        "Unidad Medida",
+        "Descripcion",
+        "Unidad",
         "Gramaje",
         "Precio Antes",
         "Precio Ahora",
         "PUM",
-        "Existencias",
-        "Descuento",
-        "Observaciones",
-        "Fecha ingreso",
       ];
 
-      hojaTrabajo.addRow(encabezados);
+      const encabezadosLocales = localesArray.map((local) => `Local ${local}`);
 
-      const filaEncabezado = hojaTrabajo.getRow(1);
-      filaEncabezado.eachCell((celda) => {
+      const encabezadosFinales = [
+        "Total Exist.",
+        "Dcto",
+        "Observaciones",
+        "Ingreso",
+      ];
+
+      const encabezados = [
+        ...encabezadosBase,
+        ...encabezadosLocales,
+        ...encabezadosFinales,
+      ];
+
+      const filaEncabezadosTabla = hojaTrabajo.getRow(6);
+      filaEncabezadosTabla.values = encabezados;
+      filaEncabezadosTabla.height = 30;
+
+      filaEncabezadosTabla.eachCell((celda) => {
         celda.fill = estiloEncabezado.fill;
         celda.font = estiloEncabezado.font;
         celda.border = estiloEncabezado.border;
@@ -910,22 +1028,13 @@ const ProgramacionSeparata = ({}) => {
       });
 
       separataItems.forEach((item, indice) => {
-        let existenciasTotales = 0;
-        if (item.existencias && typeof item.existencias === "object") {
-          Object.entries(item.existencias).forEach(([local, valor]) => {
-            if (!["00402", "00702", "01002"].includes(local)) {
-              existenciasTotales += parseFloat(valor) || 0;
-            }
-          });
-        }
-
         const medida = parseFloat(item.medida) || 1;
         const pum =
           medida > 0
             ? parseFloat((parseFloat(item.precio_ahora) / medida).toFixed(2))
             : 0;
 
-        const fila = hojaTrabajo.addRow([
+        const filaValores = [
           indice + 1,
           item.usuario,
           item.linea2 || "",
@@ -936,11 +1045,28 @@ const ProgramacionSeparata = ({}) => {
           parseFloat(item.precio_antes) || 0,
           parseFloat(item.precio_ahora) || 0,
           pum,
-          existenciasTotales / 2,
-          `${parseFloat(item.descuento).toFixed(0)}%`,
-          item.observaciones,
-          item.created_at,
-        ]);
+        ];
+
+        let existenciasTotales = 0;
+
+        localesArray.forEach((local) => {
+          const cantidad =
+            item.existencias && item.existencias[local]
+              ? parseFloat(item.existencias[local]) || 0
+              : 0;
+
+          const cantidadMitad = Math.round(cantidad / 2);
+
+          existenciasTotales += cantidadMitad;
+          filaValores.push(cantidadMitad);
+        });
+
+        filaValores.push(existenciasTotales);
+        filaValores.push(parseFloat(item.descuento) / 100);
+        filaValores.push(item.observaciones);
+        filaValores.push(item.created_at);
+
+        const fila = hojaTrabajo.addRow(filaValores);
 
         fila.eachCell((celda) => {
           celda.border = estiloCelda.border;
@@ -950,17 +1076,31 @@ const ProgramacionSeparata = ({}) => {
         fila.getCell(7).numFmt = "#,##0";
         fila.getCell(8).numFmt = '"$"#,##0';
         fila.getCell(9).numFmt = '"$"#,##0';
-        fila.getCell(10).numFmt = "#,##0.00";
-        fila.getCell(11).numFmt = "#,##0";
+        fila.getCell(10).numFmt = '"$"#,##0.00';
+
+        let colIndex = 11;
+        localesArray.forEach(() => {
+          fila.getCell(colIndex).numFmt = "#,##0";
+          colIndex++;
+        });
+
+        fila.getCell(colIndex).numFmt = "#,##0";
+        colIndex++;
+        fila.getCell(colIndex).numFmt = "0%";
       });
 
-      hojaTrabajo.columns.forEach((columna) => {
-        let longitudMaxima = 10;
-        columna.eachCell({ includeEmpty: true }, (celda) => {
-          const valor = celda.value ? celda.value.toString() : "";
-          const longitud = valor.length;
-          if (longitud > longitudMaxima) {
-            longitudMaxima = longitud;
+      hojaTrabajo.columns.forEach((columna, i) => {
+        let longitudMaxima = 12;
+        if (i === 4) longitudMaxima = 45;
+        if (i === 1) longitudMaxima = 15;
+
+        columna.eachCell({ includeEmpty: false }, (celda, numeroFila) => {
+          if (numeroFila > 5) {
+            const valor = celda.value ? celda.value.toString() : "";
+            const longitud = valor.length;
+            if (longitud > longitudMaxima && i !== 4 && i !== 1) {
+              longitudMaxima = longitud;
+            }
           }
         });
         columna.width = longitudMaxima + 2;
@@ -970,19 +1110,16 @@ const ProgramacionSeparata = ({}) => {
       const blob = new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      saveAs(
-        blob,
-        `separata_${currentSeparata.fecha_inicio}_a_${currentSeparata.fecha_final}.xlsx`
-      );
+      saveAs(blob, `Separata_${currentSeparata.id}_Belalcazar.xlsx`);
 
       addNotification({
-        message: "Excel generado correctamente",
+        message: "Reporte corporativo generado correctamente",
         type: "success",
       });
     } catch (error) {
-      console.error("Error al generar Excel:", error);
+      console.error(error);
       addNotification({
-        message: "Error al generar el archivo Excel",
+        message: "Error al generar el archivo corporativo",
         type: "error",
       });
     }
@@ -1080,11 +1217,11 @@ const ProgramacionSeparata = ({}) => {
 
       const fechaInicioFormateada = currentSeparata.fecha_inicio.replace(
         /-/g,
-        ""
+        "",
       );
       const fechaFinalFormateada = currentSeparata.fecha_final.replace(
         /-/g,
-        ""
+        "",
       );
 
       const url = window.URL.createObjectURL(blob);
@@ -1092,7 +1229,7 @@ const ProgramacionSeparata = ({}) => {
       link.href = url;
       link.setAttribute(
         "download",
-        `reporte_ventas_${fechaInicioFormateada}_${fechaFinalFormateada}.xlsx`
+        `reporte_ventas_${fechaInicioFormateada}_${fechaFinalFormateada}.xlsx`,
       );
       document.body.appendChild(link);
       link.click();
@@ -1166,14 +1303,14 @@ const ProgramacionSeparata = ({}) => {
                   disabled={
                     currentSeparata &&
                     !["LORENA", "JEFFERSON", "LUISAF"].includes(
-                      login.toUpperCase()
+                      login.toUpperCase(),
                     )
                   }
                 />
                 <label className={styles.formLabel}>Fecha Límite Edición</label>
                 {currentSeparata &&
                   ["LORENA", "JEFFERSON", "LUISAF"].includes(
-                    login.toUpperCase()
+                    login.toUpperCase(),
                   ) && (
                     <button
                       className={styles.saveDateButton}
@@ -1238,7 +1375,7 @@ const ProgramacionSeparata = ({}) => {
                       <span className={styles.previewLabel}>Existencias:</span>
                       <div className={styles.existenciasList}>
                         {Object.entries(
-                          ordenarExistencias(itemData.existencias)
+                          ordenarExistencias(itemData.existencias),
                         ).map(([local, existencia]) => (
                           <span key={local} className={styles.existenciaItem}>
                             {local}: {formatearNumero(existencia)}
@@ -1420,6 +1557,32 @@ const ProgramacionSeparata = ({}) => {
               >
                 <FontAwesomeIcon icon={faSyncAlt} />
               </button>
+
+              <div className={styles.headerActions}>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => setShowHistoryModal(true)}
+                  title="Consultar historial en separatas"
+                  style={{
+                    backgroundColor: "#f8fafc",
+                    border: "1px solid #cbd5e1",
+                    color: "#334155",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontWeight: "600",
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={faHistory}
+                    style={{ color: "#009b6d" }}
+                  />{" "}
+                  Historial Item
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1507,6 +1670,205 @@ const ProgramacionSeparata = ({}) => {
           onExportExcel={exportarAExcel}
         />
       )}
+
+      {showHistoryModal && (
+        <ItemHistoryModal onClose={() => setShowHistoryModal(false)} />
+      )}
+    </div>
+  );
+};
+
+const ItemHistoryModal = ({ onClose }) => {
+  const [terminoBusqueda, setTerminoBusqueda] = useState("");
+  const [sugerencias, setSugerencias] = useState([]);
+  const [mostrandoSugerencias, setMostrandoSugerencias] = useState(false);
+  const [historial, setHistorial] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const [inputFocused, setInputFocused] = useState(false);
+  const [itemSeleccionado, setItemSeleccionado] = useState(false);
+  const { addNotification } = useNotification();
+
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      // NO buscar sugerencias si ya seleccionó un item
+      if (itemSeleccionado) return;
+
+      if (terminoBusqueda.length >= 3) {
+        setLoadingSearch(true);
+
+        try {
+          const response =
+            await apiService.searchItemHistorySuggestions(terminoBusqueda);
+
+          if (response.success) {
+            setSugerencias(response.data);
+            setMostrandoSugerencias(true);
+          }
+        } catch (error) {
+          console.error("Error buscando sugerencias:", error);
+        } finally {
+          setLoadingSearch(false);
+        }
+      } else {
+        setSugerencias([]);
+        setMostrandoSugerencias(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [terminoBusqueda, itemSeleccionado]);
+
+  const seleccionarItem = async (item) => {
+    setItemSeleccionado(true);
+
+    setTerminoBusqueda(`${item.item} - ${item.descripcion}`);
+
+    // Cerrar completamente sugerencias
+    setSugerencias([]);
+    setMostrandoSugerencias(false);
+
+    setLoadingHistory(true);
+
+    try {
+      const response = await apiService.getItemHistoryExact(item.item);
+
+      setHistorial(response.data || []);
+
+      if (response.data.length === 0) {
+        addNotification({
+          message: "No existen registros en separatas para este item",
+          type: "info",
+        });
+      }
+    } catch (error) {
+      setHistorial([]);
+      addNotification({ message: error.message, type: "error" });
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div
+        className={`${styles.modalContent} ${styles.historyModalContent}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={styles.modalHeader}>
+          <h3>
+            <FontAwesomeIcon icon={faHistory} /> Historial de Programaciones
+          </h3>
+          <button className={styles.modalClose} onClick={onClose}>
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        </div>
+
+        <div className={`${styles.modalBody} ${styles.historyModalBody}`}>
+          <div className={`${styles.searchGroupContainer} ${styles.floating}`}>
+            <div className={styles.searchGroupContainer}>
+              {/* El input y el label flotante quedan fijos en este contenedor superior */}
+              <div className={styles.inputFloatingWrapper}>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={terminoBusqueda}
+                  onChange={(e) => {
+                    setTerminoBusqueda(e.target.value);
+                    setItemSeleccionado(false);
+                  }}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setInputFocused(false);
+                    }, 150);
+                  }}
+                  placeholder="Ej. 000009 o Gelatina" /* Volvemos a poner tu placeholder original */
+                  autoComplete="off"
+                />
+                <label className={styles.formLabel}>
+                  Buscar por Código o Descripción
+                </label>
+              </div>
+
+              {/* El botón ahora queda abajo del contenedor del input */}
+              <button
+                type="button"
+                className={styles.saveButton}
+                disabled={loadingHistory || !itemSeleccionado}
+                onClick={() => seleccionarItem(terminoBusqueda)}
+              >
+                <FontAwesomeIcon
+                  icon={loadingSearch ? faSyncAlt : faSearchPlus}
+                  spin={loadingSearch}
+                />
+                <span>{loadingSearch ? "Buscando..." : "Buscar"}</span>
+              </button>
+            </div>
+
+            {inputFocused && mostrandoSugerencias && sugerencias.length > 0 && (
+              <ul className={styles.suggestionsList}>
+                {sugerencias.map((sug, i) => (
+                  <li
+                    key={i}
+                    className={styles.suggestionItem}
+                    onClick={() => seleccionarItem(sug)}
+                  >
+                    <strong>{sug.item}</strong>
+                    <span>{sug.descripcion}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {loadingHistory ? (
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              Extrayendo informacion historica...
+            </div>
+          ) : (
+            historial.length > 0 && (
+              <div className={styles.historyTableWrapper}>
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Separata</th>
+                      <th>Vigencia</th>
+                      <th>Precio Antes</th>
+                      <th>Dcto</th>
+                      <th>Precio Ahora</th>
+                      <th>Usuario</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historial.map((reg, i) => (
+                      <tr key={i}>
+                        <td>
+                          <strong>
+                            {reg.titulo || `Separata #${reg.separata_id}`}
+                          </strong>
+                        </td>
+                        <td>{`${reg.fecha_inicio} a ${reg.fecha_final}`}</td>
+                        <td>
+                          $
+                          {parseFloat(reg.precio_antes).toLocaleString("es-CO")}
+                        </td>
+                        <td>{parseFloat(reg.descuento)}%</td>
+                        <td style={{ color: "#009b6d", fontWeight: "bold" }}>
+                          $
+                          {parseFloat(reg.precio_ahora).toLocaleString("es-CO")}
+                        </td>
+                        <td>{reg.usuario}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -1525,12 +1887,8 @@ const SeparatasListView = ({
   setTituloEditar,
   editandoTitulo,
 }) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 12;
-  const totalPages = Math.ceil(separatas.length / itemsPerPage);
-  const currentItems = separatas.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   const esSeparataVigente = (fechaFinal) => {
     if (!fechaFinal) return false;
@@ -1541,20 +1899,68 @@ const SeparatasListView = ({
 
   const formatearFecha = (fecha) => {
     if (!fecha) return "";
-
     const fechaObj = new Date(fecha + "T12:00:00");
     const dia = fechaObj.getDate().toString().padStart(2, "0");
     const mes = (fechaObj.getMonth() + 1).toString().padStart(2, "0");
     const año = fechaObj.getFullYear();
-
     return `${dia}/${mes}/${año}`;
   };
 
+  const filteredSeparatas = useMemo(() => {
+    if (!searchTerm) return separatas;
+    const lowerSearch = searchTerm.toLowerCase();
+
+    return separatas.filter((sep) => {
+      const titulo = (sep.titulo || "").toLowerCase();
+      const id = sep.id?.toString() || "";
+      const fechaInicio = sep.fecha_inicio || "";
+      const fechaFinal = sep.fecha_final || "";
+      const limite = sep.fecha_limite_edicion || "";
+      const estado = esSeparataVigente(sep.fecha_final)
+        ? "vigente"
+        : "finalizada";
+
+      return (
+        titulo.includes(lowerSearch) ||
+        id.includes(lowerSearch) ||
+        fechaInicio.includes(lowerSearch) ||
+        fechaFinal.includes(lowerSearch) ||
+        limite.includes(lowerSearch) ||
+        estado.includes(lowerSearch)
+      );
+    });
+  }, [separatas, searchTerm]);
+
+  useEffect(() => {
+    onPageChange(1);
+  }, [searchTerm, onPageChange]);
+
+  const totalPages = Math.ceil(filteredSeparatas.length / itemsPerPage);
+  const currentItems = filteredSeparatas.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   return (
     <div className={styles.tableContainer}>
-      <div className={styles.tableHeader}>
-        <h3>Lista de Separatas</h3>
-        <span className={styles.tableCount}>{separatas.length} separatas</span>
+      <div className={styles.tableHeaderGroup}>
+        <div className={styles.tableHeaderLeft}>
+          <h3>Lista de Separatas</h3>
+          <span className={styles.tableCount}>
+            {filteredSeparatas.length} resultados
+          </span>
+        </div>
+
+        <div className={styles.searchListContainer}>
+          <FontAwesomeIcon icon={faSearch} className={styles.searchListIcon} />
+          <input
+            type="text"
+            placeholder="Buscar por titulo, fecha o estado..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchListInput}
+          />
+        </div>
       </div>
 
       <div className={styles.tableWrapper}>
@@ -1562,10 +1968,10 @@ const SeparatasListView = ({
           <thead>
             <tr>
               <th>#</th>
-              <th>Título</th>
+              <th>Titulo</th>
               <th>Fecha Inicio</th>
               <th>Fecha Final</th>
-              <th>Límite Edición</th>
+              <th>Limite Edicion</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -1574,7 +1980,7 @@ const SeparatasListView = ({
             {currentItems.map((separata, index) => (
               <tr key={separata.id} className={styles.tableRow}>
                 <td className={styles.rowNumber}>
-                  {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+                  {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
                 <td className={styles.titleCell}>
                   {editingSeparataId === separata.id ? (
@@ -1584,7 +1990,7 @@ const SeparatasListView = ({
                         className={styles.inputTitulo}
                         value={tituloEditar}
                         onChange={(e) => setTituloEditar(e.target.value)}
-                        placeholder="Ingrese título"
+                        placeholder="Ingrese titulo"
                       />
                       <div className={styles.botonesTitulo}>
                         <button
@@ -1613,7 +2019,7 @@ const SeparatasListView = ({
                         {separata.titulo || `Separata #${separata.id}`}
                       </span>
                       {["LORENA", "LUISAF", "JEFFERSON"].includes(
-                        login?.toUpperCase()
+                        login?.toUpperCase(),
                       ) && (
                         <button
                           className={styles.botonEditarTitulo}
@@ -1621,7 +2027,7 @@ const SeparatasListView = ({
                             setEditingSeparataId(separata.id);
                             setTituloEditar(separata.titulo || "");
                           }}
-                          title="Editar título"
+                          title="Editar titulo"
                         >
                           <FontAwesomeIcon icon={faPencilAlt} />
                         </button>
@@ -1664,11 +2070,11 @@ const SeparatasListView = ({
           </tbody>
         </table>
 
-        {separatas.length === 0 && (
+        {filteredSeparatas.length === 0 && (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>📋</div>
-            <h3>No hay separatas disponibles</h3>
-            <p>Crea una nueva separata usando el formulario lateral</p>
+            <h3>No se encontraron registros</h3>
+            <p>Ajuste el termino de busqueda o cree una nueva separata</p>
           </div>
         )}
       </div>
@@ -1685,7 +2091,7 @@ const SeparatasListView = ({
           </button>
 
           <div className={styles.paginationInfo}>
-            Página <strong>{currentPage}</strong> de {totalPages}
+            Pagina <strong>{currentPage}</strong> de {totalPages}
           </div>
 
           <button
@@ -1985,7 +2391,7 @@ const SeparataCard = React.memo(
     esVigente,
   }) => {
     const puedeEditar = ["LORENA", "LUISAF", "JEFFERSON"].includes(
-      login.toUpperCase()
+      login.toUpperCase(),
     );
 
     const handleGuardarTitulo = () => {
@@ -2092,7 +2498,7 @@ const SeparataCard = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 // Componente para tarjeta de item (sin cambios)
@@ -2190,17 +2596,17 @@ const ItemCard = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 // Modal de Edición de Item (sin cambios)
 const EditItemModal = ({ item, onClose, onSave, login }) => {
   const [descuentoEditar, setDescuentoEditar] = useState(item.descuento);
   const [precioRegularEditar, setPrecioRegularEditar] = useState(
-    item.precio_antes
+    item.precio_antes,
   );
   const [precioConDescuentoEditar, setPrecioConDescuentoEditar] = useState(
-    item.precio_ahora
+    item.precio_ahora,
   );
   const [guardarDescuentoEditar, setGuardarDescuentoEditar] = useState(true);
   const [loading, setLoading] = useState(false);

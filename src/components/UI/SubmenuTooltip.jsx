@@ -1,43 +1,85 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHome,
+  faUser,
+  faUserCog,
+  faUsers,
+  faChartBar,
+  faClipboardList,
+  faDollarSign,
+  faList,
+  faFile,
+  faFilePdf,
+  faThLarge,
+  faWrench,
+  faBoxOpen,
+  faBuilding,
+  faIdCard,
+  faBook,
+  faProjectDiagram,
+  faCube,
+  faFileUpload,
+  faChartColumn,
+  faExclamationTriangle,
+  faShop,
+  faAppleWhole,
+  faFish,
+  faPercent,
+  faRulerCombined,
+  faUserCheck,
+  faFileInvoiceDollar,
+  faMoneyBillTransfer,
+  faComputer,
+  faStore,
+  faCircle,
+  faAngleRight,
+} from "@fortawesome/free-solid-svg-icons";
 import styles from "./SubmenuTooltip.module.css";
 
-const SubmenuTooltip = ({ menu, onClose, onNavigate }) => {
+const SubmenuTooltip = ({ menu, onClose, onNavigate, onHover }) => {
   const tooltipRef = useRef(null);
-  const [isHovering, setIsHovering] = useState(false);
+  const hoverTimeoutRef = useRef(null);
   const location = useLocation();
 
   const iconMap = {
-    home: "faHome",
-    user: "faUser",
-    user2: "faUserCog",
-    users: "faUsers",
-    "bar-chart": "faChartBar",
-    formatos: "faClipboardList",
-    costos: "faDollarSign",
-    list: "faList",
-    documents: "faFile",
-    pdf: "faFilePdf",
-    codificacion: "faThLarge",
-    admin: "faWrench",
-    inv: "faBoxOpen",
-    sedes: "faBuilding",
-    cargos: "faIdCard",
-    areas: "faBook",
-    menu: "faProjectDiagram",
-    box: "faCube",
-    file: "faFileUpload",
-    informes: "faChartColumn",
-    report: "faExclamationTriangle",
-    pedidos: "faShop",
+    home: faHome,
+    user: faUser,
+    user2: faUserCog,
+    users: faUsers,
+    "bar-chart": faChartBar,
+    formatos: faClipboardList,
+    costos: faDollarSign,
+    list: faList,
+    documents: faFile,
+    pdf: faFilePdf,
+    codificacion: faThLarge,
+    admin: faWrench,
+    inv: faBoxOpen,
+    sedes: faBuilding,
+    cargos: faIdCard,
+    areas: faBook,
+    menu: faProjectDiagram,
+    box: faCube,
+    file: faFileUpload,
+    informes: faChartColumn,
+    report: faExclamationTriangle,
+    pedidos: faShop,
+    fruver: faAppleWhole,
+    carnes: faFish,
+    porcentaje: faPercent,
+    cvm: faRulerCombined,
+    proveedor: faUserCheck,
+    contabilidad: faFileInvoiceDollar,
+    recaudo: faMoneyBillTransfer,
+    sistemas: faComputer,
+    compras: faStore,
   };
 
-  // Manejar el cierre del tooltip
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
-        // Verificar si el click fue en un elemento del sidebar
         const isSidebarClick = event.target.closest(".sidebar") !== null;
         if (!isSidebarClick) {
           onClose();
@@ -57,20 +99,23 @@ const SubmenuTooltip = ({ menu, onClose, onNavigate }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     };
   }, [onClose]);
 
   const handleMouseEnter = () => {
-    setIsHovering(true);
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    if (onHover) {
+      onHover();
+    }
   };
 
-  const handleMouseLeave = (e) => {
-    // Pequeño delay para permitir movimientos rápidos entre elementos
-    setTimeout(() => {
-      if (!isHovering) {
-        onClose();
-      }
-    }, 50);
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      onClose();
+    }, 250);
   };
 
   const handleItemClick = () => {
@@ -79,32 +124,58 @@ const SubmenuTooltip = ({ menu, onClose, onNavigate }) => {
   };
 
   const getIcon = (iconName) => {
-    // Mapeo correcto de iconos
-    const iconMapping = {
-      home: "faHome",
-      user: "faUser",
-      user2: "faUserCog",
-      users: "faUsers",
-      "bar-chart": "faChartBar",
-      formatos: "faClipboardList",
-      costos: "faDollarSign",
-      list: "faList",
-      documents: "faFile",
-      pdf: "faFilePdf",
-      codificacion: "faThLarge",
-      admin: "faWrench",
-      inv: "faBoxOpen",
-      sedes: "faBuilding",
-      cargos: "faIdCard",
-      areas: "faBook",
-      menu: "faProjectDiagram",
-      box: "faCube",
-      file: "faFileUpload",
-      informes: "faChartColumn",
-      report: "faExclamationTriangle",
-      pedidos: "faShop",
-    };
-    return iconMapping[iconName] || "faCircle";
+    return iconMap[iconName] || faCircle;
+  };
+
+  const renderTooltipItems = (items) => {
+    return items.map((child, index) => {
+      const hasChildren =
+        Array.isArray(child.children) && child.children.length > 0;
+      const isActive = location.pathname === child.ruta;
+      const key = `tooltip-item-${child.id_menu || index}`;
+
+      if (hasChildren) {
+        return (
+          <div key={key} className={styles.flyoutContainer}>
+            <div className={`${styles.submenuItem} ${styles.flyoutTrigger}`}>
+              <span className={styles.submenuIcon}>
+                <FontAwesomeIcon
+                  icon={getIcon(child.icono)}
+                  className={styles.submenuItemIcon}
+                />
+              </span>
+              <span className={styles.submenuText}>{child.nombre}</span>
+              <FontAwesomeIcon
+                icon={faAngleRight}
+                className={styles.flyoutArrow}
+              />
+            </div>
+
+            <div className={styles.flyoutMenu}>
+              {renderTooltipItems(child.children)}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <Link
+          key={key}
+          to={child.ruta}
+          className={`${styles.submenuItem} ${isActive ? styles.active : ""}`}
+          onClick={handleItemClick}
+        >
+          <span className={styles.submenuIcon}>
+            <FontAwesomeIcon
+              icon={getIcon(child.icono)}
+              className={styles.submenuItemIcon}
+            />
+          </span>
+          <span className={styles.submenuText}>{child.nombre}</span>
+          {isActive && <div className={styles.activeIndicator} />}
+        </Link>
+      );
+    });
   };
 
   return (
@@ -119,30 +190,7 @@ const SubmenuTooltip = ({ menu, onClose, onNavigate }) => {
           <h4>{menu.nombre}</h4>
         </div>
         <div className={styles.submenuItems}>
-          {menu.children.map((child, index) => {
-            const isActive = location.pathname === child.ruta;
-            return (
-              <Link
-                key={`submenu-${menu.id}-${index}`}
-                to={child.ruta}
-                className={`${styles.submenuItem} ${
-                  isActive ? styles.active : ""
-                }`}
-                onClick={handleItemClick}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-              >
-                <span className={styles.submenuIcon}>
-                  <FontAwesomeIcon
-                    icon={getIcon(child.icono)}
-                    className={styles.submenuItemIcon}
-                  />
-                </span>
-                <span className={styles.submenuText}>{child.nombre}</span>
-                {isActive && <div className={styles.activeIndicator} />}
-              </Link>
-            );
-          })}
+          {renderTooltipItems(menu.children)}
         </div>
       </div>
     </div>

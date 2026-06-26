@@ -24,7 +24,7 @@ export const apiService = {
       const responseText = await response.text();
 
       if (!responseText || responseText.trim() === "") {
-        throw new Error("El servidor devolvió una respuesta vacía");
+        throw new Error("El servidor devolvio una respuesta vaci­a");
       }
 
       let data;
@@ -32,19 +32,57 @@ export const apiService = {
         data = JSON.parse(responseText);
       } catch (e) {
         throw new Error(
-          `El servidor no devolvió una respuesta JSON válida. Código: ${response.status}`
+          `El servidor no devolvio una respuesta JSON valida. Codigo: ${response.status}`,
         );
       }
 
       if (response.status === 401) {
         return {
           success: false,
-          message: data.message || "Usuario o contraseña incorrectos",
+          message: data.message || "Usuario o contrasena incorrectos",
         };
       }
 
       if (!response.ok) {
         throw new Error(data.message || `Error HTTP: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async loginMicrosoft(code, redirectUri) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/login_microsoft.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ code, redirect_uri: redirectUri }),
+      });
+
+      const responseText = await response.text();
+      if (!responseText || responseText.trim() === "") {
+        throw new Error("El servidor devolvio una respuesta vaci­a");
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(
+          `El servidor no devolvio un JSON valido. Codigo: ${response.status}`,
+        );
+      }
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || "Error en la autenticacion corporativa",
+        };
       }
 
       return data;
@@ -65,11 +103,11 @@ export const apiService = {
       });
 
       const text = await response.text();
-      if (!text.trim()) throw new Error("El servidor no devolvió respuesta");
+      if (!text.trim()) throw new Error("El servidor no devolvio respuesta");
       const data = JSON.parse(text);
 
       if (!response.ok)
-        throw new Error(data.message || "Error al enviar recuperación");
+        throw new Error(data.message || "Error al enviar recuperacion");
       return data;
     } catch (err) {
       throw err;
@@ -90,7 +128,7 @@ export const apiService = {
       const responseText = await response.text();
 
       if (!responseText || responseText.trim() === "") {
-        throw new Error("El servidor devolvió una respuesta vacía");
+        throw new Error("El servidor devolvio una respuesta vaci­a");
       }
 
       let data;
@@ -98,7 +136,7 @@ export const apiService = {
         data = JSON.parse(responseText);
       } catch (e) {
         throw new Error(
-          `El servidor no devolvió una respuesta JSON válida. Código: ${response.status}`
+          `El servidor no devolvio una respuesta JSON valida. Codigo: ${response.status}`,
         );
       }
 
@@ -125,7 +163,7 @@ export const apiService = {
       const responseText = await response.text();
 
       if (!responseText || responseText.trim() === "") {
-        throw new Error("El servidor devolvió una respuesta vacía");
+        throw new Error("El servidor devolvio una respuesta vaci­a");
       }
 
       let data;
@@ -133,12 +171,12 @@ export const apiService = {
         data = JSON.parse(responseText);
       } catch (e) {
         throw new Error(
-          `El servidor no devolvió una respuesta JSON válida. Código: ${response.status}`
+          `El servidor no devolvio una respuesta JSON valida. Codigo: ${response.status}`,
         );
       }
 
       if (!response.ok) {
-        throw new Error(data.message || "Token inválido");
+        throw new Error(data.message || "Token invalido");
       }
 
       return data;
@@ -157,7 +195,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -167,13 +205,42 @@ export const apiService = {
     return await response.json();
   },
 
+  async getLogs(page = 1, por_pagina = 20, filters = {}) {
+    const params = new URLSearchParams({
+      pagina: page,
+      por_pagina,
+      ...filters,
+    });
+
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(
+      `${API_BASE_URL}/sistemas/logs/get_logs.php?${params}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      },
+    );
+
+    const json = await response.json();
+
+    if (!response.ok || !json.success) {
+      throw new Error(json.message || "Error obteniendo registros del sistema");
+    }
+
+    return json;
+  },
+
   //////////////
   // SEDES /////
   //////////////
 
   async getSedes(onlyActive = true) {
     const response = await fetch(
-      `${API_BASE_URL}/sedes/get_sedes.php?onlyActive=${onlyActive}`
+      `${API_BASE_URL}/sedes/get_sedes.php?onlyActive=${onlyActive}`,
     );
     const json = await response.json();
     if (!json.success)
@@ -216,7 +283,7 @@ export const apiService = {
 
   async getAreas(onlyActive = true) {
     const res = await fetch(
-      `${API_BASE_URL}/areas/get_areas.php?onlyActive=${onlyActive}`
+      `${API_BASE_URL}/areas/get_areas.php?onlyActive=${onlyActive}`,
     );
     const json = await res.json();
     if (!json.success) throw new Error(json.message);
@@ -258,7 +325,7 @@ export const apiService = {
 
   async getCargos(onlyActive = true) {
     const res = await fetch(
-      `${API_BASE_URL}/cargos/get_cargos.php?onlyActive=${onlyActive}`
+      `${API_BASE_URL}/cargos/get_cargos.php?onlyActive=${onlyActive}`,
     );
     const json = await res.json();
     if (!json.success)
@@ -314,7 +381,7 @@ export const apiService = {
 
   async getMenus() {
     const token = localStorage.getItem("authToken");
-    if (!token) throw new Error("No hay token de autenticación");
+    if (!token) throw new Error("No hay token de autenticacion");
 
     const res = await fetch(`${API_BASE_URL}/menu/get_menus.php`, {
       headers: {
@@ -323,18 +390,17 @@ export const apiService = {
     });
 
     if (res.status === 403)
-      throw new Error("No tiene permisos para realizar esta acción");
+      throw new Error("No tiene permisos para realizar esta accion");
 
     const json = await res.json();
     if (!json.success)
-      throw new Error(json.message || "Error obteniendo menús");
-    return json; // tu get_menus.php devuelve { success: true, data: [...] }
+      throw new Error(json.message || "Error obteniendo menus");
+    return json;
   },
 
-  // Crear menú (payload: { nombre, ruta, icono, orden, id_parent, activo, permisos: { roles:{}, areas:{} } })
   async createMenu(payload) {
     const token = localStorage.getItem("authToken");
-    if (!token) throw new Error("No hay token de autenticación");
+    if (!token) throw new Error("No hay token de autenticacion");
 
     const res = await fetch(`${API_BASE_URL}/menu/create_menu.php`, {
       method: "POST",
@@ -346,18 +412,18 @@ export const apiService = {
     });
 
     if (res.status === 403)
-      throw new Error("No tiene permisos para realizar esta acción");
+      throw new Error("No tiene permisos para realizar esta accion");
 
     const json = await res.json();
-    if (!json.success) throw new Error(json.message || "Error creando menú");
+    if (!json.success) throw new Error(json.message || "Error creando menu");
     return json; // { success: true, id: <nuevo_id> }
   },
 
-  // Actualizar menú (payload igual que create, id pasado por query string)
+  // Actualizar menu (payload igual que create, id pasado por query string)
   async updateMenu(id, payload) {
-    if (!id) throw new Error("ID de menú requerido para actualizar");
+    if (!id) throw new Error("ID de menu requerido para actualizar");
     const token = localStorage.getItem("authToken");
-    if (!token) throw new Error("No hay token de autenticación");
+    if (!token) throw new Error("No hay token de autenticacion");
 
     const res = await fetch(
       `${API_BASE_URL}/menu/update_menu.php?id=${encodeURIComponent(id)}`,
@@ -368,15 +434,46 @@ export const apiService = {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     if (res.status === 403)
-      throw new Error("No tiene permisos para realizar esta acción");
+      throw new Error("No tiene permisos para realizar esta accion");
 
     const json = await res.json();
     if (!json.success)
-      throw new Error(json.message || "Error actualizando menú");
+      throw new Error(json.message || "Error actualizando menu");
+    return json;
+  },
+
+  async updateMenuBulkOrder(payload) {
+    if (!Array.isArray(payload) || payload.length === 0) {
+      throw new Error("El payload debe ser un array valido");
+    }
+
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const res = await fetch(`${API_BASE_URL}/menu/update_bulk_order.php`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.status === 403) {
+      throw new Error("Privilegios insuficientes para realizar esta operacion");
+    }
+
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(
+        json.message || "Fallo en el servidor al actualizar ordenamiento",
+      );
+    }
+
     return json;
   },
 
@@ -387,7 +484,7 @@ export const apiService = {
   async getUsuarios(pagina = 1, porPagina = 12, search = "") {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      throw new Error("No hay token de autenticación");
+      throw new Error("No hay token de autenticacion");
     }
 
     const url = new URL(`${API_BASE_URL}/usuarios/get_usuarios.php`);
@@ -404,7 +501,7 @@ export const apiService = {
     });
 
     if (response.status === 403) {
-      throw new Error("No tiene permisos para realizar esta acción");
+      throw new Error("No tiene permisos para realizar esta accion");
     }
 
     const json = await response.json();
@@ -446,14 +543,13 @@ export const apiService = {
   // PERFIL USUARIO //
   ////////////////////
 
-  async getPerfilUsuario(id) {
+  async getPerfilUsuario() {
     const response = await fetch(`${API_BASE_URL}/perfil/get_usuario.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
-      body: JSON.stringify({ id }),
     });
 
     const json = await response.json();
@@ -462,18 +558,20 @@ export const apiService = {
     return json.data;
   },
 
-  async updatePerfilUsuario(id, payload) {
+  async updatePerfilUsuario(payload) {
     const response = await fetch(`${API_BASE_URL}/perfil/update_user.php`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
       },
-      body: JSON.stringify({ ...payload, id }),
+      body: JSON.stringify(payload),
     });
+
     const json = await response.json();
-    if (!json.success)
-      throw new Error(json.message || "Error actualizando usuario");
+    if (!json.success) {
+      throw new Error(json.message || "Error en la transaccion");
+    }
     return json;
   },
 
@@ -484,7 +582,7 @@ export const apiService = {
   async getProveedores(pagina = 1, porPagina = 12, search = "") {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      throw new Error("No hay token de autenticación");
+      throw new Error("No hay token de autenticacion");
     }
 
     const url = new URL(`${API_BASE_URL}/proveedores/get_proveedores.php`);
@@ -501,7 +599,7 @@ export const apiService = {
     });
 
     if (response.status === 403) {
-      throw new Error("No tiene permisos para realizar esta acción");
+      throw new Error("No tiene permisos para realizar esta accion");
     }
 
     const json = await response.json();
@@ -518,7 +616,7 @@ export const apiService = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
-      }
+      },
     );
 
     const json = await response.json();
@@ -537,7 +635,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id, ...data }),
-      }
+      },
     );
     const json = await res.json();
     if (!json.success)
@@ -555,11 +653,104 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     const json = await res.json();
     if (!json.success)
       throw new Error(json.message || "Error creando proveedir");
+    return json;
+  },
+
+  /////////////////////////
+  ////// INFORMES /////////
+  /////////////////////////
+
+  async getInformes() {
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const res = await fetch(`${API_BASE_URL}/informes/get_informes.php`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.status === 403) throw new Error("No tiene permisos");
+    const json = await res.json();
+    if (!json.success)
+      throw new Error(json.message || "Error obteniendo informes");
+    return json;
+  },
+
+  async createInforme(payload) {
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const res = await fetch(`${API_BASE_URL}/informes/create_informe.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.status === 403) throw new Error("No tiene permisos");
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || "Error creando informe");
+    return json;
+  },
+
+  async updateInforme(id, payload) {
+    if (!id) throw new Error("ID requerido");
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const res = await fetch(
+      `${API_BASE_URL}/informes/update_informe.php?id=${encodeURIComponent(id)}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+
+    if (res.status === 403) throw new Error("No tiene permisos");
+    const json = await res.json();
+    if (!json.success)
+      throw new Error(json.message || "Error actualizando informe");
+    return json;
+  },
+
+  async updateInformeBulkOrder(payload) {
+    if (!Array.isArray(payload) || payload.length === 0) {
+      throw new Error("El payload debe ser un array valido");
+    }
+
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const res = await fetch(`${API_BASE_URL}/informes/update_bulk_order.php`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.status === 403) {
+      throw new Error("Privilegios insuficientes para realizar esta operacion");
+    }
+
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(
+        json.message || "Fallo en el servidor al actualizar ordenamiento",
+      );
+    }
+
     return json;
   },
 
@@ -577,7 +768,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ idLogin, usuario }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
@@ -595,12 +786,12 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id_solicitud }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
       throw new Error(
-        json.message || "Error obteniendo los detalles de la solicitud"
+        json.message || "Error obteniendo los detalles de la solicitud",
       );
     return json;
   },
@@ -615,12 +806,12 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id_solicitud }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
       throw new Error(
-        json.message || "Error obteniendo la trazabilidad de la solicitud"
+        json.message || "Error obteniendo la trazabilidad de la solicitud",
       );
     return json;
   },
@@ -640,7 +831,7 @@ export const apiService = {
           accion,
           observaciones: observaciones.trim(),
         }),
-      }
+      },
     );
 
     const json = await response.json();
@@ -649,7 +840,7 @@ export const apiService = {
       throw new Error(
         json.error ||
           json.message ||
-          "Error desconocido al procesar la solicitud"
+          "Error desconocido al procesar la solicitud",
       );
     }
 
@@ -666,13 +857,13 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id_solicitud, login, idLogin }),
-      }
+      },
     );
     const json = await response.json();
 
     if (!json.success) {
       throw new Error(
-        json.error || json.message || "Error al aplicar el cambio de precio"
+        json.error || json.message || "Error al aplicar el cambio de precio",
       );
     }
     return json;
@@ -688,7 +879,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(payload),
-      }
+      },
     );
 
     const json = await response.json();
@@ -697,7 +888,7 @@ export const apiService = {
       throw new Error(
         json.error ||
           json.message ||
-          "Error desconocido al finalizar el proceso"
+          "Error desconocido al finalizar el proceso",
       );
     }
 
@@ -711,7 +902,7 @@ export const apiService = {
   async updateInventario(tipoInventario, formData) {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      throw new Error("No hay token de autenticación");
+      throw new Error("No hay token de autenticacion");
     }
 
     const response = await fetch(
@@ -722,7 +913,7 @@ export const apiService = {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
-      }
+      },
     );
 
     if (!response.ok) {
@@ -751,7 +942,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ search, estado, page, usuario }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
@@ -769,12 +960,12 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id, usuario }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
       throw new Error(
-        json.message || "Error obteniendo los detalles de la solicitud"
+        json.message || "Error obteniendo los detalles de la solicitud",
       );
     return json;
   },
@@ -789,7 +980,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id }),
-      }
+      },
     );
 
     const json = await response.json();
@@ -805,7 +996,7 @@ export const apiService = {
   async getItemsFruver(page = 1, por_pagina = 20, search = "") {
     const params = new URLSearchParams({ pagina: page, por_pagina, search });
     const response = await fetch(
-      `${API_BASE_URL}/fruver/items/get_items.php?${params}`
+      `${API_BASE_URL}/fruver/items/get_items.php?${params}`,
     );
     const json = await response.json();
     if (!json.success)
@@ -855,7 +1046,7 @@ export const apiService = {
       {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      }
+      },
     );
     return await response.json();
   },
@@ -872,7 +1063,7 @@ export const apiService = {
     onProgress,
   }) {
     const token = localStorage.getItem("authToken");
-    if (!token) throw new Error("No hay token de autenticación");
+    if (!token) throw new Error("No hay token de autenticacion");
 
     const chunkSize = 10 * 1024 * 1024; // 10MB
     const totalChunks = Math.ceil(file.size / chunkSize);
@@ -899,7 +1090,7 @@ export const apiService = {
             Authorization: `Bearer ${token}`,
           },
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -917,6 +1108,48 @@ export const apiService = {
     }
   },
 
+  async getConfigPlanos() {
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const response = await fetch(
+      `${API_BASE_URL}/contabilidad/planos/config_planos.php`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    const json = await response.json();
+    if (!response.ok || !json.success) {
+      throw new Error(json.error || "Error obteniendo configuracion");
+    }
+    return json.data;
+  },
+
+  async updateConfigPlanos(configuracion) {
+    const token = localStorage.getItem("authToken");
+    if (!token) throw new Error("No hay token de autenticacion");
+
+    const response = await fetch(
+      `${API_BASE_URL}/contabilidad/planos/config_planos.php`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ configuracion }),
+      },
+    );
+
+    const json = await response.json();
+    if (!response.ok || !json.success) {
+      throw new Error(json.error || "Error actualizando configuracion");
+    }
+    return json.data;
+  },
+
   /////////////
   //// CVM ////
   /////////////
@@ -930,7 +1163,7 @@ export const apiService = {
     });
 
     const response = await fetch(
-      `${API_BASE_URL}/sistemas/cvm/get_registros.php?${params}`
+      `${API_BASE_URL}/sistemas/cvm/get_registros.php?${params}`,
     );
 
     const json = await response.json();
@@ -953,7 +1186,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     const json = await res.json();
@@ -972,7 +1205,7 @@ export const apiService = {
     });
 
     const response = await fetch(
-      `${API_BASE_URL}/sistemas/cvm/get_cajas.php?${params}`
+      `${API_BASE_URL}/sistemas/cvm/get_cajas.php?${params}`,
     );
     const json = await response.json();
     if (!response.ok)
@@ -987,7 +1220,7 @@ export const apiService = {
     });
 
     const response = await fetch(
-      `${API_BASE_URL}/sistemas/cvm/get_supervisores.php?${params}`
+      `${API_BASE_URL}/sistemas/cvm/get_supervisores.php?${params}`,
     );
     const json = await response.json();
     if (!response.ok)
@@ -1003,7 +1236,7 @@ export const apiService = {
     });
 
     const response = await fetch(
-      `${API_BASE_URL}/sistemas/cvm/get_balanza.php?${params}`
+      `${API_BASE_URL}/sistemas/cvm/get_balanza.php?${params}`,
     );
     const json = await response.json();
     if (!response.ok)
@@ -1018,7 +1251,7 @@ export const apiService = {
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
 
     const json = await response.json();
@@ -1040,7 +1273,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     return await response.json();
@@ -1056,7 +1289,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     const json = await response.json();
@@ -1078,7 +1311,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     const json = await response.json();
@@ -1097,7 +1330,7 @@ export const apiService = {
   // Obetener separatas
   async getSeparatas() {
     const response = await fetch(
-      `${API_BASE_URL}/compras/separata/get_separatas.php`
+      `${API_BASE_URL}/compras/separata/get_separatas.php`,
     );
     const json = await response.json();
     if (!response.ok)
@@ -1112,7 +1345,7 @@ export const apiService = {
       fecha_final: fechaFinal,
     });
     const response = await fetch(
-      `${API_BASE_URL}/compras/separata/check_separata.php?${params}`
+      `${API_BASE_URL}/compras/separata/check_separata.php?${params}`,
     );
     const json = await response.json();
     if (!response.ok)
@@ -1124,7 +1357,7 @@ export const apiService = {
   async getSeparataItems(separataId) {
     const params = new URLSearchParams({ separata_id: separataId });
     const response = await fetch(
-      `${API_BASE_URL}/compras/separata/get_items_separata.php?${params}`
+      `${API_BASE_URL}/compras/separata/get_items_separata.php?${params}`,
     );
     const json = await response.json();
     if (!response.ok) throw new Error(json.error || "Error obteniendo items");
@@ -1141,7 +1374,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     const json = await response.json();
 
@@ -1160,7 +1393,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
@@ -1178,7 +1411,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ id, usuario }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
@@ -1190,14 +1423,14 @@ export const apiService = {
   async getItemData(item) {
     const params = new URLSearchParams({ item });
     const response = await fetch(
-      `${API_BASE_URL}/compras/separata/get_item_data.php?${params}`
+      `${API_BASE_URL}/compras/separata/get_item_data.php?${params}`,
     );
     const json = await response.json();
     if (json.error) throw new Error(json.error);
     return json;
   },
 
-  // Actulizar fecha límite de una separata
+  // Actulizar fecha li­mite de una separata
   async updateFechaLimite(separataId, fechaLimite) {
     const response = await fetch(
       `${API_BASE_URL}/compras/separata/update_fecha_limite.php`,
@@ -1210,15 +1443,15 @@ export const apiService = {
           separata_id: separataId,
           fecha_limite: fechaLimite,
         }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
-      throw new Error(json.message || "Error actualizando fecha límite");
+      throw new Error(json.message || "Error actualizando fecha limite");
     return json;
   },
 
-  // Actualizar el título de separata
+  // Actualizar el ti­tulo de separata
   async updateSeparataTitle(separataId, titulo, usuario) {
     const response = await fetch(
       `${API_BASE_URL}/compras/separata/update_separata_title.php`,
@@ -1232,11 +1465,11 @@ export const apiService = {
           titulo: titulo,
           usuario: usuario,
         }),
-      }
+      },
     );
     const json = await response.json();
     if (!json.success)
-      throw new Error(json.message || "Error actualizando el título");
+      throw new Error(json.message || "Error actualizando el ti­tulo");
     return json;
   },
 
@@ -1246,12 +1479,12 @@ export const apiService = {
       `${API_BASE_URL}/compras/separata/download_report_separata.php?separata_id=${separataId}`,
       {
         method: "GET",
-      }
+      },
     );
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error("El reporte aún no está disponible");
+        throw new Error("El reporte aun no esta disponible");
       }
       throw new Error("Error al descargar el reporte");
     }
@@ -1259,13 +1492,35 @@ export const apiService = {
     return await response.blob();
   },
 
-  // Obtener la ultima actualización
+  // Obtener la ultima actualizacion
   async getLastUpdate() {
     const response = await fetch(
-      `${API_BASE_URL}/compras/separata/last_update.php`
+      `${API_BASE_URL}/compras/separata/last_update.php`,
     );
     const json = await response.json();
-    if (!response.ok) throw new Error("Error obteniendo última actualización");
+    if (!response.ok) throw new Error("Error obteniendo ultima actualizacion");
+    return json;
+  },
+
+  async searchItemHistorySuggestions(query) {
+    const params = new URLSearchParams({ query });
+    const response = await fetch(
+      `${API_BASE_URL}/compras/separata/get_item_history.php?${params}`,
+    );
+    const json = await response.json();
+    if (!response.ok)
+      throw new Error(json.error || "Error buscando sugerencias");
+    return json;
+  },
+
+  async getItemHistoryExact(item) {
+    const params = new URLSearchParams({ item });
+    const response = await fetch(
+      `${API_BASE_URL}/compras/separata/get_item_history.php?${params}`,
+    );
+    const json = await response.json();
+    if (!response.ok)
+      throw new Error(json.error || "Error obteniendo historial");
     return json;
   },
 
@@ -1276,7 +1531,7 @@ export const apiService = {
   // Verificar pedido existente
   async verificarPedidoHoyCarnes(sede) {
     const response = await fetch(
-      `${API_BASE_URL}/carnes/pedidos/verificar_pedido_hoy.php?id_sede=${sede}`
+      `${API_BASE_URL}/carnes/pedidos/verificar_pedido_hoy.php?id_sede=${sede}`,
     );
     const json = await response.json();
 
@@ -1288,7 +1543,7 @@ export const apiService = {
   // Obtener items de carnes
   async getItemsCarnes() {
     const response = await fetch(
-      `${API_BASE_URL}/carnes/pedidos/get_items.php`
+      `${API_BASE_URL}/carnes/pedidos/get_items.php`,
     );
     const json = await response.json();
     if (!response.ok)
@@ -1305,7 +1560,7 @@ export const apiService = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     const json = await response.json();
 
@@ -1320,38 +1575,651 @@ export const apiService = {
 
   // Obtener datos de item
   async getProductoBarras(codigoBarras, sede) {
-    let endpoint;
-
-    switch (sede) {
-      case "001":
-        endpoint = "get_producto.php";
-        break;
-      case "002":
-        endpoint = "get_producto_b2.php";
-        break;
-      case "005":
-        endpoint = "get_producto_b5.php";
-        break;
-      case "008":
-        endpoint = "get_producto_b8.php";
-        break;
-      case "011":
-        endpoint = "get_producto_b11.php";
-        break;
-      default:
-        throw new Error(`Sede no válida: ${sede}.`);
+    if (!sede) {
+      throw new Error("Identificador de sede no especificado.");
     }
 
-    const params = new URLSearchParams({ codigo_barras: codigoBarras });
+    // Inyectamos tanto el codigo como la sede en los parametros
+    const params = new URLSearchParams({
+      codigo_barras: codigoBarras,
+      sede: sede,
+    });
 
+    // Forzamos un aislamiento total para que interceptores de autenticacion no metan mano
     const response = await fetch(
-      `${API_BASE_URL}/lector_precios/${endpoint}?${params}`
+      `${API_BASE_URL}/lector_precios/get_producto.php?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Omitimos cualquier token de autorizacion de forma intencional
+        },
+      },
     );
 
-    if (!response.ok) {
-      throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+    let json = null;
+    try {
+      json = await response.json();
+    } catch (parseError) {
+      // Evitamos la caida si el backend devuelve un HTML de error o un texto plano
     }
+
+    if (!response.ok) {
+      const errorMsg =
+        json && json.message ? json.message : `Error HTTP: ${response.status}`;
+      const error = new Error(errorMsg);
+      error.status = response.status;
+      throw error;
+    }
+
+    return json;
+  },
+
+  /////////////////////////////////
+  //// LIBRO AUXILIAR CONTABILIDAD ////
+  /////////////////////////////////
+
+  async searchSedes() {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/contabilidad/libro_auxiliar/endpoint.php?action=get_sedes`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      },
+    );
+
     const json = await response.json();
+    // Desempaquetar el nodo 'resultado' si existe, de lo contrario retornar el json puro
+    return json.resultado ? json.resultado : json;
+  },
+
+  async obtenerReporteRecaudos(filtros) {
+    const token = localStorage.getItem("authToken");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutos maximo
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/recaudos/endpoint.php?action=generar_reporte`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify(filtros),
+          signal: controller.signal,
+        },
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(
+          `Fallo de conexion en el servidor intermediario (Codigo ${response.status}).`,
+        );
+      }
+
+      const json = await response.json();
+      const data = json.resultado ? json.resultado : json;
+
+      if (!data.success) {
+        throw new Error(data.message || "Error al extraer datos de recaudo");
+      }
+
+      return data;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        throw new Error(
+          "La red interrumpio la consulta por exceso de tiempo. Reduzca el rango de fechas.",
+        );
+      }
+      throw error;
+    }
+  },
+
+  async searchProveedores(termino) {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/contabilidad/libro_auxiliar/endpoint.php?action=search_proveedores&termino=${encodeURIComponent(termino)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      },
+    );
+
+    const json = await response.json();
+    return json.resultado ? json.resultado : json;
+  },
+
+  async obtenerDatosAuxiliar(filtros) {
+    const token = localStorage.getItem("authToken");
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1200000);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/libro_auxiliar/endpoint.php?action=generar_excel`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify(filtros),
+          signal: controller.signal,
+        },
+      );
+
+      clearTimeout(timeoutId);
+
+      // Si el servidor (Apache/Nginx) corto la peticion por TTL
+      if (!response.ok) {
+        throw new Error(
+          `Fallo de conexion o timeout en el servidor publico (Codigo ${response.status}). El volumen del ano completo excede la ventana de tiempo HTTP. Intente por trimestres.`,
+        );
+      }
+
+      const json = await response.json();
+      const data = json.resultado ? json.resultado : json;
+
+      if (!data.success) {
+        throw new Error(data.message || "Error al extraer datos contables");
+      }
+
+      return data;
+    } catch (error) {
+      if (error.name === "AbortError") {
+        throw new Error(
+          "La red interrumpe la consulta por exceso de tiempo. Segmente la busqueda por meses o provea un tercero.",
+        );
+      }
+      throw error;
+    }
+  },
+
+  // Accion 1: Obtener Auditoria Cruzada Siesa vs DIAN
+  async obtenerAuditoriaDian(empresa, fechaInicio, fechaFin) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/dian/endpoint.php?action=obtener_auditoria_dian`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({
+            empresa: empresa,
+            fecha_inicio: fechaInicio,
+            fecha_fin: fechaFin,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      // Si el codigo HTTP es de error (400, 500, etc.), inyectamos el mensaje del back en la excepcion
+      if (!response.ok) {
+        throw new Error(data.message || "Error en la peticion de auditoria.");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error critico en apiService.obtenerAuditoriaDian:", error);
+      throw error;
+    }
+  },
+
+  // Accion 2: Obtener todo el historico de configuraciones de phpMyAdmin
+  async obtenerConfiguracionDian() {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/dian/endpoint.php?action=obtener_configuracion_dian`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({}),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error al recuperar configuraciones.");
+      }
+
+      return data;
+    } catch (error) {
+      console.error(
+        "Error critico en apiService.obtenerConfiguracionDian:",
+        error,
+      );
+      throw error;
+    }
+  },
+
+  // Accion 3: Guardar y sobreescribir la matriz de relaciones en phpMyAdmin
+  async guardarConfiguracionDian(configuraciones) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/dian/endpoint.php?action=guardar_configuracion_dian`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({ configuraciones }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error al almacenar la configuracion.");
+      }
+
+      return data;
+    } catch (error) {
+      console.error(
+        "Error critico en apiService.guardarConfiguracionDian:",
+        error,
+      );
+      throw error;
+    }
+  },
+
+  // Accion 4: Guardar el resultado de conciliación por día
+  async guardarConciliacionDian(empresa, usuario, dias) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/dian/endpoint.php?action=guardar_conciliacion_dian`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({ empresa, usuario, dias }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Error al guardar la conciliacion.");
+      }
+      return data;
+    } catch (error) {
+      console.error(
+        "Error critico en apiService.guardarConciliacionDian:",
+        error,
+      );
+      throw error;
+    }
+  },
+
+  // Accion 5: Obtener días ya conciliados para un rango de fechas
+  async obtenerDiasConciliados(empresa, fechaInicio, fechaFin) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/contabilidad/dian/endpoint.php?action=obtener_dias_conciliados`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({
+            empresa,
+            fecha_inicio: fechaInicio,
+            fecha_fin: fechaFin,
+          }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Error al obtener dias conciliados.");
+      }
+      return data;
+    } catch (error) {
+      console.error(
+        "Error critico en apiService.obtenerDiasConciliados:",
+        error,
+      );
+      throw error;
+    }
+  },
+
+  ////////////////////////////////////////
+  //// CONTROL DE EXISTENCIAS AVERIAS ////
+  ////////////////////////////////////////
+
+  async obtenerExistenciasAverias(sedes, lapsos) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/inventario/reportes/averias/endpoint.php?action=obtener_existencias_averias`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({ sedes, lapsos }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || "Error en la peticion.");
+      return data.resultado ? data.resultado : data;
+    } catch (error) {
+      console.error(
+        "Error critico en apiService.obtenerExistenciasAverias:",
+        error,
+      );
+      throw error;
+    }
+  },
+
+  async buscarProveedoresMaestro(termino) {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/averias/endpoint.php?action=search_proveedores`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ termino }),
+      },
+    );
+    const data = await response.json();
+    return data.resultado ? data.resultado : data;
+  },
+
+  async listarProveedoresConfig() {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/averias/endpoint.php?action=listar_proveedores_config`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      },
+    );
+    return await response.json();
+  },
+
+  async guardarProveedorConfig(payload) {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/averias/endpoint.php?action=guardar_proveedor_config`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+    return await response.json();
+  },
+
+  async eliminarProveedorConfig(id) {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/averias/endpoint.php?action=eliminar_proveedor_config`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ id }),
+      },
+    );
+    return await response.json();
+  },
+
+  ////////////////////////////////////////
+  //// CONTROL DE EXISTENCIAS BODEGAS ALTERNAS ////
+  ////////////////////////////////////////
+
+  async obtenerReporteBodegasAlternas(lapso) {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/bodegas_alternas/endpoint.php?action=obtener_reporte_bodegas`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ lapso }),
+      },
+    );
+    const data = await response.json();
+    if (!response.ok)
+      throw new Error(data.message || "Error consultando matrices.");
+    return data.resultado ? data.resultado : data;
+  },
+
+  async listarBodegasConfig() {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/bodegas_alternas/endpoint.php?action=listar_bodegas_config`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      },
+    );
+    return await response.json();
+  },
+
+  async guardarBodegaConfig(payload) {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/bodegas_alternas/endpoint.php?action=guardar_bodega_config`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+    return await response.json();
+  },
+
+  async eliminarBodegaConfig(id) {
+    const response = await fetch(
+      `${API_BASE_URL}/inventario/reportes/bodegas_alternas/endpoint.php?action=eliminar_bodega_config`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ id }),
+      },
+    );
+    return await response.json();
+  },
+
+  ////////////////////////////////
+  //// CONTROL DE PRECIOS ////
+  ////////////////////////////////
+
+  async obtenerPlantillas() {
+    // Si el backend sigue fallando con POST vacío, puedes alternar a method: "GET"
+    // cambiando también tu endpoint.php para admitirlo. Aquí se mantiene POST adaptado.
+    const response = await fetch(
+      `${API_BASE_URL}/publicidad/printer/endpoint.php?action=obtener_plantillas`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ action: "obtener_plantillas" }), // Se duplica en el body por seguridad contra middlewares
+      },
+    );
+    return await response.json();
+  },
+
+  async guardarPlantilla(plantilla) {
+    // Adjuntamos explícitamente el token 'action' dentro del objeto JSON enviado
+    const payload = {
+      ...plantilla,
+      action: "guardar_plantilla",
+    };
+
+    const response = await fetch(
+      `${API_BASE_URL}/publicidad/printer/endpoint.php?action=guardar_plantilla`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+    return await response.json();
+  },
+
+  async eliminarPlantilla(id) {
+    const response = await fetch(
+      `${API_BASE_URL}/publicidad/printer/endpoint.php?action=eliminar_plantilla&id=${id}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+        body: JSON.stringify({ action: "eliminar_plantilla", id: id }),
+      },
+    );
+    return await response.json();
+  },
+
+  ////////////////////////////////
+  //// CONTROL INVENTARIOS PROVEEDORES ////
+  ////////////////////////////////
+
+  async getPermisosInventario(search = "", page = 1) {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/compras/inventarios/permisos_inventario.php?action=listar_permisos`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ search, page }),
+      },
+    );
+    const json = await response.json();
+    if (!response.ok || !json.success)
+      throw new Error(json.message || "Error al recuperar reglas");
+    return json.data;
+  },
+
+  async buscarProveedoresSiesa(termino) {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/compras/inventarios/permisos_inventario.php?action=search_proveedores_siesa`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ termino }),
+      },
+    );
+    if (!response.ok)
+      throw new Error("Error en comunicacion con servidor Siesa");
+    const json = await response.json();
+    if (json?.resultado?.success && Array.isArray(json.resultado.data)) {
+      return json.resultado.data.map((prov) => ({
+        nit: String(prov.codigo).trim(),
+        razon_social: String(prov.descripcion).trim(),
+      }));
+    }
+    return [];
+  },
+
+  async buscarCriterios1(termino) {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/compras/inventarios/permisos_inventario.php?action=search_criterios1`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ termino }),
+      },
+    );
+    if (!response.ok)
+      throw new Error("Error consultando criterios en el servidor central");
+    const json = await response.json();
+    if (json?.resultado?.success && Array.isArray(json.resultado.data)) {
+      return json.resultado.data.map((crit) => ({
+        codigo: String(crit.codigo).trim(),
+        descripcion: String(crit.descripcion).trim(),
+      }));
+    }
+    return [];
+  },
+
+  async guardarPermisoInventario(payload) {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/compras/inventarios/permisos_inventario.php?action=guardar_proveedor_permiso`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+    const json = await response.json();
+    if (!response.ok || !json.success)
+      throw new Error(json.message || "Error procesando operacion");
+    return json;
+  },
+
+  async eliminarPermisoInventario(id) {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(
+      `${API_BASE_URL}/compras/inventarios/permisos_inventario.php?action=eliminar_proveedor_permiso`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id }),
+      },
+    );
+    const json = await response.json();
+    if (!response.ok || !json.success)
+      throw new Error(json.message || "Error al remover la regla");
     return json;
   },
 
@@ -1367,7 +2235,7 @@ export const apiService = {
       ...filters,
     });
     const response = await fetch(
-      `${API_BASE_URL}/seguridad/visitantes/get_visitantes.php?${params}`
+      `${API_BASE_URL}/seguridad/visitantes/get_visitantes.php?${params}`,
     );
     const json = await response.json();
     if (!json.success)
@@ -1377,7 +2245,7 @@ export const apiService = {
 
   async getVisitante(cedula) {
     const response = await fetch(
-      `${API_BASE_URL}/seguridad/visitantes/get_visitante.php?cedula=${cedula}`
+      `${API_BASE_URL}/seguridad/visitantes/get_visitante.php?cedula=${cedula}`,
     );
     const json = await response.json();
     if (!json.success)
@@ -1395,7 +2263,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     const json = await res.json();
     if (!json.success)
@@ -1413,7 +2281,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id, ...data }),
-      }
+      },
     );
     const json = await res.json();
     if (!json.success)
@@ -1429,7 +2297,7 @@ export const apiService = {
       ...filters,
     });
     const response = await fetch(
-      `${API_BASE_URL}/seguridad/visitantes/get_visitas.php?${params}`
+      `${API_BASE_URL}/seguridad/visitantes/get_visitas.php?${params}`,
     );
     const json = await response.json();
     if (!json.success)
@@ -1447,7 +2315,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     const json = await res.json();
     if (!json.success) throw new Error(json.message || "Error creando visita");
@@ -1464,7 +2332,7 @@ export const apiService = {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify({ id, ...data }),
-      }
+      },
     );
     const json = await res.json();
     if (!json.success)

@@ -38,7 +38,7 @@ const FormularioPedidos = ({ onLogout }) => {
     const verificarPedidoHoy = async () => {
       try {
         const response = await apiService.verificarPedidoHoyCarnes(
-          user?.sede_codigo
+          user?.sede_codigo,
         );
 
         setPedidoHoy(response.existe);
@@ -140,6 +140,8 @@ const FormularioPedidos = ({ onLogout }) => {
     let totalCerdoUND = 0;
     let totalViscerasKG = 0;
     let totalViscerasUND = 0;
+    let totalCanalesKG = 0;
+    let totalCanalesUND = 0;
 
     if (!items || !Array.isArray(items)) {
       return {
@@ -166,12 +168,17 @@ const FormularioPedidos = ({ onLogout }) => {
         } else if (item.categoria === "VISCERAS DE RES") {
           if (item.unidad_medida === "KG") totalViscerasKG += cantidad;
           else if (item.unidad_medida === "UND") totalViscerasUND += cantidad;
+        } else if (item.categoria === "CANALES") {
+          if (item.unidad_medida === "KG") totalCanalesKG += cantidad;
+          else if (item.unidad_medida === "UND") totalCanalesUND += cantidad;
         }
       }
     });
 
-    const totalGeneralKG = totalResKG + totalCerdoKG + totalViscerasKG;
-    const totalGeneralUND = totalResUND + totalCerdoUND + totalViscerasUND;
+    const totalGeneralKG =
+      totalResKG + totalCerdoKG + totalViscerasKG + totalCanalesKG;
+    const totalGeneralUND =
+      totalResUND + totalCerdoUND + totalViscerasUND + totalCanalesUND;
 
     return {
       totalResKG: totalResKG.toFixed(2),
@@ -180,6 +187,8 @@ const FormularioPedidos = ({ onLogout }) => {
       totalCerdoUND: totalCerdoUND.toFixed(0),
       totalViscerasKG: totalViscerasKG.toFixed(2),
       totalViscerasUND: totalViscerasUND.toFixed(0),
+      totalCanalesKG: totalCanalesKG.toFixed(2),
+      totalCanalesUND: totalCanalesUND.toFixed(0),
       totalGeneralKG: totalGeneralKG.toFixed(2),
       totalGeneralUND: totalGeneralUND.toFixed(0),
     };
@@ -192,6 +201,8 @@ const FormularioPedidos = ({ onLogout }) => {
     totalCerdoUND,
     totalViscerasKG,
     totalViscerasUND,
+    totalCanalesKG,
+    totalCanalesUND,
     totalGeneralKG,
     totalGeneralUND,
   } = calcularTotales();
@@ -232,6 +243,12 @@ const FormularioPedidos = ({ onLogout }) => {
         total_cerdo: totalCerdoKG,
         total_visceras: totalViscerasKG,
         total_general: totalGeneralKG,
+        total_canales: totalCanalesKG,
+        total_res_und: totalResUND,
+        total_cerdo_und: totalCerdoUND,
+        total_visceras_und: totalViscerasUND,
+        total_general_und: totalGeneralUND,
+        total_canales_und: totalCanalesUND,
         detalles: detalles,
       };
 
@@ -239,9 +256,12 @@ const FormularioPedidos = ({ onLogout }) => {
 
       if (response && response.success) {
         addNotification({
-          message: "Pedido guardado exitosamente y correo enviado.",
+          message:
+            response.message ||
+            "Pedido guardado exitosamente y correo enviado.",
           type: "success",
         });
+
         setPedidoHoy(true);
       } else {
         addNotification({
@@ -367,6 +387,23 @@ const FormularioPedidos = ({ onLogout }) => {
             </div>
           </div>
 
+          <div className={`${styles.statCard} ${styles.statCanales}`}>
+            <div className={styles.statIcon}>
+              <FontAwesomeIcon icon={faStore} />
+            </div>
+
+            <div className={styles.statContent}>
+              <h3>{totalCanalesKG} kg</h3>
+              <p>Total Canales</p>
+
+              {parseInt(totalCanalesUND) > 0 && (
+                <span className={styles.statSubtitle}>
+                  {totalCanalesUND} unidades
+                </span>
+              )}
+            </div>
+          </div>
+
           <div className={`${styles.statCard} ${styles.statGeneral}`}>
             <div className={styles.statIcon}>
               <FontAwesomeIcon icon={faChartBar} />
@@ -426,6 +463,19 @@ const FormularioPedidos = ({ onLogout }) => {
               </div>
               <span>Vísceras</span>
             </button>
+
+            <button
+              className={`${styles.categoriaBtn} ${
+                categoriaActiva === "CANALES" ? styles.active : ""
+              }`}
+              onClick={() => setCategoriaActiva("CANALES")}
+            >
+              <div className={styles.categoriaIcon}>
+                <FontAwesomeIcon icon={faStore} />
+              </div>
+
+              <span>Canales</span>
+            </button>
           </div>
         </div>
       </div>
@@ -481,7 +531,7 @@ const FormularioPedidos = ({ onLogout }) => {
                         ajustarCantidad(
                           item.id,
                           item.unidad_medida === "UND" ? -1 : -10,
-                          item.unidad_medida
+                          item.unidad_medida,
                         )
                       }
                       disabled={
@@ -501,7 +551,7 @@ const FormularioPedidos = ({ onLogout }) => {
                           handleCantidadChange(
                             item.id,
                             e.target.value,
-                            item.unidad_medida
+                            item.unidad_medida,
                           )
                         }
                         min="0"
@@ -519,7 +569,7 @@ const FormularioPedidos = ({ onLogout }) => {
                         ajustarCantidad(
                           item.id,
                           item.unidad_medida === "UND" ? 1 : 10,
-                          item.unidad_medida
+                          item.unidad_medida,
                         )
                       }
                     >

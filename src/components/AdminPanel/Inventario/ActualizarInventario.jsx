@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "./ActualizarInventario.module.css";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import { apiService } from "../../../services/api";
@@ -27,12 +29,25 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 function ActualizarInventario() {
   const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const { puedeVer, puedeEditar, loading: permisosLoading } = usePermisos();
+
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
+    }
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
   const [file, setFile] = useState(null);
   const [cargando, setCargando] = useState(false);
   const [tipoInventario, setTipoInventario] = useState("cajas");
   const [errorPermisos, setErrorPermisos] = useState("");
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // Acceso regido por permisos del menu (no por rol fijo).
+  const esAdministrador = puedeVer;
 
   useEffect(() => {
     if (!esAdministrador) {
@@ -53,6 +68,14 @@ function ActualizarInventario() {
       addNotification({
         message: "Por favor, selecciona un archivo primero.",
         type: "warning",
+      });
+      return;
+    }
+
+    if (!puedeEditar) {
+      addNotification({
+        message: "No tienes permiso para actualizar el inventario.",
+        type: "error",
       });
       return;
     }
@@ -241,9 +264,9 @@ function ActualizarInventario() {
 
                   <button
                     onClick={handleFileUpload}
-                    disabled={!file}
+                    disabled={!file || !puedeEditar}
                     className={`${styles.submitButton} ${
-                      !file ? styles.disabled : ""
+                      !file || !puedeEditar ? styles.disabled : ""
                     }`}
                   >
                     <FontAwesomeIcon icon={faPaperPlane} />

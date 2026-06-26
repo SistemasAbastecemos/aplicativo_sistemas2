@@ -120,3 +120,73 @@
   height: 100%;
   background: transparent;
 }
+
+/* Container relativo para anclar el menu cascada */
+.flyoutContainer {
+  position: relative;
+  width: 100%;
+}
+
+.flyoutContainer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -15px;
+  width: 15px;
+  height: 100%;
+  z-index: 1009;
+}
+
+/* Apariencia del trigger para que parezca un link normal */
+.flyoutTrigger {
+  display: flex;
+  align-items: center;
+  cursor: default;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Icono flecha alineado a la derecha */
+.flyoutArrow {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  transition: transform 0.2s ease;
+}
+
+/* El menu emergente lateral */
+.flyoutMenu {
+  position: absolute;
+  left: 100%;
+  top: -10px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  min-width: 220px;
+  z-index: 1010;
+  padding: 0.5rem 0;
+
+  /* Estado oculto */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(0px);
+  transition: all 0.2s ease;
+}
+/* Activacion por hover delegada a CSS */
+.flyoutContainer:hover > .flyoutMenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(5px);
+}
+
+.flyoutContainer:hover > .flyoutTrigger .flyoutArrow {
+  opacity: 1;
+}
+
+/* Si la resolucion es menor, la cascada hereda comportamientos base */
+@media (max-width: 768px) {
+  .flyoutMenu {
+    display: none;
+  }
+}

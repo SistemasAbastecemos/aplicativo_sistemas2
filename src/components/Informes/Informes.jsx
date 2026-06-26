@@ -1,96 +1,118 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faFileAlt,
-  faArrowLeft,
+  faSearch,
+  faFilter,
   faChartLine,
   faStore,
   faWarehouse,
   faAppleAlt,
-  faSearch,
-  faFilter,
+  faFileAlt,
+  faBan,
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./Informes.module.css";
 import Vista from "./Vista";
-import { informesConfig } from "./InformesConfig";
+import { apiService } from "../../services/api";
 import { useNotification } from "../../contexts/NotificationContext";
 import { useAuth } from "../../contexts/AuthContext";
 
 function Informes() {
+  const [informes, setInformes] = useState([]);
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedArea, setSelectedArea] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
+
   const { addNotification } = useNotification();
   const { user } = useAuth();
-  const areaUsuario = user?.area_nombre;
 
-  const areas = useMemo(() => {
-    const uniqueAreas = [
-      ...new Set(informesConfig.map((informe) => informe.area)),
-    ];
-    return uniqueAreas;
+  const idAreaUser = Number(user?.id_area);
+  const idCargoUser = Number(user?.id_cargo);
+  const esAdministrador = user?.id_rol === 1;
+
+  useEffect(() => {
+    const fetchInformes = async () => {
+      try {
+        const res = await apiService.getInformes();
+        setInformes(res.data || []);
+      } catch (error) {
+        addNotification({
+          message: "No fue posible procesar la informacion",
+          type: "error",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchInformes();
   }, []);
 
-  const getAreaIcon = (area) => {
-    const icons = {
-      Financiero: faChartLine,
-      Comercial: faStore,
-      Tobar: faWarehouse,
-      Fruver: faAppleAlt,
-    };
-    return icons[area] || faFileAlt;
+  const areasUnicas = useMemo(() => {
+    return [...new Set(informes.map((inf) => inf.area_nombre))];
+  }, [informes]);
+
+  const verificarAcceso = (informe) => {
+    if (esAdministrador) return true;
+    const permisoPorArea = informe.permisos.areas.includes(idAreaUser);
+    const permisoPorCargo = informe.permisos.cargos.includes(idCargoUser);
+    return permisoPorArea || permisoPorCargo;
   };
 
-  const filteredInformes = useMemo(() => {
-    return informesConfig.filter((informe) => {
-      const matchesSearch =
-        informe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        informe.description.toLowerCase().includes(searchTerm.toLowerCase());
+  const informesDisponibles = useMemo(() => {
+    return informes.filter((inf) => {
+      // Los usuarios normales no ven los inactivos. Los administradores si los ven (pero no podran abrirlos).
+      if (Number(inf.activo) === 0 && !esAdministrador) return false;
+
+      // Valida permisos cruzados
+      if (!verificarAcceso(inf) && !esAdministrador) return false;
+
+      const matchesSearch = inf.titulo
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
       const matchesArea =
-        selectedArea === "all" || informe.area === selectedArea;
+        selectedArea === "all" || inf.area_nombre === selectedArea;
       return matchesSearch && matchesArea;
     });
-  }, [searchTerm, selectedArea]);
+  }, [
+    informes,
+    searchTerm,
+    selectedArea,
+    idAreaUser,
+    idCargoUser,
+    esAdministrador,
+  ]);
+
+  const getAreaIcon = (areaNombre) => {
+    const name = areaNombre?.toLowerCase() || "";
+    if (name.includes("financiero")) return faChartLine;
+    if (name.includes("comercial")) return faStore;
+    if (name.includes("tobar")) return faWarehouse;
+    if (name.includes("fruver")) return faAppleAlt;
+    return faFileAlt;
+  };
 
   const handleCardClick = (informe) => {
-    if (!informe.areaPermitida.includes(areaUsuario)) {
-      addNotification(
-        "warning",
-        `No tienes permisos para visualizar el informe "${informe.title}".`
-      );
+    // Validacion restrictiva: Si el estado es inactivo, se bloquea el acceso independientemente del rol.
+    if (Number(informe.activo) === 0) {
+      addNotification({
+        message: "El informe se encuentra inactivo y no permite visualizacion.",
+        type: "warning",
+      });
       return;
     }
+
     setSelectedCard(informe);
   };
 
-  const handleBack = () => setSelectedCard(null);
-
   if (selectedCard) {
     return (
-      <div className={styles.informeView}>
-        <div className={styles.viewHeader}>
-          <button className={styles.backButton} onClick={handleBack}>
-            <FontAwesomeIcon icon={faArrowLeft} />
-            <span>Volver a informes</span>
-          </button>
-          <div className={styles.viewTitle}>
-            <FontAwesomeIcon
-              icon={getAreaIcon(selectedCard.area)}
-              className={styles.areaIcon}
-            />
-            <h1>{selectedCard.title}</h1>
-            <span
-              className={styles.areaBadge}
-              style={{ backgroundColor: selectedCard.color }}
-            >
-              {selectedCard.area}
-            </span>
-          </div>
-        </div>
-        <div className={styles.vistaContainer}>
-          <Vista informe={selectedCard.id} />
-        </div>
-      </div>
+      <Vista
+        url={selectedCard.url}
+        titulo={selectedCard.titulo}
+        area={selectedCard.area_nombre}
+        color={selectedCard.color}
+        onBack={() => setSelectedCard(null)}
+      />
     );
   }
 
@@ -98,115 +120,89 @@ function Informes() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Informes Corporativos</h1>
+          <h1 className={styles.title}>Inteligencia de Negocios</h1>
           <p className={styles.subtitle}>
-            Accede a los dashboards y reportes empresariales en tiempo real
+            Analitica y metricas organizacionales centralizadas
           </p>
         </div>
       </div>
 
-      <div className={styles.controls}>
-        <div className={styles.searchContainer}>
-          <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Buscar informes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
-
-        <div className={styles.filterContainer}>
-          <FontAwesomeIcon icon={faFilter} className={styles.filterIcon} />
-          <select
-            value={selectedArea}
-            onChange={(e) => setSelectedArea(e.target.value)}
-            className={styles.areaSelect}
-          >
-            <option value="all">Todas las áreas</option>
-            {areas.map((area) => (
-              <option key={area} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       <div className={styles.content}>
-        <div className={styles.statsBar}>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>{filteredInformes.length}</span>
-            <span className={styles.statLabel}>Informes disponibles</span>
+        <div className={styles.controlBar}>
+          <div className={styles.searchGroup}>
+            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Filtro analitico..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>
-              {
-                filteredInformes.filter((informe) =>
-                  informe.areaPermitida.includes(areaUsuario)
-                ).length
-              }
-            </span>
-            <span className={styles.statLabel}>Con acceso</span>
+
+          <div className={styles.filterGroup}>
+            <FontAwesomeIcon icon={faFilter} className={styles.filterIcon} />
+            <select
+              value={selectedArea}
+              onChange={(e) => setSelectedArea(e.target.value)}
+              className={styles.areaSelect}
+            >
+              <option value="all">Filtro departamental general</option>
+              {areasUnicas.map((area) => (
+                <option key={area} value={area}>
+                  {area}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.kpiGroup}>
+            <div className={styles.kpiBadge}>
+              <span>Modulos asignados:</span>{" "}
+              <strong>{informesDisponibles.length}</strong>
+            </div>
           </div>
         </div>
 
-        <div className={styles.grid}>
-          {filteredInformes.map((informe) => {
-            const disabled = !informe.areaPermitida.includes(areaUsuario);
-            return (
-              <div
-                key={informe.id}
-                className={`${styles.card} ${disabled ? styles.disabled : ""}`}
-                onClick={() => !disabled && handleCardClick(informe)}
-              >
+        {isLoading ? (
+          <div className={styles.loadingState}>
+            Sincronizando con repositorio origen...
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            {informesDisponibles.map((informe) => {
+              const isInactivo = Number(informe.activo) === 0;
+
+              return (
                 <div
-                  className={styles.cardHeader}
-                  style={{ backgroundColor: informe.color }}
+                  key={informe.id}
+                  className={`${styles.card} ${isInactivo ? styles.disabled : ""}`}
+                  onClick={() => handleCardClick(informe)}
                 >
-                  <div className={styles.cardIcon}>
-                    <FontAwesomeIcon icon={getAreaIcon(informe.area)} />
-                  </div>
-                  <div className={styles.cardBadge}>{informe.area}</div>
-                </div>
-
-                <div className={styles.cardContent}>
-                  <h3 className={styles.cardTitle}>{informe.title}</h3>
-                  <p className={styles.cardText}>{informe.description}</p>
-
-                  <div className={styles.cardFooter}>
-                    <div className={styles.accessInfo}>
-                      {disabled ? (
-                        <span className={styles.noAccess}>Sin acceso</span>
-                      ) : (
-                        <span className={styles.hasAccess}>Disponible</span>
-                      )}
-                    </div>
-                    <div className={styles.cardAction}>
-                      <span className={styles.actionText}>
-                        {disabled ? "Sin permisos" : "Ver informe"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {!disabled && (
                   <div
-                    className={styles.cardHover}
-                    style={{ backgroundColor: informe.color }}
-                  ></div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {filteredInformes.length === 0 && (
-          <div className={styles.noResults}>
-            <FontAwesomeIcon icon={faSearch} size="3x" />
-            <h3>No se encontraron informes</h3>
-            <p>Intenta con otros términos de búsqueda o filtros</p>
+                    className={styles.cardHeader}
+                    style={{
+                      backgroundColor: isInactivo ? "#94a3b8" : informe.color,
+                    }}
+                  >
+                    <div className={styles.cardIcon}>
+                      <FontAwesomeIcon
+                        icon={
+                          isInactivo ? faBan : getAreaIcon(informe.area_nombre)
+                        }
+                      />
+                    </div>
+                    <div className={styles.cardBadge}>
+                      {isInactivo ? "Suspendido" : informe.area_nombre}
+                    </div>
+                  </div>
+                  <div className={styles.cardContent}>
+                    <h3 className={styles.cardTitle}>{informe.titulo}</h3>
+                    <p className={styles.cardText}>{informe.descripcion}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./Areas.module.css";
 import { apiService } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import {
@@ -24,6 +26,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Areas = () => {
   const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const { puedeVer, puedeCrear, loading: permisosLoading } = usePermisos();
+
+  // Expulsion en vivo si se revoca el permiso de ver durante la sesion.
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
+    }
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
 
   // Estados principales
   const [areas, setAreas] = useState([]);
@@ -46,12 +61,13 @@ const Areas = () => {
     activo: 1,
   });
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // Acceso regido por permisos del menu (no por rol fijo).
+  const esAdministrador = puedeVer;
 
   // Memoized computed values
   const camposIncompletos = useMemo(
     () => !formData.nombre.trim() || !formData.descripcion.trim(),
-    [formData.nombre, formData.descripcion]
+    [formData.nombre, formData.descripcion],
   );
 
   const areasFiltradas = useMemo(() => {
@@ -60,8 +76,8 @@ const Areas = () => {
     const texto = search.toLowerCase();
     return areas.filter((a) =>
       Object.values(a).some(
-        (value) => value && value.toString().toLowerCase().includes(texto)
-      )
+        (value) => value && value.toString().toLowerCase().includes(texto),
+      ),
     );
   }, [areas, search]);
 
@@ -221,7 +237,7 @@ const Areas = () => {
     );
   }
 
-  if (cargando && pagina === 1) {
+  if (cargando && pagina === 1 && areas.length === 0) {
     return <LoadingScreen message="Cargando áreas..." />;
   }
 
@@ -241,7 +257,10 @@ const Areas = () => {
       <div className={styles.controls}>
         <div className={styles.filters}>
           <div className={styles.searchGroup}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <FontAwesomeIcon
+              icon={cargando ? faSyncAlt : faSearch}
+              className={`${styles.searchIcon} ${cargando ? styles.spin : ""}`}
+            />
             <input
               type="text"
               className={styles.searchInput}
@@ -260,10 +279,12 @@ const Areas = () => {
           </button>
         </div>
 
-        <button className={styles.createButton} onClick={abrirModalNueva}>
-          <FontAwesomeIcon icon={faPlus} />
-          Nueva Área
-        </button>
+        {puedeCrear && (
+          <button className={styles.createButton} onClick={abrirModalNueva}>
+            <FontAwesomeIcon icon={faPlus} />
+            Nueva Área
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -374,59 +395,32 @@ const AreaCard = React.memo(({ area, onEdit }) => {
 
   return (
     <div
-      className={`${styles.areaCard} ${
-        area.activo ? styles.activa : styles.inactiva
-      }`}
+      className={`${styles.areaCard} ${area.activo ? styles.activo : styles.inactivo}`}
     >
-      <div className={styles.cardHeader}>
+      {/* Indicador de estado minimalista */}
+      <span
+        className={styles.statusDot}
+        title={area.activo ? "Activo" : "Inactivo"}
+      />
+
+      <div className={styles.cardMain}>
         <div className={styles.avatar}>
-          <FontAwesomeIcon icon={faBuilding} />
-        </div>
-        <div className={styles.areaMain}>
-          <h4 className={styles.areaName}>{area.nombre}</h4>
-          <p className={styles.areaType}>
-            <FontAwesomeIcon icon={faLayerGroup} />
-            Área Organizacional
-          </p>
-        </div>
-        <button
-          className={styles.editButton}
-          onClick={handleEdit}
-          title="Editar área"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </button>
-      </div>
-
-      <div className={styles.cardContent}>
-        <div className={styles.areaInfo}>
-          <div className={styles.infoRow}>
-            <FontAwesomeIcon icon={faFileLines} className={styles.infoIcon} />
-            <span className={styles.infoText}>
-              {area.descripcion || "Sin descripción"}
-            </span>
-          </div>
+          <FontAwesomeIcon icon={faLayerGroup} />
         </div>
 
-        <div className={styles.cardFooter}>
-          <span
-            className={`${styles.statusBadge} ${
-              area.activo ? styles.active : styles.inactive
-            }`}
-          >
-            {area.activo ? (
-              <>
-                <FontAwesomeIcon icon={faCheckCircle} />
-                Activa
-              </>
-            ) : (
-              <>
-                <FontAwesomeIcon icon={faTimesCircle} />
-                Inactiva
-              </>
-            )}
+        <div className={styles.details}>
+          <h4 className={styles.areaName}>{area.descripcion}</h4>
+          <span className={styles.statusText}>
+            Área {area.activo ? "operativa en sistema" : "fuera de servicio"}
           </span>
         </div>
+      </div>
+
+      <div className={styles.cardActions}>
+        <button className={styles.editActionBtn} onClick={handleEdit}>
+          <FontAwesomeIcon icon={faEdit} />
+          <span>Configurar área</span>
+        </button>
       </div>
     </div>
   );
@@ -527,7 +521,7 @@ const AreaModal = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export default Areas;

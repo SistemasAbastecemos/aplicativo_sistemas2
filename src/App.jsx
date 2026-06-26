@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import PrivateRoute from "./components/Routing/PrivateRoute";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { MenuProvider } from "./contexts/MenuContext";
 import LoadingScreen from "./components/UI/LoadingScreen";
 import NotificationContainer from "./components/UI/NotificationContainer";
 import Layout from "./components/Layout/Layout";
@@ -14,6 +15,7 @@ import Proveedores from "./components/AdminPanel/Proveedores/Proveedores";
 import Sedes from "./components/AdminPanel/Sedes/Sedes";
 import Areas from "./components/AdminPanel/Areas/Areas";
 import Cargos from "./components/AdminPanel/Cargos/Cargos";
+import AdminInformes from "./components/AdminPanel/Informes/Informes";
 import PerfilUsuario from "./components/Perfil/Perfil";
 
 // NO PROTECT //
@@ -31,20 +33,32 @@ import PedidosCarnes from "./components/Carnes/Pedidos/FormularioPedidos";
 import ProgramacionSeparata from "./components/Compras/Separata/ProgramacionSeparata";
 import ActualizacionCostos from "./components/Compras/Actualizacion Costos/ActualizacionCostos";
 import CodificacionProductos from "./components/Compras/Codificacion Productos/CodificacionProductos";
+import PermisosInventario from "./components/Compras/Inventarios/PermisosInventario";
 
 // CONTABILIDAD //
-import CargarPlanosContabilidad from "./components/Contabilidad/Planos/CargaPlanos";
+import PlanosContables from "./components/Contabilidad/Planos/PlanosContables";
+import LibroAuxiliar from "./components/Contabilidad/Libro Auxiliar/LibroAuxiliar";
+import Recaudos from "./components/Contabilidad/Recaudos/Recaudos";
+import PrefijosDian from "./components/Contabilidad/Prefijos Dian/PrefijosDian";
 
 // SISTEMAS //
 import ActualizarInventario from "./components/AdminPanel/Inventario/ActualizarInventario";
 import VisualizaReportesCVM from "./components/Sistemas/CVM/Reportes";
 import CVM from "./components/Sistemas/CVM/CVM";
+import Logs from "./components/Sistemas/Logs/Logs";
 
 // SEGURIDAD //
 import GestionVisitantes from "./components/Seguridad/Gestion Visitantes/GestionVisitantes";
 
+// PUBLICIDAD //
+import PrintCanvas from "./components/Publicidad/PrintCanvas";
+
 // INFORMES //
 import Informes from "./components/Informes/Informes";
+
+// INVENTARIOS //
+import ExistenciasAverias from "./components/Inventario/Reportes/Averias/ExistenciasAverias";
+import ExistenciasBodegasAlternas from "./components/Inventario/Reportes/Bodegas Alternas/BodegasAlternas";
 
 // LECTOR PRECIOS //
 import LectorPrecios1 from "./components/LectorPrecios/B1/LectorPrecios";
@@ -61,7 +75,7 @@ function AppContent() {
   }
 
   return (
-    <>
+    <MenuProvider>
       <NotificationContainer />
       <Routes>
         {/* Login */}
@@ -170,6 +184,17 @@ function AppContent() {
           }
         />
 
+        <Route
+          path="/configuracion/informes"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <AdminInformes />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
         {/* /////////// FRUVER /////////// */}
         <Route
           path="/fruver/admin_items"
@@ -195,11 +220,44 @@ function AppContent() {
 
         {/* /////////// CONTABILIDAD /////////// */}
         <Route
-          path="/contabilidad/cargar_planos"
+          path="/contabilidad/planos_contables"
           element={
             <PrivateRoute>
               <Layout>
-                <CargarPlanosContabilidad />
+                <PlanosContables />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/contabilidad/libro_auxiliar"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <LibroAuxiliar />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/contabilidad/recaudos"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Recaudos />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/contabilidad/prefijos_dian"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <PrefijosDian />
               </Layout>
             </PrivateRoute>
           }
@@ -234,6 +292,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <Informes />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/logs"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Logs />
               </Layout>
             </PrivateRoute>
           }
@@ -285,6 +354,17 @@ function AppContent() {
           }
         />
 
+        <Route
+          path="/compras/permisos_inventario"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <PermisosInventario />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
         {/* /////////// CARNES /////////// */}
         <Route
           path="/formulario_pedidos_carnes"
@@ -292,6 +372,41 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <PedidosCarnes />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        {/* /////////// PUBLICIDAD /////////// */}
+        <Route
+          path="/publicidad/print"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <PrintCanvas />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        {/* /////////// INVENTARIOS /////////// */}
+        <Route
+          path="/inventarios/reportes/averias"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ExistenciasAverias />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/inventarios/reportes/bodegas_alternas"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ExistenciasBodegasAlternas />
               </Layout>
             </PrivateRoute>
           }
@@ -310,7 +425,7 @@ function AppContent() {
           element={<Navigate to={user ? "/inicio" : "/login"} replace />}
         />
       </Routes>
-    </>
+    </MenuProvider>
   );
 }
 

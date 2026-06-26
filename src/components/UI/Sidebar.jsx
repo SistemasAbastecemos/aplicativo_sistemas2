@@ -37,6 +37,11 @@ import {
   faPercent,
   faRulerCombined,
   faUserCheck,
+  faFileInvoiceDollar,
+  faMoneyBillTransfer,
+  faComputer,
+  faStore,
+  faCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import Tooltip from "./Tooltip";
 import SubmenuTooltip from "./SubmenuTooltip";
@@ -82,6 +87,10 @@ const Sidebar = ({ collapsed }) => {
     porcentaje: faPercent,
     cvm: faRulerCombined,
     proveedor: faUserCheck,
+    contabilidad: faFileInvoiceDollar,
+    recaudo: faMoneyBillTransfer,
+    sistemas: faComputer,
+    compras: faStore,
   };
 
   // Cargar menú desde backend
@@ -154,7 +163,7 @@ const Sidebar = ({ collapsed }) => {
     if (!menus.length) return;
 
     const activeParent = menus.find((m) =>
-      m.children?.some((child) => location.pathname.startsWith(child.ruta))
+      m.children?.some((child) => location.pathname.startsWith(child.ruta)),
     );
 
     if (activeParent) {
@@ -225,8 +234,63 @@ const Sidebar = ({ collapsed }) => {
     return <div key={key}>{element}</div>;
   };
 
+  const renderSubMenus = (items, parentKey) => {
+    return items.map((child, idx) => {
+      const childKey = `child-${parentKey}-${child.id_menu || idx}`;
+      const ChildIcon = iconMap[child.icono];
+      const isChildActive = location.pathname === child.ruta;
+      const hasChildren =
+        Array.isArray(child.children) && child.children.length > 0;
+
+      if (hasChildren) {
+        return (
+          <div key={childKey} className={styles.nestedMenuContainer}>
+            <div
+              className={`${styles.subLink} ${styles.nestedHeader}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand(childKey);
+              }}
+            >
+              {ChildIcon && (
+                <FontAwesomeIcon icon={ChildIcon} className={styles.subIcon} />
+              )}
+              <span className={styles.subText}>{child.nombre}</span>
+              <FontAwesomeIcon
+                icon={expanded[childKey] ? faAngleDown : faAngleRight}
+                className={styles.nestedArrowIcon}
+              />
+            </div>
+            <div
+              className={`${styles.submenu} ${expanded[childKey] ? styles.submenuOpen : ""}`}
+            >
+              {renderSubMenus(child.children, childKey)}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <Link
+          key={childKey}
+          to={child.ruta}
+          className={`${styles.subLink} ${isChildActive ? styles.active : ""}`}
+          onClick={() => {
+            if (isMobile) setOpen(false);
+          }}
+        >
+          {ChildIcon && (
+            <FontAwesomeIcon icon={ChildIcon} className={styles.subIcon} />
+          )}
+          <span className={styles.subText}>{child.nombre}</span>
+          {isChildActive && <div className={styles.activeIndicator} />}
+        </Link>
+      );
+    });
+  };
+
   const renderMenu = (menu, index) => {
-    const menuKey = menu.id ?? `menu-${index}`;
+    const menuKey = menu.id_menu ?? `menu-${index}`;
     const Icon = iconMap[menu.icono];
     const hasChildren =
       Array.isArray(menu.children) && menu.children.length > 0;
@@ -267,48 +331,16 @@ const Sidebar = ({ collapsed }) => {
         <div key={menuKey} className={styles.menuSection}>
           {withTooltip(menuHeader, menu.nombre, `header-${menuKey}`)}
 
-          {/* Submenu normal cuando NO está colapsado */}
           {!collapsed && (
             <div
               className={`${styles.submenu} ${
                 expanded[menuKey] ? styles.submenuOpen : ""
               }`}
             >
-              {menu.children.map((child, idx) => {
-                const ChildIcon = iconMap[child.icono];
-                const childKey = `child-${menuKey}-${idx}`;
-                const isChildActive = location.pathname === child.ruta;
-
-                const subMenuItem = (
-                  <Link
-                    key={childKey}
-                    to={child.ruta}
-                    className={`${styles.subLink} ${
-                      isChildActive ? styles.active : ""
-                    }`}
-                    onClick={() => {
-                      if (isMobile) setOpen(false);
-                    }}
-                  >
-                    {ChildIcon && (
-                      <FontAwesomeIcon
-                        icon={ChildIcon}
-                        className={styles.subIcon}
-                      />
-                    )}
-                    <span className={styles.subText}>{child.nombre}</span>
-                    {isChildActive && (
-                      <div className={styles.activeIndicator} />
-                    )}
-                  </Link>
-                );
-
-                return withTooltip(subMenuItem, child.nombre, childKey);
-              })}
+              {renderSubMenus(menu.children, menuKey)}
             </div>
           )}
 
-          {/* Submenu tooltip cuando está colapsado */}
           {collapsed && !isMobile && hoveredMenu?.index === index && (
             <SubmenuTooltip
               menu={menu}

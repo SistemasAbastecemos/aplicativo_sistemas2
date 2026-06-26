@@ -1,69 +1,79 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./LectorPrecios.module.css";
 import logo from "../../../assets/images/logo.png";
-import producto_imagen from "../../../assets/images/producto.png";
-import producto_error from "../../../assets/images/producto-error.png";
 import descuentos from "../../../assets/images/descuentos.png";
 import successSound from "../../../assets/sounds/success.mp3";
 import errorSound from "../../../assets/sounds/error.mp3";
 import { apiService } from "../../../services/api";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBarcode,
+  faStore,
+  faExclamationTriangle,
+  faArrowRight,
+  faTags,
+  faBoxes,
+  faClock,
+} from "@fortawesome/free-solid-svg-icons";
 
 const LectorPrecios = () => {
   const [fechaHora, setFechaHora] = useState("");
-  const [codigoBarras, setCodigoBarras] = useState("");
   const [producto, setProducto] = useState(null);
-  const [contador, setContador] = useState(0);
+  const [errorProducto, setErrorProducto] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [mostrarFormulario, setMostrarFormulario] = useState(true);
-  const [contraseña, setContraseña] = useState("");
-  const [contraseñaCorrecta] = useState("Publicidad$2025*+");
-  const [errorContraseña, setErrorContraseña] = useState(false);
+  const [contrasena, setContrasena] = useState("");
   const [escannerActivo, setEscannerActivo] = useState(false);
-  const [mostrarAnimacion, setMostrarAnimacion] = useState(false);
+  const [tiempoRestante, setTiempoRestante] = useState(0);
+  const [animacionActiva, setAnimacionActiva] = useState(0);
+  const [particulas, setParticulas] = useState([]);
+  const [errorContrasena, setErrorContrasena] = useState(false);
+
+  const contrasenaCorrecta = import.meta.env.VITE_LECTOR_PASSWORD || "";
+  const SEDE_NOMBRE = "Supermercado Belalcazar Principal";
+  const SEDE_ID = "001";
+  const TIEMPO_ESPERA_PANTALLA = 8;
+  const MAX_BUFFER_LENGTH = 128;
+
   const bufferRef = useRef("");
-  const cardRef = useRef(null);
+  const timeoutRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
 
-  // Sonidos
-  const successAudio = new Audio(successSound);
-  const errorAudio = new Audio(errorSound);
+  const audioSuccess = useRef(new Audio(successSound));
+  const audioError = useRef(new Audio(errorSound));
 
-  const handlePasswordChange = (e) => {
-    setContraseña(e.target.value);
-  };
-
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    if (contraseña === contraseñaCorrecta) {
-      setMostrarFormulario(false);
-      setErrorContraseña(false);
-      setEscannerActivo(true);
-      bufferRef.current = "";
-      // Animación de entrada
-      setMostrarAnimacion(true);
-    } else {
-      setErrorContraseña(true);
-      setContraseña("");
-      errorAudio.play();
+  const formatearDinero = (valor) => {
+    if (typeof valor !== "number" || isNaN(valor)) {
+      return "0";
     }
+    return new Intl.NumberFormat("es-CO", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(valor);
   };
 
   useEffect(() => {
-    const manejarKeydown = (e) => {
-      if (e.key === "Enter") {
-        setCodigoBarras(bufferRef.current);
-        procesarCodigo(bufferRef.current);
-        bufferRef.current = "";
-      } else {
-        bufferRef.current += e.key;
+    const activarKioscoModo = async () => {
+      try {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          await docEl.webkitRequestFullscreen();
+        }
+
+        if (screen.orientation && screen.orientation.lock) {
+          try {
+            await screen.orientation.lock("landscape");
+          } catch (_) {}
+        }
+      } catch (error) {
+        // Fallback silencioso si las politicas del navegador bloquean el fullscreen directo
       }
     };
 
-    if (escannerActivo) {
-      window.addEventListener("keydown", manejarKeydown);
-    }
-
-    return () => window.removeEventListener("keydown", manejarKeydown);
-  }, [escannerActivo]);
+    activarKioscoModo();
+  }, []);
 
   useEffect(() => {
     const actualizarFechaHora = () => {
@@ -76,374 +86,471 @@ const LectorPrecios = () => {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
+        hour12: true,
       };
-      setFechaHora(ahora.toLocaleDateString("es-ES", opciones));
+      setFechaHora(ahora.toLocaleDateString("es-CO", opciones).toUpperCase());
     };
 
-    // Actualizar inmediatamente
     actualizarFechaHora();
-
-    // Actualizar cada segundo
     const intervalo = setInterval(actualizarFechaHora, 1000);
-
     return () => clearInterval(intervalo);
   }, []);
 
-  const formatearPrecio = (precio) => {
-    return precio.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
+  useEffect(() => {
+    if (mostrarFormulario) return;
 
-  const formatearPrecio2 = (precio) => {
-    return precio
-      .toFixed(2)
-      .replace(/\d(?=(\d{3})+\.)/g, "$&,")
-      .replace(".", ",");
-  };
+    const manejarTeclado = (e) => {
+      if (cargando) return;
 
-  const convertirUnidad = (descripcion) => {
-    return descripcion
-      .replace(/\bml\b/g, "Mililitro")
-      .replace(/\bgr\b/g, "Gramo")
-      .replace(/\blitro\b/g, "Litro")
-      .replace(/\bcc\b/g, "Centímetro cúbico")
-      .replace(/\bLITRO\b/g, "Litro")
-      .replace(/\kg\b/g, "Kilogramo")
-      .replace(/\KG\b/g, "Kilogramo");
-  };
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-  const procesarCodigo = async (codigo) => {
-    if (!codigo) return;
-    setCargando(true);
-
-    try {
-      const response = await apiService.getProductoBarras(codigo, "001");
-      const data = response;
-
-      if (!data.success) {
-        setProducto({
-          error: data.message || "Producto no encontrado o datos incompletos.",
-          imagen: producto_error,
-        });
-        setContador(3);
-        errorAudio.play();
+      if (e.key === "Enter") {
+        const codigoFinal = bufferRef.current.trim();
+        bufferRef.current = "";
+        if (codigoFinal) {
+          procesarCodigo(codigoFinal);
+        }
       } else {
-        const productoData = data.data;
-
-        const unidad = productoData.descripcion.match(
-          /(gr|ml|cc|litro|LITRO|kg)/i
-        );
-        let unidadConvertida = "Unidad";
-
-        if (unidad) {
-          switch (unidad[0].toLowerCase()) {
-            case "ml":
-              unidadConvertida = "Mililitro";
-              break;
-            case "gr":
-              unidadConvertida = "Gramo";
-              break;
-            case "cc":
-              unidadConvertida = "Centímetro cúbico";
-              break;
-            case "litro":
-              unidadConvertida = "Litro";
-              break;
-            case "kg":
-              unidadConvertida = "Kilogramo";
-              break;
+        if (e.key !== "Shift" && e.key !== "Control" && e.key !== "Alt") {
+          // Validacion para evitar desbordamiento de memoria por lecturas basura de hardware
+          if (bufferRef.current.length < MAX_BUFFER_LENGTH) {
+            bufferRef.current += e.key;
           }
         }
 
-        const {
-          codigo_barras,
-          item,
-          descripcion,
-          precio,
-          valor_col5,
-          cantidad_por_empaque,
-          venta_por,
-        } = productoData;
+        timeoutRef.current = setTimeout(() => {
+          bufferRef.current = "";
+        }, 1500);
+      }
+    };
 
-        const division =
-          valor_col5 && valor_col5 !== 0 ? precio / valor_col5 : 0;
+    window.addEventListener("keydown", manejarTeclado);
+    return () => {
+      window.removeEventListener("keydown", manejarTeclado);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [mostrarFormulario, cargando]);
 
-        setProducto({
-          codigo: codigo_barras,
-          item: item,
-          descripcion: convertirUnidad(descripcion),
-          precio: `$${formatearPrecio(precio)}`,
-          precioUnitario: `${unidadConvertida} a: $${formatearPrecio2(
-            division
-          )}`,
-          cantidadPorEmpaque: cantidad_por_empaque,
-          ventaPor: `Venta por: ${venta_por}`,
-          imagen: descuentos,
-        });
-        setContador(8);
-        successAudio.play();
+  useEffect(() => {
+    if (mostrarFormulario || producto || errorProducto || cargando) return;
 
-        // Animación de entrada
-        if (cardRef.current) {
-          cardRef.current.classList.add(styles.cardEntrance);
-          setTimeout(() => {
-            if (cardRef.current) {
-              cardRef.current.classList.remove(styles.cardEntrance);
-            }
-          }, 500);
+    const cambiarMensajeYParticulas = () => {
+      const indiceAleatorio = Math.floor(Math.random() * 3);
+      setAnimacionActiva(indiceAleatorio);
+
+      const nuevasParticulas = Array.from({ length: 6 }).map((_, i) => ({
+        id: Date.now() + i,
+        left: `${Math.random() * 90 + 5}%`,
+        size: `${Math.random() * 6 + 4}px`,
+        delay: `${Math.random() * 2}s`,
+        duration: `${Math.random() * 3 + 3}s`,
+      }));
+      setParticulas(nuevasParticulas);
+    };
+
+    cambiarMensajeYParticulas();
+    const intervaloAnimacion = setInterval(cambiarMensajeYParticulas, 7000);
+
+    return () => clearInterval(intervaloAnimacion);
+  }, [mostrarFormulario, producto, errorProducto, cargando]);
+
+  const iniciarContadorRegresivo = () => {
+    if (countdownIntervalRef.current)
+      clearInterval(countdownIntervalRef.current);
+    setTiempoRestante(TIEMPO_ESPERA_PANTALLA);
+
+    countdownIntervalRef.current = setInterval(() => {
+      setTiempoRestante((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownIntervalRef.current);
+          setProducto(null);
+          setErrorProducto(false);
+          return 0;
         }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const procesarCodigo = async (codigo) => {
+    if (!codigo || typeof codigo !== "string") return;
+
+    if (countdownIntervalRef.current)
+      clearInterval(countdownIntervalRef.current);
+    setCargando(true);
+    setErrorProducto(false);
+    setEscannerActivo(true);
+
+    try {
+      const response = await apiService.getProductoBarras(codigo, SEDE_ID);
+
+      if (response && response.success && response.data) {
+        setProducto(response.data);
+        try {
+          audioSuccess.current.play();
+        } catch (_) {}
+        iniciarContadorRegresivo();
+      } else {
+        manejarFalloLectura();
       }
     } catch (error) {
-      console.error("Error al conectar con el API:", error.message);
-      setProducto({
-        error:
-          "Hubo un problema al conectar con el servidor. Revise su conexión.",
-        imagen: producto_error,
-      });
-      setContador(3);
-      errorAudio.play();
+      manejarFalloLectura();
     } finally {
       setCargando(false);
-      setCodigoBarras("");
+      setTimeout(() => setEscannerActivo(false), 2000);
     }
   };
 
+  const manejarFalloLectura = () => {
+    setProducto(null);
+    setErrorProducto(true);
+    try {
+      audioError.current.play();
+    } catch (_) {}
+    iniciarContadorRegresivo();
+  };
+
   useEffect(() => {
-    if (contador > 0) {
-      const intervalo = setInterval(
-        () => setContador((prev) => prev - 1),
-        1000
-      );
-      return () => clearInterval(intervalo);
+    return () => {
+      if (countdownIntervalRef.current)
+        clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
+
+  const manejarLogin = async (e) => {
+    e.preventDefault();
+
+    if (!contrasenaCorrecta) {
+      setErrorContrasena(true);
+      return;
     }
-    if (contador === 0) {
-      setProducto(null);
+
+    if (contrasena === contrasenaCorrecta) {
+      setMostrarFormulario(false);
+      setErrorContrasena(false);
+      setEscannerActivo(true);
+
+      try {
+        const docEl = document.documentElement;
+
+        if (!document.fullscreenElement) {
+          await docEl.requestFullscreen();
+        }
+
+        if (screen.orientation?.lock) {
+          try {
+            await screen.orientation.lock("landscape");
+          } catch (_) {}
+        }
+      } catch (_) {}
+    } else {
+      setErrorContrasena(true);
+      setContrasena("");
+
+      try {
+        audioError.current.play();
+      } catch (_) {}
     }
-  }, [contador]);
+  };
 
   return (
     <div className={styles.lectorPreciosContainer}>
+      <div className={styles.topSedeBar}>
+        <FontAwesomeIcon icon={faStore} className={styles.topSedeIcon} />
+        <span>{SEDE_NOMBRE}</span>
+      </div>
+
       {mostrarFormulario ? (
-        <div
-          className={`${styles.formularioContraseñaLector} ${
-            mostrarAnimacion ? styles.animateForm : ""
-          }`}
-        >
-          <div className={styles.formHeader}>
-            <img src={logo} alt="Logo Belalcazar" className={styles.formLogo} />
-            <h1 className={styles.title}>Acceso al Lector de Precios</h1>
-          </div>
-          <form onSubmit={handlePasswordSubmit}>
-            <div className={styles.inputGroup}>
-              <label htmlFor="password">Ingrese la contraseña:</label>
+        <div className={styles.lectorPreciosFormWrapper}>
+          <div className={styles.lectorPreciosFormCard}>
+            <div className={styles.logoWrapper}>
+              <img
+                src={logo}
+                alt="Logo"
+                className={styles.lectorPreciosFormLogo}
+              />
+            </div>
+            <h2 className={styles.lectorPreciosFormTitle}>
+              Terminal de Consulta
+            </h2>
+            <form onSubmit={manejarLogin} className={styles.lectorPreciosForm}>
               <input
                 type="password"
-                id="password"
-                value={contraseña}
-                onChange={handlePasswordChange}
-                placeholder="Contraseña"
-                className={`${styles.inputContraseñaLector} ${
-                  errorContraseña ? styles.error : ""
-                }`}
+                placeholder="Ingrese clave de acceso"
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                className={`${styles.lectorPreciosInput} ${errorContrasena ? styles.inputError : ""}`}
                 onFocus={() => setEscannerActivo(false)}
                 onBlur={() => setEscannerActivo(true)}
                 autoFocus
               />
-            </div>
-            {errorContraseña && (
-              <p className={styles.errorText}>Contraseña incorrecta</p>
-            )}
-            <button type="submit" className={styles.lectoPreciosButton}>
-              <span>Ingresar</span>
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5 12H19M19 12L13 6M19 12L13 18"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </form>
+              {errorContrasena && (
+                <p className={styles.errorTextMsg}>Credencial incorrecta</p>
+              )}
+              <button type="submit" className={styles.lectorPreciosButton}>
+                Iniciar Operacion <FontAwesomeIcon icon={faArrowRight} />
+              </button>
+            </form>
+          </div>
         </div>
       ) : (
-        <>
-          {cargando ? (
-            <div className={styles.cargandoOverlayLector}>
-              <div className={styles.spinnerLector}></div>
-              <p>Buscando producto...</p>
-              <div className={styles.scanningAnimation}>
-                <div className={styles.scanLine}></div>
-              </div>
-            </div>
-          ) : producto ? (
-            <div
-              ref={cardRef}
-              className={`${styles.lectorPreciosCard} ${styles.resultado}`}
-            >
-              <div className={styles.lectorPreciosLeftBlock}>
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className={styles.lectorPreciosLogo}
-                />
-                {producto.error ? (
-                  // Mostrar fecha y hora cuando hay error en el producto
-                  <div className={styles.fechaHoraContainer}>
-                    <div className={styles.fechaHoraContent}>
-                      <p className={styles.fechaHoraTexto}>{fechaHora}</p>
-                    </div>
-                  </div>
-                ) : (
-                  // Mostrar información del precio cuando el producto es válido
-                  <div className={styles.leftContentWrapper}>
-                    <h2 className={styles.precioLabel}>PRECIO</h2>
-                    <h1 className={styles.precioGrande}>{producto.precio}</h1>
-                    <div className={styles.precioUnitarioContainer}>
-                      <span className={styles.precioUnitario}>
-                        {producto.precioUnitario}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className={styles.lectorPreciosRightBlock}>
-                {producto.error ? (
-                  <div className={styles.errorContainer}>
-                    <img
-                      src={producto.imagen}
-                      alt="Error"
-                      className={styles.productoImagen}
-                    />
-                    <h3 className={styles.errorMensaje}>{producto.error}</h3>
-                  </div>
-                ) : (
-                  <div className={styles.productoDetalle}>
-                    <div className={styles.productoImagenContainer}>
-                      <img
-                        src={producto.imagen}
-                        alt="Producto"
-                        className={styles.productoImagen}
-                      />
-                    </div>
-                    <div className={styles.productoInfo}>
-                      <div className={styles.productoHeader}>
-                        <div className={styles.productoCodigoContainer}>
-                          <span className={styles.productoCodigoLabel}>
-                            Código:
-                          </span>
-                          <span className={styles.productoCodigo}>
-                            {producto.codigo}
-                          </span>
-                        </div>
-                        <div className={styles.productoItemContainer}>
-                          <span className={styles.productoItemLabel}>
-                            Item:
-                          </span>
-                          <span className={styles.productoItem}>
-                            {producto.item}
-                          </span>
-                        </div>
-                      </div>
-                      <h2 className={styles.productoNombre}>
-                        {producto.descripcion}
-                      </h2>
-                      <div className={styles.productoDetails}>
-                        <div className={styles.productoDetail}>
-                          <span className={styles.detailLabel}>
-                            Cantidad por Empaque:
-                          </span>
-                          <span className={styles.detailValue}>
-                            {producto.cantidadPorEmpaque}
-                          </span>
-                        </div>
-                        <div className={styles.productoDetail}>
-                          <span className={styles.detailLabel}>Venta por:</span>
-                          <span className={styles.detailValue}>
-                            {producto.ventaPor.replace("Venta por: ", "")}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div className={styles.contadorGrafico}>
-                  <div className={styles.contadorCircular}>
-                    <div className={styles.contadorNumero}>{contador}</div>
-                    <svg width="60" height="60" viewBox="0 0 60 60">
-                      <circle
-                        cx="30"
-                        cy="30"
-                        r="25"
-                        stroke="#36b04b"
-                        strokeWidth="5"
-                        fill="none"
-                        strokeDasharray="157"
-                        strokeDashoffset={(contador / 8) * 157}
-                        className={styles.contadorCircle}
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className={`${styles.lectorPreciosCard} ${styles.inicial}`}>
-              <div className={styles.lectorPreciosLeftBlock}>
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className={styles.lectorPreciosLogo}
-                />
-                <div className={styles.fechaHoraContainer}>
-                  <div className={styles.fechaHoraContent}>
-                    <p className={styles.fechaHoraTexto}>{fechaHora}</p>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.lectorPreciosRightBlock}>
-                <div className={styles.scanPrompt}>
-                  <h3 className={styles.lectorPreciosFormTitle}>
-                    CONSULTE EL PRECIO AQUÍ
-                  </h3>
-                  <div className={styles.scanAnimation}>
-                    <div className={styles.barcodeIcon}>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                      <div className={styles.barcodeLine}></div>
-                    </div>
-                    <div className={styles.scanLine}></div>
-                  </div>
-                  <p className={styles.instrucciones}>
-                    Use el escáner para leer el código de barras
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          <div
-            className={`${styles.lectorPreciosFlecha} ${
-              producto ? styles.ocultar : ""
-            }`}
-          >
-            <div className={styles.arrowDown}>
-              <div className={styles.arrowTop}></div>
-              <div className={styles.arrowMiddle}></div>
-              <div className={styles.arrowBottom}></div>
+        <div className={styles.lectorPreciosLayoutInner}>
+          <div className={styles.lectorPreciosTimeRow}>
+            <div className={styles.lectorPreciosHeaderTime}>
+              <div className={styles.timeText}>{fechaHora}</div>
             </div>
           </div>
-        </>
+
+          {cargando && (
+            <div className={styles.fullscreenLoading}>
+              <div className={styles.spinner}></div>
+              <p>Consultando base de datos...</p>
+            </div>
+          )}
+
+          <div className={styles.lectorPreciosCenterZone}>
+            {!producto && !errorProducto && !cargando && (
+              <>
+                <div className={styles.lectorPreciosCard}>
+                  <div className={styles.lectorPreciosLeftBlock}>
+                    <img
+                      src={logo}
+                      alt="Logo Belalcazar"
+                      className={styles.lectorPreciosLogo}
+                    />
+                    <div className={styles.welcomeMessage}>
+                      <h2>¡BIENVENIDO!</h2>
+                      <p>
+                        Consulte aqui el precio de sus productos de forma rapida
+                        y segura
+                      </p>
+                    </div>
+                  </div>
+                  <div className={styles.lectorPreciosRightBlock}>
+                    <div className={styles.scanPromptWrapper}>
+                      <h3 className={styles.lectorPreciosScanTitle}>
+                        PASE EL CODIGO POR EL ESCANER AQUI
+                      </h3>
+                      <div
+                        className={`${styles.scanAnimation} ${escannerActivo ? styles.activo : ""}`}
+                      >
+                        <div className={styles.barcodeIcon}>
+                          <div className={styles.barcodeLine}></div>
+                          <div className={styles.barcodeLine}></div>
+                          <div className={styles.barcodeLine}></div>
+                          <div
+                            className={styles.barcodeLine}
+                            style={{ width: "6px" }}
+                          ></div>
+                          <div className={styles.barcodeLine}></div>
+                          <div
+                            className={styles.barcodeLine}
+                            style={{ width: "4px" }}
+                          ></div>
+                          <div className={styles.barcodeLine}></div>
+                        </div>
+                        <div className={styles.scanLine}></div>
+                      </div>
+                      <p className={styles.instrucciones}>
+                        <FontAwesomeIcon icon={faBarcode} /> Alinee el codigo de
+                        barras frente al rayo laser rojo
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  className={`${styles.bannerInferiorAnimado} ${styles.ambientGlowEffect}`}
+                >
+                  {particulas.map((p) => (
+                    <span
+                      key={p.id}
+                      className={styles.particulaFlotante}
+                      style={{
+                        left: p.left,
+                        width: p.size,
+                        height: p.size,
+                        animationDelay: p.delay,
+                        animationDuration: p.duration,
+                      }}
+                    />
+                  ))}
+
+                  {animacionActiva === 0 && (
+                    <div
+                      className={`${styles.itemAnimado} ${styles.slideEfecto}`}
+                    >
+                      <span className={styles.badgeAnimado}>💡 TIPS</span>
+                      <p>
+                        ¿Sabias que? En Supermercado Belalcazar estamos
+                        trabajando en el futuro con nuestro mas grande proyecto
+                        Siembra, una evolucion de nuestro sistema.
+                      </p>
+                    </div>
+                  )}
+                  {animacionActiva === 1 && (
+                    <div
+                      className={`${styles.itemAnimado} ${styles.pulseEfecto}`}
+                    >
+                      <span
+                        className={`${styles.badgeAnimado} ${styles.badgeVerde}`}
+                      >
+                        ✓ ACTIVO
+                      </span>
+                      <p>
+                        Ahorra en tus compras en la linea pescados y mariscos
+                        con los descuentos de todos los martes y jueves.
+                      </p>
+                    </div>
+                  )}
+                  {animacionActiva === 2 && (
+                    <div
+                      className={`${styles.itemAnimado} ${styles.shimmerEfecto}`}
+                    >
+                      <span
+                        className={`${styles.badgeAnimado} ${styles.badgeAmarillo}`}
+                      >
+                        ⭐ EXCLUSIVO
+                      </span>
+                      <p>
+                        ¡Recuerda que todos los martes son Martes de Plaza,
+                        aprovecha todos nuestros descuentos!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {producto && !cargando && (
+              <div
+                className={`${styles.lectorPreciosCard} ${styles.resultadoLayout}`}
+              >
+                <div className={styles.layoutBloquePrecioIzquierdo}>
+                  <img
+                    src={logo}
+                    alt="Logo Belalcazar"
+                    className={styles.resultadoLogoIzquierdo}
+                  />
+
+                  <div className={styles.premiumPriceContainer}>
+                    <span className={styles.premiumPriceLabel}>
+                      PRECIO DE VENTA
+                    </span>
+                    <div className={styles.priceValueWrapper}>
+                      <span className={styles.currencyMiniSymbol}>$</span>
+                      <span className={styles.priceMainNumbers}>
+                        {formatearDinero(producto.precio)}
+                      </span>
+                      <span className={styles.currencyRegionIso}>COP</span>
+                    </div>
+                    {producto.precio_unitario && (
+                      <div className={styles.pumBadge}>
+                        <FontAwesomeIcon icon={faBoxes} /> PUM: $
+                        {producto.precio_unitario} por{" "}
+                        {producto.venta_por || "Und"}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.contadorEsperaBadge}>
+                    <FontAwesomeIcon
+                      icon={faClock}
+                      className={styles.iconClockPulse}
+                    />{" "}
+                    Regreso en: <strong>{tiempoRestante}s</strong>
+                  </div>
+                </div>
+
+                <div className={styles.layoutDetalleProductoDerecho}>
+                  <div className={styles.subBloquePautaHorizontal}>
+                    <img
+                      src={descuentos}
+                      alt="Pauta Publicitaria"
+                      className={styles.bannerPautaHorizontal}
+                    />
+                  </div>
+
+                  <div className={styles.subBloqueInfoProductoHorizontal}>
+                    <h1 className={styles.productoNombre}>
+                      {producto.descripcion}
+                    </h1>
+
+                    {producto.linea2 && (
+                      <div className={styles.lineaCategoria}>
+                        <FontAwesomeIcon icon={faTags} />{" "}
+                        {producto.linea2.toUpperCase()}
+                      </div>
+                    )}
+
+                    <div className={styles.metaDataContainer}>
+                      <div className={styles.metaBadge}>
+                        <span className={styles.metaLabel}>Codigo:</span>
+                        <span className={styles.metaValue}>
+                          {producto.codigo_barras}
+                        </span>
+                      </div>
+                      <div className={styles.metaBadge}>
+                        <span className={styles.metaLabel}>Item:</span>
+                        <span className={styles.metaValue}>
+                          {producto.item}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {errorProducto && !cargando && (
+              <div
+                className={`${styles.lectorPreciosCard} ${styles.errorCardLayout}`}
+              >
+                <div className={styles.errorIconSection}>
+                  <div className={styles.alertIconCircle}>
+                    <FontAwesomeIcon icon={faExclamationTriangle} />
+                  </div>
+                  <div className={styles.contadorEsperaBadgeError}>
+                    <FontAwesomeIcon icon={faClock} /> Regreso en:{" "}
+                    {tiempoRestante}s
+                  </div>
+                </div>
+                <div className={styles.errorTextSection}>
+                  <h2>PRODUCTO NO ENCONTRADO</h2>
+                  <p className={styles.errorBrief}>
+                    No logramos encontrar el producto en nuestra base de datos.
+                  </p>
+                  <div className={styles.errorAdviceBox}>
+                    <h4>¿Que puede hacer?</h4>
+                    <ul>
+                      <li>
+                        Intente pasar el producto nuevamente por el escaner.
+                      </li>
+                      <li>
+                        Verifique que el codigo de barras no este arrugado o
+                        sucio.
+                      </li>
+                      <li>
+                        Solicite asistencia con uno de nuestros asesores en los
+                        pasillos.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div
+              className={`${styles.lectorPreciosFlecha} ${producto || errorProducto ? styles.ocultar : ""}`}
+            >
+              <div className={styles.arrowDown}>
+                <div className={styles.arrowTop}></div>
+                <div className={styles.arrowMiddle}></div>
+                <div className={styles.arrowBottom}></div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

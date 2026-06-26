@@ -95,7 +95,7 @@ const Perfil = () => {
     try {
       if (!currentUser?.id) return;
 
-      const data = await apiService.getPerfilUsuario(currentUser.id);
+      const data = await apiService.getPerfilUsuario();
       setUserInfo({
         nombres_completos: data.nombres_completos || "",
         login: data.login || currentUser.login || "",
@@ -142,7 +142,7 @@ const Perfil = () => {
     if (name === "password" || name === "confirmPassword") {
       validatePasswords(
         name === "password" ? value : userInfo.password,
-        name === "confirmPassword" ? value : userInfo.confirmPassword
+        name === "confirmPassword" ? value : userInfo.confirmPassword,
       );
     }
   };
@@ -199,10 +199,7 @@ const Perfil = () => {
         ...(userInfo.password && { password: userInfo.password }),
       };
 
-      const response = await apiService.updatePerfilUsuario(
-        currentUser.id,
-        datosParaEnviar
-      );
+      const response = await apiService.updatePerfilUsuario(datosParaEnviar);
 
       if (response.success) {
         addNotification({
@@ -260,8 +257,15 @@ const Perfil = () => {
     return "Muy fuerte";
   };
 
+  // Renderizado defensivo inicial cuando no hay informacion en memoria aun
   if (cargando && !userInfo.login) {
-    return <LoadingScreen message="Cargando información del perfil..." />;
+    return (
+      <LoadingScreen
+        isVisible={true}
+        title="Cargando Perfil"
+        subtitle="Obteniendo informacion desde el servidor..."
+      />
+    );
   }
 
   return (

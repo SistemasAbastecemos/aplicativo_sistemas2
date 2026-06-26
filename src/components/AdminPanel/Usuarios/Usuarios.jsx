@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./Usuarios.module.css";
 import { apiService } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { usePermisos } from "../../../hooks/usePermission";
 import { useNotification } from "../../../contexts/NotificationContext";
 import LoadingScreen from "../../UI/LoadingScreen";
 import {
@@ -29,6 +31,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const Usuarios = () => {
   const { user: currentUser } = useAuth();
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const { puedeVer, puedeCrear, loading: permisosLoading } = usePermisos();
+
+  // Expulsion en vivo si se revoca el permiso de ver durante la sesion.
+  useEffect(() => {
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message: "Se revocaron tus permisos para este modulo.",
+        type: "error",
+      });
+      navigate("/inicio", { replace: true });
+    }
+  }, [permisosLoading, puedeVer, navigate, addNotification]);
 
   // Estados principales
   const [usuarios, setUsuarios] = useState([]);
@@ -66,7 +81,8 @@ const Usuarios = () => {
     activo: 1,
   });
 
-  const esAdministrador = currentUser && currentUser.id_rol === 1;
+  // Acceso regido por permisos del menu (no por rol fijo).
+  const esAdministrador = puedeVer;
 
   // Memoized computed values
   const camposIncompletos = useMemo(
@@ -79,7 +95,7 @@ const Usuarios = () => {
       !formData.id_cargo ||
       !formData.id_sede ||
       (!!errorContrasena && (formData.contrasena || confirmarContrasena)),
-    [formData, modoEdicion, errorContrasena, confirmarContrasena]
+    [formData, modoEdicion, errorContrasena, confirmarContrasena],
   );
 
   // Efectos
@@ -101,7 +117,7 @@ const Usuarios = () => {
       setErrorContrasena(
         formData.contrasena !== confirmarContrasena
           ? "Las contraseñas no coinciden"
-          : ""
+          : "",
       );
     } else {
       setErrorContrasena("");
@@ -301,7 +317,7 @@ const Usuarios = () => {
     );
   }
 
-  if (cargando && pagina === 1) {
+  if (cargando && pagina === 1 && usuarios.length === 0) {
     return <LoadingScreen message="Cargando usuarios..." />;
   }
 
@@ -321,7 +337,10 @@ const Usuarios = () => {
       <div className={styles.controls}>
         <div className={styles.filters}>
           <div className={styles.searchGroup}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <FontAwesomeIcon
+              icon={cargando ? faSyncAlt : faSearch}
+              className={`${styles.searchIcon} ${cargando ? styles.spin : ""}`}
+            />
             <input
               type="text"
               className={styles.searchInput}
@@ -340,10 +359,12 @@ const Usuarios = () => {
           </button>
         </div>
 
-        <button className={styles.createButton} onClick={abrirModalNuevo}>
-          <FontAwesomeIcon icon={faUserPlus} />
-          Nuevo Usuario
-        </button>
+        {puedeCrear && (
+          <button className={styles.createButton} onClick={abrirModalNuevo}>
+            <FontAwesomeIcon icon={faUserPlus} />
+            Nuevo Usuario
+          </button>
+        )}
       </div>
 
       {/* Stats */}
@@ -463,7 +484,7 @@ const Usuarios = () => {
   );
 };
 
-// Componente de Tarjeta de Usuario - MUCHO MÁS PEQUEÑO
+// Componente de Tarjeta de Usuario
 const UsuarioCard = React.memo(
   ({ usuario, onEdit, roles, cargos, areas, sedes }) => {
     const handleEdit = useCallback(() => {
@@ -477,72 +498,51 @@ const UsuarioCard = React.memo(
 
     return (
       <div
-        className={`${styles.usuarioCard} ${
-          usuario.activo ? styles.activo : styles.inactivo
-        }`}
+        className={`${styles.usuarioCard} ${usuario.activo ? styles.activo : styles.inactivo}`}
       >
-        <div className={styles.cardHeader}>
+        {/* Indicador de estado */}
+        <span
+          className={styles.statusDot}
+          title={usuario.activo ? "Activo" : "Inactivo"}
+        />
+
+        <div className={styles.cardMain}>
           <div className={styles.avatar}>
             {usuario.nombres_completos?.charAt(0)?.toUpperCase() || "U"}
           </div>
-          <div className={styles.userMain}>
-            <h4 className={styles.userName}>{usuario.nombres_completos}</h4>
-            <p className={styles.userLogin}>@{usuario.login}</p>
+
+          <div className={styles.userDetails}>
+            <div className={styles.nameRow}>
+              <h4 className={styles.userName}>{usuario.nombres_completos}</h4>
+              <span className={styles.userLogin}>@{usuario.login}</span>
+            </div>
+
+            <p className={styles.userEmail}>
+              {usuario.correo || "Sin correo electrónico"}
+            </p>
           </div>
-          <button
-            className={styles.editButton}
-            onClick={handleEdit}
-            title="Editar usuario"
-          >
-            <FontAwesomeIcon icon={faEdit} />
-          </button>
         </div>
 
-        <div className={styles.cardContent}>
-          <div className={styles.userInfo}>
-            <div className={styles.infoRow}>
-              <FontAwesomeIcon icon={faEnvelope} className={styles.infoIcon} />
-              <span className={styles.infoText}>
-                {usuario.correo || "Sin correo"}
-              </span>
-            </div>
-            <div className={styles.infoRow}>
-              <FontAwesomeIcon icon={faShield} className={styles.infoIcon} />
-              <span className={styles.infoText}>
-                {rol?.descripcion || "Sin rol"}
-              </span>
-            </div>
-            <div className={styles.infoRow}>
-              <FontAwesomeIcon icon={faBuilding} className={styles.infoIcon} />
-              <span className={styles.infoText}>
-                {sede?.nombre || "Sin sede"}
-              </span>
-            </div>
+        <div className={styles.cardMeta}>
+          <div className={styles.metaBadge} title="Rol">
+            <FontAwesomeIcon icon={faShield} className={styles.metaIcon} />
+            <span>{rol?.descripcion || "Sin rol"}</span>
           </div>
+          <div className={styles.metaBadge} title="Sede">
+            <FontAwesomeIcon icon={faBuilding} className={styles.metaIcon} />
+            <span>{sede?.nombre || "Sin sede"}</span>
+          </div>
+        </div>
 
-          <div className={styles.cardFooter}>
-            <span
-              className={`${styles.statusBadge} ${
-                usuario.activo ? styles.active : styles.inactive
-              }`}
-            >
-              {usuario.activo ? (
-                <>
-                  <FontAwesomeIcon icon={faCheckCircle} />
-                  Activo
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon icon={faTimesCircle} />
-                  Inactivo
-                </>
-              )}
-            </span>
-          </div>
+        <div className={styles.cardActions}>
+          <button className={styles.editActionBtn} onClick={handleEdit}>
+            <FontAwesomeIcon icon={faEdit} />
+            <span>Editar perfil</span>
+          </button>
         </div>
       </div>
     );
-  }
+  },
 );
 
 // Componente Modal de Usuario (sin cambios)
@@ -819,7 +819,7 @@ const UsuarioModal = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export default Usuarios;

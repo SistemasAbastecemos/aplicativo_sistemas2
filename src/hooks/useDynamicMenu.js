@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { menuService } from "../services/menuService";
 import { roleService } from "../services/roleService";
 import { useAuth } from "../contexts/AuthContext";
@@ -15,42 +15,80 @@ export const useDynamicMenu = () => {
 
   const { user } = useAuth();
 
-  // Función para verificar si una ruta está en el menú del usuario
-  const tieneAccesoARuta = (ruta) => {
-    if (!menu || !Array.isArray(menu)) return false;
+  // Algoritmo de busqueda recursiva para estructuras de arbol
+  const buscarNodoRecursivo = useCallback((nodos, campo, valor) => {
+    if (!nodos || !Array.isArray(nodos)) return null;
 
-    const buscarRuta = (menuItems) => {
-      for (const item of menuItems) {
-        if (item.ruta === ruta) return true;
-        if (item.children && buscarRuta(item.children)) return true;
+    for (const nodo of nodos) {
+      if (nodo[campo] === valor) {
+        return nodo;
       }
-      return false;
-    };
+      if (nodo.children && nodo.children.length > 0) {
+        const encontrado = buscarNodoRecursivo(nodo.children, campo, valor);
+        if (encontrado) return encontrado;
+      }
+    }
+    return null;
+  }, []);
 
-    return buscarRuta(menu);
-  };
+  // Verifica el acceso general a una ruta especifica
+  const tieneAccesoARuta = useCallback(
+    (ruta) => {
+      return buscarNodoRecursivo(menu, "ruta", ruta) !== null;
+    },
+    [menu, buscarNodoRecursivo],
+  );
 
-  // Función para verificar permisos específicos (mantener compatibilidad)
-  const tienePermiso = (id_menu, accion) => {
-    if (!menu || !Array.isArray(menu)) return false;
+  /**
+   * Retorna el objeto de permisos de una ruta basandose en el arbol cargado.
+   * Si la ruta no existe, deniega todas las acciones por seguridad (Fail-Safe).
+   */
+  const obtenerPermisosPorRuta = useCallback(
+    (ruta) => {
+      const nodo = buscarNodoRecursivo(menu, "ruta", ruta);
+      return (
+        nodo?.permisos || {
+          ver: false,
+          crear: false,
+          editar: false,
+          eliminar: false,
+        }
+      );
+    },
+    [menu, buscarNodoRecursivo],
+  );
 
-    const menuItem = menu.find((item) => item.id_menu === id_menu);
-    return menuItem && menuItem.permisos && menuItem.permisos[accion] === true;
-  };
+  // Mantiene compatibilidad con llamadas por ID de menu utilizando busqueda recursiva
+  const tienePermiso = useCallback(
+    (idMenu, accion) => {
+      const nodo = buscarNodoRecursivo(menu, "id_menu", idMenu);
+      return nodo?.permisos?.[accion] === true;
+    },
+    [menu, buscarNodoRecursivo],
+  );
 
-  useEffect(() => {
-    const cargarDatos = async () => {
+  const cargarDatos = useCallback(
+    async (silencioso = false) => {
       if (!user || !user.id) {
         setLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
+        // En refrescos silenciosos (revalidacion en segundo plano) NO tocamos
+        // el loading global para no parpadear la UI.
+        if (!silencioso) setLoading(true);
         setError(null);
 
         const result = await menuService.getMenuPorUsuario(user.id);
-        const menuData = Array.isArray(result.menu) ? result.menu : [];
+
+        // Validacion flexible por si la respuesta del service mapea a 'data' o 'menu'
+        const menuData = Array.isArray(result.data)
+          ? result.data
+          : Array.isArray(result.menu)
+            ? result.menu
+            : [];
+
         const userData = result.userInfo || {};
 
         setMenu(menuData);
@@ -61,7 +99,7 @@ export const useDynamicMenu = () => {
             const accionesData = await roleService.getAccionesPorUsuario(
               userData.id,
               userData.id_rol,
-              userData.id_cargo || null
+              userData.id_cargo || null,
             );
             setAcciones(accionesData);
           } catch (roleError) {
@@ -69,19 +107,31 @@ export const useDynamicMenu = () => {
             setAcciones(roleService.getAccionesPorDefecto(userData.id_rol));
           }
         }
-      } catch (error) {
-        console.error("Error cargando datos:", error);
-        setError(error.message);
+      } catch (err) {
+        console.error("Error cargando datos de menu:", err);
+        setError(err.message);
         setMenu([]);
         setUserInfo(null);
         setAcciones({ accionesRapidas: [], funcionalidadesEspeciales: [] });
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [user],
+  );
 
-    cargarDatos();
-  }, [user]);
+  useEffect(() => {
+    cargarDatos(); // carga inicial (con loading visible)
+
+    // Revalidacion periodica silenciosa: detecta cambios de permisos hechos
+    // en BD durante la sesion (habilita la expulsion en vivo de modulos).
+    if (!user || !user.id) return undefined;
+    const intervalo = setInterval(() => {
+      cargarDatos(true);
+    }, 60000); // cada 60s
+
+    return () => clearInterval(intervalo);
+  }, [user, cargarDatos]);
 
   return {
     menu,
@@ -91,5 +141,7 @@ export const useDynamicMenu = () => {
     error,
     tienePermiso,
     tieneAccesoARuta,
+    obtenerPermisosPorRuta,
+    recargar: cargarDatos,
   };
 };
