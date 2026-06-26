@@ -1,0 +1,663 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* Header */
+.header {
+  background: #ffffff;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* ─── Tabs ─── */
+.tabsContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 1rem;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #334155;
+  background-color: #f8fafc;
+}
+
+.activeTab {
+  color: #009b6d;
+  background-color: #f0fdf4;
+  border-bottom: 3px solid #009b6d;
+}
+
+/* ─── Content wrapper ─── */
+.content {
+  padding: 1.25rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ─── WARNING BANNER ─── */
+.warningBanner {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  color: #b45309;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* ─── CARGA: card unificada ─── */
+.mainCard {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease;
+}
+
+.cardContent {
+  padding: 1.25rem 1.5rem;
+}
+
+/* Layout horizontal: filtros izquierda | upload derecha */
+.uploadArea {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* Panel izquierdo: selects de empresa y tipo */
+.filtersPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filterLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.filterIcon {
+  color: #6b7280;
+  font-size: 0.7rem;
+}
+
+.filterSelect {
+  padding: 0.6rem 0.875rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  color: #1e293b;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.filterSelect:hover {
+  border-color: #9ca3af;
+}
+
+/* ─── Labels flotantes para los selects de filtro ───
+   El label queda fijo sobre el borde superior del select. Como los
+   <select> siempre tienen valor, el label permanece arriba siempre. */
+.floatingField {
+  position: relative;
+  width: 100%;
+}
+
+.floatingField .filterSelect {
+  width: 100%;
+}
+
+.floatingLabel {
+  position: absolute;
+  top: 0;
+  left: 0.7rem;
+  transform: translateY(-50%);
+  background: #ffffff; /* tapa el borde del select para el efecto flotante */
+  padding: 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #009b6d;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Divisor vertical entre los dos paneles */
+.uploadDivider {
+  display: none;
+}
+
+/* Panel derecho: selector de archivo */
+.uploadInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.uploadInfo h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.uploadControls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileInputLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #374151;
+  transition: all 0.25s ease;
+  justify-content: center;
+  align-self: flex-start;
+}
+
+.fileInputLabel:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+/* File Info */
+.fileInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
+  border-radius: 10px;
+  gap: 0.75rem;
+}
+
+.fileDetails {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.fileIcon {
+  color: #059669;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.fileName {
+  display: block;
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileSize {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.clearFile {
+  padding: 0.4rem;
+  border: none;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clearFile:hover {
+  background: #fecaca;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.submitButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submitButton:hover:not(.disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.submitButton.disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelButton:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* ─── Disabled state ─── */
+.disabledState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+.disabledIcon {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+/* ─── CONFIGURACION ─── */
+.configContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.configHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.configIntro h3 {
+  margin: 0 0 0.25rem 0;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.configIntro p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.saveConfigBtn {
+  background-color: #009b6d;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.saveConfigBtn:hover:not(:disabled) {
+  background-color: #007a56;
+}
+
+.saveConfigBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Grid de 3 columnas fijas — todas las cards igual de anchas */
+.configLayout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+/* Toggle ocupa fila completa */
+.configBlockFull {
+  grid-column: 1 / -1;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.configBlock {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.blockHeader {
+  background: #f1f5f9;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.blockHeader h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.blockBody {
+  padding: 1rem;
+}
+
+/* Inputs de Configuracion */
+.inputRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.configInput,
+.configSelect {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.625rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+.configInput:focus,
+.configSelect:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+}
+
+.addBtn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.45rem 0.875rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.addBtn:hover {
+  background-color: #2563eb;
+}
+
+/* Tags */
+.tagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.2rem 0.5rem 0.2rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 500;
+}
+
+.tag button {
+  background: none;
+  border: none;
+  color: #0284c7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem;
+  border-radius: 50%;
+}
+
+.tag button:hover {
+  background: #bae6fd;
+  color: #0c4a6e;
+}
+
+.emptyTag {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Toggle Switch */
+.toggleLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 0.875rem;
+}
+
+.toggleInput {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: relative;
+  width: 46px;
+  height: 22px;
+  background-color: #cbd5e1;
+  border-radius: 22px;
+  transition: 0.3s;
+  flex-shrink: 0;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: #009b6d;
+}
+
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(24px);
+}
+
+.toggleText {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+/* ─── Animaciones ─── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .configLayout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .uploadArea {
+    grid-template-columns: 1fr;
+  }
+
+  .configLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .configHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .saveConfigBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tabsContainer {
+    padding: 0 0.5rem;
+  }
+
+  .content {
+    padding: 1rem 0.5rem 2rem;
+  }
+
+  .cardContent {
+    padding: 1rem;
+  }
+}

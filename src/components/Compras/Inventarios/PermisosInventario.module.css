@@ -1,0 +1,702 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family: "Inter", system-ui, sans-serif;
+  padding-bottom: 4rem;
+}
+
+.header {
+  background: #ffffff;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.headerContent {
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 0.35rem 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.controlCard {
+  margin: 2rem auto 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.actionBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.searchWrapper {
+  position: relative;
+  max-width: 450px;
+  flex-grow: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.createBtn {
+  background: #009b6d;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.table th {
+  background: #f8fafc;
+  padding: 0.85rem 1.2rem;
+  color: #475569;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.table td {
+  padding: 0.95rem 1.2rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.boldText {
+  font-weight: 700;
+}
+
+.badgeCriterio {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.statusLabel {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.statusOk {
+  background: #dcfce7;
+  color: #15803d;
+}
+.statusBad {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.editActionBtn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Modal y Layout del Formulario */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modalContent {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 850px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h2 {
+  font-size: 1.3rem;
+  color: #1e293b;
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.modalForm {
+  padding: 1.5rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.fullWidth {
+  grid-column: span 2;
+}
+
+.modalLabel {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.4rem;
+}
+
+.modalInput,
+.modalSelect {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* === Labels flotantes permanentes para inputs/selects del modal ===
+   El label queda fijo sobre el borde superior del control, sin importar
+   si tiene foco o valor. El fondo blanco "corta" la línea del borde para
+   dar el efecto flotante. Se conserva el placeholder como pista interna. */
+.floatingField {
+  position: relative;
+  margin-top: 0.45rem; /* espacio para que el label no se corte con el campo de arriba */
+}
+
+.floatingField .modalInput,
+.floatingField .modalSelect {
+  width: 100%;
+}
+
+.floatingLabel {
+  position: absolute;
+  top: 0;
+  left: 0.65rem;
+  transform: translateY(-50%);
+  background: #ffffff; /* mismo fondo del modal para tapar el borde del control */
+  padding: 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #009b6d; /* verde corporativo */
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none; /* deja clickear el control aunque el texto esté encima */
+  z-index: 2;
+}
+
+.sectionTitleBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitleBlock h3 {
+  font-size: 0.95rem;
+  color: #334155;
+  margin: 0;
+}
+
+.bulkActions button {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 0.75rem;
+  font-weight: 600;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.checkboxList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+}
+
+.autocompleteContainer {
+  position: relative;
+}
+
+.dropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  padding: 0;
+  margin: 4px 0 0 0;
+  list-style: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dropdownList li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.dropdownList li:hover {
+  background: #f1f5f9;
+}
+
+.formActions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.cancelBtn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.saveBtn {
+  background: #009b6d;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saveBtn:disabled {
+  background-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border: 1px solid #e2e8f0;
+}
+
+.requiredIndicator {
+  color: #ef4444;
+  font-weight: bold;
+  margin-left: 0.25rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.pageInfo {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pageInfo b {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.pageBtn {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.pageBtn:disabled {
+  background: #f8fafc;
+  color: #cbd5e1;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.loaderArea {
+  text-align: center;
+  padding: 4rem;
+}
+.spinner {
+  font-size: 2rem;
+  color: #009b6d;
+  margin-bottom: 1rem;
+}
+
+.actionButtonsGroup {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.deleteActionBtn {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #991b1b;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.deleteActionBtn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.miniLoader {
+  font-size: 0.85rem;
+  color: #64748b;
+  padding: 0.5rem 0;
+}
+
+.toggleRow {
+  margin-bottom: 1rem;
+  background: #f8fafc;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px dashed #cbd5e1;
+}
+
+.periodSelectorForm {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 0.6rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.periodField {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.miniInput {
+  width: 75px;
+  padding: 0.35rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.miniSelect {
+  padding: 0.32rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.addPeriodBtn {
+  background: #1e293b;
+  color: #ffffff;
+  border: none;
+  padding: 0.38rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addPeriodBtn:hover {
+  background: #0f172a;
+}
+
+.tagsWrapper {
+  margin-top: 0.5rem;
+}
+
+.restrictionNotice {
+  display: block;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-height: 110px;
+  overflow-y: auto;
+  padding: 0.2rem 0;
+}
+
+.periodTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid #fecaca;
+}
+
+.periodTag button {
+  background: none;
+  border: none;
+  color: #991b1b;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.periodTag button:hover {
+  color: #b91c1c;
+}
+
+/* Contenedor de sedes con scroll vertical controlado */
+.sedesScrollContainer {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #f8fafc;
+}
+
+/* Distribucion limpia en 3 columnas equilibradas */
+.sedesResponsiveGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+/* Estilo tipo tarjeta pequeña para mejorar la seleccion tactil y visual */
+.checkboxLabelCard {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  background: #ffffff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.15s ease;
+}
+
+.checkboxLabelCard:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.checkboxLabelCard input[type="checkbox"] {
+  accent-color: #009b6d;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Scrollbar estilizada para navegadores Webkit (Chrome, Brave, Safari) */
+.sedesScrollContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sedesScrollContainer::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.sedesScrollContainer::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.sedesScrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.fieldHelpText {
+  display: block;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.criterioTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.criterioTag button {
+  background: none;
+  border: none;
+  color: #1e40af;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.errorTextNotice {
+  display: block;
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.badgeEstrategia {
+  background-color: #f1f5f9;
+  color: #334155;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid #cbd5e1;
+}
+
+.badgeGridCriterio {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.inlineCriteriosGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-width: 250px;
+}
+
+/* Ajuste responsive para pantallas pequeñas (cambia a 2 columnas) */
+@media (max-width: 640px) {
+  .sedesResponsiveGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,262 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f4f6f9;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+.statusBar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.brandSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brandSection h2 {
+  font-size: 18px;
+  color: #1e293b;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tabButton {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+}
+
+.tabButton:hover {
+  color: #334155;
+  background-color: #f1f5f9;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.tabActive {
+  color: #009b6d;
+  border-bottom-color: #009b6d;
+  background-color: transparent;
+  font-weight: 700;
+}
+
+.tabActive:hover {
+  color: #009b6d;
+  background-color: transparent;
+}
+
+.networkStatus {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  background-color: #f8fafc;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.statusConnected {
+  color: #16a34a;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.statusDisconnected {
+  color: #dc2626;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.controls {
+  width: 340px;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.01);
+}
+
+.sidebarTitle {
+  font-size: 14px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputGroup label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+/* ── Labels flotantes para los selects del panel ──
+   El label queda fijo sobre el borde superior del control. Como los
+   <select> siempre tienen valor, permanece arriba siempre. */
+.floatingGroup {
+  position: relative;
+}
+
+.floatingGroup label {
+  position: absolute;
+  top: 0;
+  left: 9px;
+  transform: translateY(-50%);
+  background: #ffffff;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #009b6d;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.selectInput:focus {
+  border-color: #0277bd;
+  box-shadow: 0 0 0 3px rgba(2, 119, 189, 0.15);
+}
+
+.selectInput:disabled {
+  background-color: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.btnPrint {
+  width: 100%;
+  background-color: #0277bd;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(2, 119, 189, 0.2);
+  margin-top: auto;
+}
+
+.btnPrint:hover:not(:disabled) {
+  background-color: #01579b;
+  box-shadow: 0 4px 12px rgba(2, 119, 189, 0.3);
+}
+
+.btnPrint:disabled {
+  background-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.previewPanel {
+  flex: 1;
+  background-color: #f1f5f9;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.rollCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.rollBadge {
+  background-color: #1e293b;
+  color: #f8fafc;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.industrialLabel {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border-radius: 4px;
+  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.emptyTemplateWarning {
+  background-color: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 500px;
+  margin: 100px auto 0 auto;
+  line-height: 1.5;
+}

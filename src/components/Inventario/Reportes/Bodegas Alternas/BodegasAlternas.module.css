@@ -1,0 +1,401 @@
+.moduloContainer {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: "Arial", sans-serif;
+}
+
+.encabezadoSeccion {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.iconContainer {
+  background: #e8f5e9;
+  color: #009b6d;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+}
+
+.encabezadoSeccion h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.encabezadoSeccion p {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* Navegación por pestañas horizontales estilo DIAN */
+.tabsContainer {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 24px;
+  padding-left: 4px;
+}
+
+.tabButton {
+  padding: 12px 24px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+}
+
+.tabButton:hover {
+  color: #334155;
+  background-color: #f1f5f9;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.tabActive {
+  color: #009b6d;
+  border-bottom-color: #009b6d;
+  background-color: transparent;
+  font-weight: 700;
+}
+
+.tarjetaFiltros {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.controlFormulario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.controlFormulario label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.controlFormulario input,
+.controlFormulario select {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background-color: white;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.controlFormulario input:focus,
+.controlFormulario select:focus {
+  border-color: #009b6d;
+}
+
+/* ── Labels flotantes para los campos de filtro/formulario ──
+   El label queda fijo sobre el borde superior del control (input o select),
+   con o sin foco/valor. Fondo blanco para "cortar" el borde. */
+.campoFlotante {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* Selector con 2 clases para sobreescribir `.controlFormulario label` */
+.campoFlotante .labelFlotante {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  transform: translateY(-50%);
+  background: #ffffff;
+  padding: 0 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #009b6d;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btnBuscarDatos {
+  background-color: #009b6d;
+  color: white;
+  padding: 11px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btnBuscarDatos:hover {
+  background-color: #007d58;
+}
+
+.contenedorAcciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.btnDescargarExcel {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.btnDescargarExcel:hover {
+  background: #059669;
+}
+
+/* Grilla Analítica Matricial Completa */
+.contenedorTablaMaestra {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.tablaResponsivaWrapper {
+  overflow: auto;
+  max-height: 600px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+td {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  border-right: 1px solid #f1f5f9;
+  white-space: nowrap;
+}
+
+tr:hover td {
+  background-color: #f8fafc;
+}
+
+.tablaMatricial thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: #e2e8f0;
+  text-align: center;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.tablaMatricial thead tr:last-child th {
+  position: sticky;
+  top: 37px; /* Ajuste preciso según la altura del primer renglón */
+  z-index: 19;
+  background-color: #f1f5f9;
+}
+
+.tablaConfig thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f1f5f9;
+}
+
+.textoDestacado {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.numeroAlineado {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.thOrdenable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.thOrdenable:hover {
+  background-color: #cbd5e1 !important;
+}
+
+/* Badges e Identificadores */
+.badgeSi {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.badgeNo {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+/* Contenedor de la vista parametrizadora dividida */
+.paramLayoutGrid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.categoriaFiltrosBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: #f1f5f9;
+  padding: 6px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.btnFiltroCat {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btnFiltroCatActive {
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Badges de Estado Operativo */
+.badgeSi {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.badgeNo {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* Adaptación responsive por selectores para móviles en TabParametrizacion */
+@media (max-width: 768px) {
+  .tablaConfig,
+  .tablaConfig thead,
+  .tablaConfig tbody,
+  .tablaConfig th,
+  .tablaConfig td,
+  .tablaConfig tr {
+    display: block;
+  }
+
+  .tablaConfig thead {
+    display: none;
+  }
+
+  .tablaConfig tr {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+
+  .tablaConfig td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px dashed #f1f5f9;
+    text-align: right;
+  }
+
+  .tablaConfig td:last-child {
+    border-bottom: none;
+    justify-content: flex-end;
+  }
+
+  .tablaConfig td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+    float: left;
+    text-align: left;
+  }
+}

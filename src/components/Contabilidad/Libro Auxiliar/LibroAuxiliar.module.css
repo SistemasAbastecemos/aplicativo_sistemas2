@@ -1,0 +1,508 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.header {
+  background: #ffffff;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 400;
+  margin: 0;
+}
+
+.formCard {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin: 1rem 1rem 2rem 1rem;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+}
+
+.formGroup.floating .label {
+  position: absolute;
+  top: -0.6rem;
+  left: 0.75rem;
+  background: #ffffff;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  z-index: 2;
+  margin: 0;
+  pointer-events: none;
+}
+
+.colSpan3 {
+  grid-column: span 3;
+}
+.colSpan4 {
+  grid-column: span 4;
+}
+.colSpan5 {
+  grid-column: span 5;
+}
+.colSpan2 {
+  grid-column: span 2;
+}
+.bold {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.colDetalle {
+  min-width: 250px;
+  max-width: 400px;
+  white-space: normal;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.colFecha {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+}
+
+.dataTable td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  background: white;
+}
+
+.btnCSV {
+  background-color: #475569;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btnCSV:hover:not(:disabled) {
+  background-color: #334155;
+}
+
+.btnCSV:disabled {
+  background-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.excelControl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.warningTooltip {
+  color: #d97706;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 1024px) {
+  .colSpan3,
+  .colSpan4,
+  .colSpan5,
+  .colSpan2 {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 768px) {
+  .colSpan3,
+  .colSpan4,
+  .colSpan5,
+  .colSpan2 {
+    grid-column: span 12;
+  }
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.label svg {
+  margin-right: 0.4rem;
+  color: #009b6d;
+  font-size: 0.85rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 0.85rem;
+  color: #1e293b;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #009b6d;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 155, 109, 0.15);
+}
+
+.autocompleteGroup {
+  position: relative;
+}
+
+.optionsList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 100;
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.optionsList li {
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+  color: #334155;
+  transition: background-color 0.15s;
+}
+
+.optionsList li:last-child {
+  border-bottom: none;
+}
+.optionsList li:hover {
+  background-color: #f0fdf4;
+  color: #009b6d;
+}
+
+.loadingText {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #009b6d;
+  background-color: transparent;
+  padding: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.actionContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+}
+
+.btnPrimary {
+  background: #009b6d;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background-color 0.2s;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: #007a56;
+}
+
+.btnPrimary:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.2s;
+}
+
+.btnSecondary:hover {
+  background: #f8fafc;
+  border-color: #009b6d;
+  color: #009b6d;
+}
+
+.previewContainer {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.previewHeader {
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  max-height: 100%;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.dataTable th {
+  background: #ffffff;
+  color: #475569;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dataTable td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.dataTable tbody tr:hover {
+  background: #f8fafc;
+}
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+.localSpinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-left-color: #009b6d;
+  border-radius: 50%;
+  animation: spinLocal 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+.localLoadingText {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.paginationButton {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #009b6d;
+  color: #009b6d;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+.paginationInfo {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.paginationInfo strong {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.totalGeneralCard {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-shadow: 0 2px 4px rgba(0, 155, 109, 0.05);
+  animation: fadeInOverlay 0.3s ease-in-out;
+}
+
+.totalLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #166534;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.totalValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #009b6d;
+  line-height: 1;
+}
+
+@keyframes spinLocal {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerContent {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .totalGeneralCard {
+    align-items: center;
+    margin-top: 1rem;
+  }
+}

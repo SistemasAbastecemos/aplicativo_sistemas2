@@ -1,0 +1,1207 @@
+.auditoriaContainer {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.filtroCard {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.brandTitle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconBox {
+  background: #f0fdf4;
+  color: #16a34a;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+}
+
+.brandTitle h2 {
+  margin: 0 0 4px 0;
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.brandTitle p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.filtrosForm {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputGroup label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.inputGroup select,
+.inputGroup input {
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  background-color: #fff;
+}
+
+.btnEnviar {
+  background-color: #36b04b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnEnviar:hover {
+  background-color: #2a8a3a;
+}
+
+.errorBox {
+  background-color: #fef2f2;
+  color: #ef4444;
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  border-left: 4px solid #ef4444;
+}
+
+.resultadosCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.scrollXContainer {
+  overflow: auto;
+  max-height: 72vh;
+}
+
+.tablaMatriz {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+
+.tablaMatriz th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  text-align: center;
+}
+
+.tablaMatriz thead tr:nth-child(2) th {
+  top: 38px;
+  z-index: 10;
+}
+
+.fixedTh {
+  position: sticky !important;
+  left: 0;
+  z-index: 25 !important;
+  background-color: #f1f5f9 !important;
+}
+
+.fixedTd {
+  position: sticky !important;
+  left: 0;
+  z-index: 5;
+  background-color: #fff;
+  border-right: 2px solid #cbd5e1 !important;
+}
+
+.fixedCol1 {
+  left: 0px;
+  min-width: 60px;
+  max-width: 60px;
+}
+.fixedCol2 {
+  left: 60px;
+  min-width: 50px;
+  max-width: 50px;
+}
+.fixedCol3 {
+  left: 110px;
+  min-width: 260px;
+  max-width: 260px;
+  white-space: normal !important;
+  word-wrap: break-word;
+  line-height: 1.3;
+}
+
+.tablaMatriz thead tr th.fixedTh {
+  z-index: 40 !important;
+  background-color: #e2e8f0 !important;
+}
+
+.fechaHeader {
+  background-color: #1e293b !important;
+  color: white !important;
+  font-size: 11px;
+}
+
+.subHeader {
+  background-color: #f1f5f9 !important;
+  font-size: 10px;
+}
+
+.subHeaderCant {
+  background-color: #e2e8f0 !important;
+  font-size: 10px;
+}
+
+.tablaMatriz td {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+}
+
+/* FIJADO DE ENCABEZADOS TRANSVERSALES DE BLOQUE */
+.rowSeparadora {
+  background-color: #f1f5f9;
+}
+
+.rowSeparadora td {
+  padding: 0 !important;
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.stickySeparadorTexto {
+  position: sticky;
+  left: 0;
+  display: inline-block;
+  padding: 12px;
+  font-weight: 800;
+  color: #1e293b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.rowAlternaColor td {
+  background-color: #fafafa;
+}
+
+.tdGrupo {
+  font-weight: 700;
+  text-align: center;
+}
+
+.tdCenter {
+  text-align: center;
+}
+
+.tdDesc {
+  color: #475569;
+  font-weight: 500;
+  text-align: left;
+  padding: 8px 10px;
+}
+
+.tdNum {
+  text-align: center;
+  font-family: monospace;
+}
+
+.folioInactivoArrastrado {
+  color: #94a3b8 !important;
+  background-color: #fafafa !important;
+  font-style: italic;
+}
+
+.tdCant {
+  text-align: center;
+  font-weight: 600;
+}
+
+.celdaCero {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.conMovimiento {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+.conMovimientoEstandar {
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+}
+
+.badgeTipo {
+  background-color: #f1f5f9;
+  color: #334155;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.badgeTipo2 {
+  background-color: #ffe4e6;
+  color: #be123c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.rowGranTotalFinalTop {
+  background-color: #16a34a;
+}
+
+.rowGranTotalFinalTop td {
+  color: white;
+  font-weight: 800;
+  padding: 10px 12px;
+}
+
+.tdGranSumLabelTop {
+  text-align: right;
+  font-weight: 900;
+  background-color: #16a34a !important;
+  color: white !important;
+}
+
+.tdVacioFinalTop {
+  background-color: #15803d !important;
+}
+
+.tdGranTotalCellTop {
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+  background-color: #15803d !important;
+  color: white !important;
+}
+
+.rowResumenPdvTop {
+  background-color: #e0f2fe;
+}
+
+.rowResumenPdvTop td {
+  color: #0369a1;
+  font-weight: 700;
+}
+
+.tdResumenPdvLabel {
+  text-align: right;
+  font-weight: 800;
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+.tdVacioPdvTop {
+  background-color: #bae6fd !important;
+}
+
+.tdResumenPdvCell {
+  text-align: center;
+  font-weight: 800;
+  background-color: #bae6fd !important;
+  color: #0369a1 !important;
+}
+
+.rowResumenEstTop {
+  background-color: #ffe4e6;
+}
+
+.rowResumenEstTop td {
+  color: #be123c;
+  font-weight: 700;
+}
+
+.tdResumenEstLabel {
+  text-align: right;
+  font-weight: 800;
+  background-color: #ffe4e6 !important;
+  color: #be123c !important;
+}
+
+.tdVacioEstTop {
+  background-color: #fecdd3 !important;
+}
+
+.tdResumenEstCell {
+  text-align: center;
+  font-weight: 800;
+  background-color: #fecdd3 !important;
+  color: #be123c !important;
+}
+
+.conciliacionCard {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px dashed #36b04b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.excelBranding {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.excelIcon {
+  color: #1f7246;
+  font-size: 32px;
+}
+
+.excelBranding h4 {
+  margin: 0 0 4px 0;
+  color: #1e293b;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.excelBranding p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.fileUploadWrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileLabel {
+  background-color: #1f7246;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.fileLabel:hover {
+  background-color: #134e2e;
+}
+
+.badgeSuccessFile {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.subHeaderDian {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+.tdDiferencia {
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.tdFilaDiferencia {
+  text-align: center;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+.conciliado {
+  background-color: #15803d !important;
+  color: #ffffff !important;
+}
+
+.descuadrado {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.conciliadoFila {
+  background-color: #f0fdf4 !important;
+  color: #16a34a !important;
+}
+
+.descuadradoFila {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  font-weight: 800;
+}
+
+.tabNavbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 6px 6px 0 6px;
+  border-radius: 8px 8px 0 0;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabBtn:hover {
+  background: #cbd5e1;
+  color: #1e293b;
+}
+
+.tabActive {
+  background: #ffffff !important;
+  color: #1f7246 !important;
+  border: 1px solid #e2e8f0;
+  border-bottom: 2px solid #ffffff !important;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.inputDisabled {
+  background-color: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   OPTIMIZACION COMPACTA: SEGUNDA PESTAÑA ABM (PREVIENE OVERFLOW GENERAL)
+   ========================================================================== */
+.configContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.configHeaderCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+.configHeaderCard h3 {
+  margin: 0 0 4px 0;
+  color: #0f172a;
+}
+
+.configHeaderCard p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.configActionsBox {
+  display: flex;
+  gap: 10px;
+}
+
+.btnAgregarRow {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnGuardarCfg {
+  background: #1f7246;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* CONTENEDOR DE FILAS AGRUPADAS CON ESTILO DE ACORDEON CORPORATIVO */
+.panelVigencia {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.panelContenido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f8fafc;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.panelContenido:hover {
+  background-color: #f1f5f9;
+}
+
+.panelIzquierda {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panelIconChevron {
+  color: #475569;
+  font-size: 12px;
+  width: 12px;
+}
+
+.panelTituloTxt {
+  font-weight: 700;
+  color: #334155;
+  font-size: 13px;
+}
+
+.rangoTextHighlight {
+  color: #15803d;
+  background-color: #dcfce7;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 12px;
+  border: 1px solid #bbf7d0;
+}
+
+.badgeContadorFilas {
+  background-color: #e2e8f0;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* CONTENEDOR DE LA TABLA COMPACTADO PARA PREVENIR EL OVERFLOW */
+.tableResponsiveCfg {
+  overflow-x: auto;
+  max-height: 480px;
+  border-top: 1px solid #cbd5e1;
+  background-color: #ffffff;
+}
+
+.tablaParametros {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px; /* Escala tipografica microcorporativa reducida */
+}
+
+.tablaParametros th {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 8px 6px;
+  text-align: left;
+  border-bottom: 2px solid #cbd5e1;
+  border-right: 1px solid #e2e8f0;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tablaParametros td {
+  padding: 5px 4px; /* Padding ultra-compacto para traccion de espacio */
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  background-color: #ffffff;
+}
+
+/* AJUSTE DE CONTROLES INTERNOS FORM */
+.tablaParametros select,
+.tablaParametros input {
+  padding: 4px 6px !important;
+  font-size: 11px !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 26px;
+}
+
+.tablaParametros input[type="date"] {
+  width: 115px; /* Control estricto de ancho para inputs de fecha */
+}
+
+.inputShort {
+  max-width: 45px;
+  text-align: center;
+}
+
+.inputLong {
+  min-width: 120px;
+  max-width: 140px;
+}
+
+/* Control absoluto sobre la columna de prefijos DIAN */
+.inputPrefijos {
+  min-width: 140px;
+  max-width: 170px;
+}
+
+.btnEliminarRow {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 26px;
+  width: 28px;
+}
+
+.btnEliminarRow:hover {
+  background: #dc2626;
+}
+
+/* Contenedor y Cabecera del Sub-Bloque de Sedes */
+.subBloqueSedeContainer {
+  margin-top: 10px;
+  margin-bottom: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.subBloqueSedeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #f1f5f9;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.subBloqueSedeHeader:hover {
+  background-color: #e2e8f0;
+}
+
+.panelIconChevronSede {
+  color: #64748b;
+  font-size: 10px;
+  width: 10px;
+}
+
+.txtSedeLabel {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.badgeContadorSede {
+  background-color: #cbd5e1;
+  color: #334155;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.textoSinDatos {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.textoSinDatosFila {
+  color: #cbd5e1;
+  font-style: italic;
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   BLOQUES DE ALERTA DE CONTROL DE AUDITORIA (HUÉRFANOS SIESA / DIAN)
+   ========================================================================== */
+
+/* Alerta general de Siesa (Advertencia / Ámbar) */
+.alertSiesaContainer {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+}
+
+.alertSiesaTitle {
+  color: #78350f;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.alertSiesaText {
+  color: #92400e;
+  font-size: 12px;
+  margin: 0 0 12px 0;
+}
+
+.alertSiesaTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  font-size: 12px;
+}
+
+.alertSiesaThRow {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+.alertSiesaTh {
+  padding: 6px;
+  text-align: center;
+}
+
+.alertSiesaThLeft {
+  padding: 6px;
+  text-align: left;
+}
+
+.alertSiesaTdRow {
+  border-bottom: 1px solid #fef3c7;
+  text-align: center;
+}
+
+.alertSiesaTd {
+  padding: 6px;
+  text-align: center;
+}
+
+.alertSiesaTdLeft {
+  padding: 6px;
+  color: #451a03;
+  text-align: left;
+}
+
+.alertSiesaTdBold {
+  padding: 6px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.alertSiesaTdTotal {
+  padding: 6px;
+  text-align: center;
+  font-weight: bold;
+  color: #b45309;
+}
+
+/* Alerta Crítica de la DIAN (Peligro / Rojo) */
+.alertDianContainer {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: #fef2f2;
+  border: 2px solid #ef4444;
+  border-radius: 8px;
+}
+
+.alertDianHeaderBox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.alertDianBadge {
+  background-color: #ef4444;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-right: 12px;
+  font-size: 14px;
+}
+
+.alertDianTitle {
+  color: #991b1b;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.alertDianText {
+  color: #7f1d1d;
+  font-size: 13px;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.alertDianTableWrapper {
+  overflow-x: auto;
+}
+
+.alertDianTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+}
+
+.alertDianThRow {
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.alertDianTh {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #f87171;
+}
+
+.alertDianThLeft {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #f87171;
+}
+
+.alertDianTdRow {
+  font-size: 13px;
+  border-bottom: 1px solid #fee2e2;
+  text-align: center;
+}
+
+.alertDianTdPrefijo {
+  padding: 10px;
+  font-weight: bold;
+  color: #b91c1c;
+  border: 1px solid #fee2e2;
+}
+
+.alertDianTdTipo {
+  padding: 10px;
+  color: #451a03;
+  border: 1px solid #fee2e2;
+}
+
+.alertDianTdTotal {
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+}
+
+.alertDianTdFecha {
+  padding: 10px;
+  text-align: center;
+  color: #6b7280;
+  border: 1px solid #fee2e2;
+}
+
+.alertContainer {
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid;
+}
+
+/* Clases específicas para el tipo de alerta */
+.alertSiesa {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+}
+.alertDian {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.alertHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.alertContent {
+  padding: 0 15px 15px 15px;
+  transition: max-height 0.3s ease-out;
+}
+
+.btnExpand {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.accordionSedeCard {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.accordionSedeHeader {
+  background-color: #1e293b;
+  color: #ffffff;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.accordionSedeContent {
+  padding: 10px;
+  background-color: #f8fafc;
+}
+
+.accordionVigenciaCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.accordionVigenciaHeader {
+  padding: 8px;
+  background-color: #e2e8f0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.accordionHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.accordionIcon {
+  font-size: 11px;
+  color: #475569;
+}
+
+.accordionPeriodo {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.accordionBadge {
+  background: #94a3b8;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.sedeExpanded {
+  padding: 10px;
+  background-color: #f8fafc;
+}
+
+.filaActiva {
+  opacity: 1;
+  background-color: transparent;
+}
+
+.filaInactiva {
+  opacity: 0.5;
+  background-color: #f1f5f9;
+}
+
+.estadoCell {
+  text-align: center;
+}
+.btnFilaToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.filaInactivaOpacidad {
+  opacity: 0.5;
+}
+
+.filaActivaNormal {
+  opacity: 1;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.toggleActivo {
+  color: #16a34a;
+}
+
+.toggleInactivo {
+  color: #94a3b8;
+}
+
+/* ── Wrapper del botón Guardar Conciliación ─────────────────────── */
+.guardarConciliacionWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ── Botón principal de guardar ─────────────────────────────────── */
+.btnGuardarConciliacion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #16a34a; /* verde oscuro */
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.btnGuardarConciliacion:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.btnGuardarConciliacion:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btnGuardarConciliacion:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ── Badge "N días ya conciliados" ──────────────────────────────── */
+.badgeDiasCerrados {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 20px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Encabezado de columna cerrada (con candado) ────────────────── */
+.fechaHeaderCerrada {
+  background: #f0fdf4 !important;
+  color: #15803d !important;
+  border-bottom: 2px solid #86efac !important;
+}
+
+/* ── Badge inline dentro del encabezado de fecha ───────────────── */
+.badgeColumnaCerrada {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin-left: 5px;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
+/* ── Celda de fila individual cerrada ───────────────────────────── */
+.celdaCerradaFila {
+  display: inline-block;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  cursor: help;
+}
