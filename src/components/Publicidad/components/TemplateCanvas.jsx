@@ -480,10 +480,30 @@ export default function TemplateCanvas({ template, onSave, onCancel }) {
     (f) => f.id === selectedFieldId,
   );
 
+  // Texto de muestra (string plano) para estimar el largo al autoajustar la fuente.
+  const getFieldSampleString = (field) => {
+    if (field.type === "StaticText") return field.content || "TEXTO";
+    if (field.type === "Description") return "DETERGENTE LIQUIDO MAQUINA FLUJO";
+    if (field.type === "Price") return "$ 999.999";
+    if (field.type === "Code") return "7701234567890";
+    if (field.type === "PUM") return "P.U.M: $ 42.00 x Gr";
+    return `[${field.type}]`;
+  };
+
+  // Calcula un tamaño de fuente que llene el eje largo del modulo (una sola linea).
+  // longPx = largo disponible (donde corre el texto); shortPx = grosor de la linea.
+  const computeFillFont = (field, longPx, shortPx) => {
+    const len = Math.max(1, getFieldSampleString(field).length);
+    const byLength = longPx / (len * 0.58); // ~0.58*fontSize de ancho por caracter
+    const byThickness = shortPx / 1.25; // alto de linea ~1.25*fontSize
+    return Math.max(8, Math.floor(Math.min(byLength, byThickness)));
+  };
+
   // Estilo del contenedor de texto segun la rotacion del modulo.
   // Para 90°/270° se intercambian ancho y alto de la caja interna ANTES de rotar,
   // de modo que el texto se distribuya a lo largo del eje largo del modulo y luego
   // gire (asi se lee de corrido en vertical, no apilado letra por letra).
+  // Si field.fillModule esta activo, la fuente se escala para llenar ese eje largo.
   const getRotatedContentStyle = (field) => {
     const rot = ((Number(field.rotation || 0) % 360) + 360) % 360;
     const align = field.textAlign || "left";
@@ -494,20 +514,37 @@ export default function TemplateCanvas({ template, onSave, onCancel }) {
           ? "flex-end"
           : "flex-start";
 
-    if (rot === 0) {
-      return { width: "100%", flex: 1 };
-    }
-    if (rot === 180) {
-      return {
+    // El modo "llenar" escala la fuente para ocupar el eje largo. Aplica a todos
+    // los tipos. Si una descripcion esta en 2 lineas y ademas tiene "llenar",
+    // el relleno tiene prioridad (una sola linea escalada).
+    const fill = !!field.fillModule;
+
+    if (rot === 0 || rot === 180) {
+      const longPx = (field.width || 0) - 10;
+      const shortPx = (field.height || 0) - 10;
+      const base = {
         width: "100%",
         flex: 1,
-        transform: "rotate(180deg)",
-        transformOrigin: "center",
+        ...(rot === 180
+          ? { transform: "rotate(180deg)", transformOrigin: "center" }
+          : {}),
       };
+      if (fill) {
+        return {
+          ...base,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: justify,
+          whiteSpace: "nowrap",
+          fontSize: `${computeFillFont(field, longPx, shortPx)}px`,
+        };
+      }
+      return base;
     }
+
     // 90 o 270: caja interna con dimensiones intercambiadas, centrada y rotada.
-    const innerW = Math.max(0, (field.height || 0) - 10); // descuenta padding
-    const innerH = Math.max(0, (field.width || 0) - 10);
+    const innerW = Math.max(0, (field.height || 0) - 10); // eje largo (texto)
+    const innerH = Math.max(0, (field.width || 0) - 10); // grosor de la linea
     return {
       position: "absolute",
       top: "50%",
@@ -521,6 +558,13 @@ export default function TemplateCanvas({ template, onSave, onCancel }) {
       justifyContent: justify,
       textAlign: align,
       overflow: "hidden",
+      ...(fill
+        ? {
+            whiteSpace: "nowrap",
+            justifyContent: "center",
+            fontSize: `${computeFillFont(field, innerW, innerH)}px`,
+          }
+        : {}),
     };
   };
 
@@ -530,7 +574,8 @@ export default function TemplateCanvas({ template, onSave, onCancel }) {
     }
     if (field.type === "Description") {
       const sample = "DETERGENTE LIQUIDO MAQUINA FLUJO";
-      if (field.lines === 2) {
+      // Con "Llenar alto" se muestra en una sola linea escalada (el relleno manda).
+      if (field.lines === 2 && !field.fillModule) {
         const mid = Math.floor(sample.length / 2);
         let cut = sample.indexOf(" ", mid);
         if (cut < 0) cut = sample.lastIndexOf(" ", mid);
@@ -831,6 +876,29 @@ export default function TemplateCanvas({ template, onSave, onCancel }) {
                 <option value={180}>180° (invertido)</option>
                 <option value={270}>270° (vertical, hacia abajo)</option>
               </select>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label>Ajustar texto al modulo</label>
+              <div className={styles.btnRowLayout}>
+                <button
+                  className={`${styles.btnToggleAction} ${!selectedField.fillModule ? styles.toggleActive : ""}`}
+                  onClick={() => updateSelectedFieldProps("fillModule", false)}
+                >
+                  Tamaño fijo
+                </button>
+                <button
+                  className={`${styles.btnToggleAction} ${selectedField.fillModule ? styles.toggleActive : ""}`}
+                  onClick={() => updateSelectedFieldProps("fillModule", true)}
+                >
+                  Llenar alto
+                </button>
+              </div>
+              <span className={styles.mmHint}>
+                "Llenar alto" escala la fuente para que el texto ocupe todo el
+                largo del modulo (sirve para precios y descripciones). Con esta
+                opcion la descripcion sale en una sola linea escalada.
+              </span>
             </div>
 
             <div className={styles.inputGroup}>
