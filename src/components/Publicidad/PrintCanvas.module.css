@@ -1,262 +1,503 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f4f6f9;
+/* ==========================================================================\
+   Contenedores Principales y Capa Base Apple Design
+   ========================================================================== */
+.moduloContainerApple {
+  min-height: 100vh;
+  background-color: #f5f5f7;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1d1d1f;
 }
 
-.statusBar {
+.contentWrapperApple {
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+/* ==========================================================================\
+   Barra de Estado del Agente Local (StatusBar)
+   ========================================================================== */
+.statusBarCustom {
   background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 14px 28px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 12px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-.brandSection {
+.agentBadge {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.brandSection h2 {
-  font-size: 18px;
-  color: #1e293b;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.tabsContainer {
-  display: flex;
-  gap: 4px;
-  margin-top: 8px;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.tabButton {
-  background: transparent;
-  border: none;
-  border-bottom: 3px solid transparent;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
   align-items: center;
   gap: 8px;
-  outline: none;
-}
-
-.tabButton:hover {
-  color: #334155;
-  background-color: #f1f5f9;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-}
-
-.tabActive {
-  color: #009b6d;
-  border-bottom-color: #009b6d;
-  background-color: transparent;
-  font-weight: 700;
-}
-
-.tabActive:hover {
-  color: #009b6d;
-  background-color: transparent;
-}
-
-.networkStatus {
   font-size: 13px;
-  color: #64748b;
   font-weight: 600;
-  background-color: #f8fafc;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid #e2e8f0;
+  color: #86868b;
 }
 
-.statusConnected {
-  color: #16a34a;
-  font-weight: 700;
-  margin-left: 4px;
-}
-
-.statusDisconnected {
-  color: #dc2626;
-  font-weight: 700;
-  margin-left: 4px;
-}
-
-.workspace {
+.statusIndicator {
   display: flex;
-  flex: 1;
-  overflow: hidden;
+  align-items: center;
+  gap: 8px;
 }
 
-.controls {
-  width: 340px;
+.iconStatusCircle {
+  font-size: 10px;
+  transition: color 0.3s ease;
+}
+
+.iconStatusCircle.online {
+  color: #34c759;
+}
+.iconStatusCircle.offline {
+  color: #ff3b30;
+}
+
+.statusText {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+/* ==========================================================================\
+   Cabecera y Controles de Segmentación (TabsBar)
+   ========================================================================== */
+.header {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 95;
+}
+
+.headerContent {
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #86868b;
+  margin: 2px 0 0 0;
+  font-weight: 400;
+}
+
+.brandTitleArea p {
+  font-size: 13px;
+  color: #86868b;
+  margin: 4px 0 0 0;
+}
+
+.tabsContainerCustom {
+  display: flex;
+  background-color: rgba(118, 118, 128, 0.12);
+  padding: 3px;
+  border-radius: 9px;
+}
+
+.tabBtnApple {
+  background: transparent;
+  border: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1f;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tabAppleActive {
   background-color: #ffffff;
-  border-right: 1px solid #e2e8f0;
-  padding: 28px;
+  box-shadow:
+    0px 1px 3px rgba(0, 0, 0, 0.1),
+    0px 1px 1px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
+/* ==========================================================================\
+   Grid de Trabajo Terminals de Impresión
+   ========================================================================== */
+.workspaceGridApple {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.bentoPanelForm {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.01);
 }
 
-.sidebarTitle {
-  font-size: 14px;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.bentoPanelPreview {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  height: calc(100vh - 260px);
+  display: flex;
+  flex-direction: column;
+}
+
+.panelTitleApple {
   margin: 0 0 8px 0;
+  font-size: 15px;
   font-weight: 700;
+  color: #1d1d1f;
 }
 
-.inputGroup {
+.formControlApple {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.inputGroup label {
+.formControlApple label {
   font-size: 12px;
-  font-weight: 700;
-  color: #475569;
+  font-weight: 600;
+  color: #86868b;
 }
 
-/* ── Labels flotantes para los selects del panel ──
-   El label queda fijo sobre el borde superior del control. Como los
-   <select> siempre tienen valor, permanece arriba siempre. */
-.floatingGroup {
-  position: relative;
-}
-
-.floatingGroup label {
-  position: absolute;
-  top: 0;
-  left: 9px;
-  transform: translateY(-50%);
-  background: #ffffff;
-  padding: 0 5px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #009b6d;
-  line-height: 1;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.selectInput {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  background-color: #ffffff;
-  color: #334155;
+.formControlApple select {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #d2d2d7;
+  padding: 0 12px;
   font-size: 13px;
-  font-weight: 500;
+  background-color: #ffffff;
+  color: #1d1d1f;
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
-.selectInput:focus {
-  border-color: #0277bd;
-  box-shadow: 0 0 0 3px rgba(2, 119, 189, 0.15);
+.formControlApple select:focus {
+  border-color: #03996b;
 }
 
-.selectInput:disabled {
-  background-color: #f8fafc;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-
-.btnPrint {
-  width: 100%;
-  background-color: #0277bd;
+.appleBtnPrimaryAction {
+  height: 40px;
+  background-color: #03996b;
   color: #ffffff;
   border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(2, 119, 189, 0.2);
-  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+  margin-top: 8px;
 }
 
-.btnPrint:hover:not(:disabled) {
-  background-color: #01579b;
-  box-shadow: 0 4px 12px rgba(2, 119, 189, 0.3);
+.appleBtnPrimaryAction:hover:not(:disabled) {
+  background-color: #028059;
 }
 
-.btnPrint:disabled {
+.appleBtnPrimaryAction:disabled {
   background-color: #e2e8f0;
   color: #94a3b8;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
-.previewPanel {
+/* ==========================================================================\
+   Lienzo de Renderizado y Visualización de Rollos de Cinta
+   ========================================================================== */
+.rollCanvasArea {
   flex: 1;
-  background-color: #f1f5f9;
-  padding: 40px;
+  background-color: #f5f5f7;
+  border-radius: 12px;
   overflow-y: auto;
+  padding: 24px;
 }
 
-.rollCanvas {
+.previewRollWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin: 0 auto;
-  max-width: 100%;
+  gap: 20px;
 }
 
-.rollBadge {
-  background-color: #1e293b;
-  color: #f8fafc;
-  text-align: center;
-  padding: 8px 16px;
-  font-size: 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.industrialLabel {
+.etiquetaCardApple {
   background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-  border-radius: 4px;
-  background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-  background-size: 8px 8px;
-}
-
-.emptyTemplateWarning {
-  background-color: #ffffff;
-  border: 2px dashed #cbd5e1;
+  width: 100%;
+  max-width: 420px;
   border-radius: 8px;
-  padding: 40px;
+  border: 1px solid #d2d2d7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  position: relative;
+}
+
+.badgeIndexMeta {
+  background-color: #1d1d1f;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 12px;
+  width: max-content;
+  border-bottom-right-radius: 8px;
+}
+
+.etiquetaRenderBody {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  color: #64748b;
+}
+
+.etiquetaRenderBody h4 {
+  margin: 0;
   font-size: 14px;
-  font-weight: 500;
-  max-width: 500px;
-  margin: 100px auto 0 auto;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.priceTagApple {
+  font-size: 20px;
+  font-weight: 800;
+  color: #03996b;
+  margin: 8px 0;
+}
+
+.barcodePlaceholderMock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.barLinesMock {
+  width: 80%;
+  height: 35px;
+  background: repeating-linear-gradient(
+    90deg,
+    #1d1d1f,
+    #1d1d1f 2px,
+    transparent 2px,
+    transparent 5px,
+    #1d1d1f 5px,
+    #1d1d1f 7px
+  );
+}
+
+.barcodePlaceholderMock span {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #86868b;
+}
+
+.emptyStatePreviewCanvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #86868b;
+  text-align: center;
+  padding: 0 40px;
+}
+
+.emptyIconApple {
+  font-size: 40px;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.emptyStatePreviewCanvas p {
+  font-size: 13px;
+  margin: 0;
   line-height: 1.5;
+}
+
+.iconMargin {
+  margin-right: 4px;
+}
+
+/* Contenedor del flujo de previsualización industrial */
+.rollMonitorContainer {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+.monitorTitle {
+  font-size: 14px;
+  color: #86868b;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+.ribbonStream {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 20px 10px;
+  background: #e8e8ed;
+  border-radius: 8px;
+}
+
+/* Envoltorio exacto a la matriz de pixeles de la etiqueta */
+.etiquetaPureWrapper {
+  background: #ffffff;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.marginGuidePrint {
+  position: absolute;
+  border: 1px dashed rgba(255, 59, 48, 0.3);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* Modulo de codigo de barras idéntico */
+.barcodeWrapperIdentic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.barcodeText {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+
+/* ==========================================================================
+   Ajustes de Panel de Control Izquierdo y Bento Box de Configuración
+   ========================================================================== */
+.leftPanelControl {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bentoSectionApple {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.sectionTitleApple {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #86868b;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 6px;
+}
+
+.inputGroupApple {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputGroupApple label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.selectPro {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  color: #1d1d1f;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.selectPro:focus {
+  outline: none;
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+/* Base de layout para el Dashboard */
+.dashboardGridApple {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.rightPanelPreview {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ==========================================================================\
+   Queries de Adaptación Responsiva para Pantallas Móviles
+   ========================================================================== */
+@media (max-width: 968px) {
+  .workspaceGridApple {
+    grid-template-columns: 1fr;
+  }
+  .bentoPanelPreview {
+    height: auto;
+  }
+  .headerModuloApple {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tabsContainerCustom {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .tabBtnApple {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentWrapperApple {
+    padding: 16px;
+  }
+  .statusBarCustom {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 12px 16px;
+  }
 }

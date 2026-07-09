@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../PrefijosDian.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,75 +12,82 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const FilaConfiguracionInput = React.memo(
-  ({ row, handleConfigChange, toggleEstadoActivo, handleRemoveConfigRow }) => {
+  ({
+    row,
+    handleConfigChange,
+    toggleEstadoActivo,
+    handleRemoveConfigRow,
+    isTracked,
+    setTracked,
+  }) => {
     const [localDesde, setLocalDesde] = useState(row.fecha_desde || "");
     const [localHasta, setLocalHasta] = useState(row.fecha_hasta || "");
-    // Estado local para evitar que la fila salte de grupo concurrentemente al escribir
     const [localGrupoSede, setLocalGrupoSede] = useState(row.grupo_sede || "");
+    const rowRef = useRef(null);
 
     useEffect(() => {
       setLocalDesde(row.fecha_desde || "");
     }, [row.fecha_desde]);
-
     useEffect(() => {
       setLocalHasta(row.fecha_hasta || "");
     }, [row.fecha_hasta]);
-
     useEffect(() => {
       setLocalGrupoSede(row.grupo_sede || "");
     }, [row.grupo_sede]);
 
-    const despacharFechaDesde = () => {
-      if (localDesde !== row.fecha_desde)
-        handleConfigChange(row.indexOriginal, "fecha_desde", localDesde);
-    };
-
-    const despacharFechaHasta = () => {
-      if (localHasta !== row.fecha_hasta)
-        handleConfigChange(row.indexOriginal, "fecha_hasta", localHasta);
-    };
-
-    // Despacha el valor real al padre unicamente cuando el usuario termina la edicion
-    const despacharGrupoSede = () => {
-      if (localGrupoSede !== row.grupo_sede) {
-        handleConfigChange(row.indexOriginal, "grupo_sede", localGrupoSede);
+    // Desplazamiento fluido y foco automático cuando la fila es creada o reubicada
+    useEffect(() => {
+      if (isTracked && rowRef.current) {
+        const timer = setTimeout(() => {
+          rowRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          // Hace focus automático en el input de Sede si está vacío para agilizar la edición
+          if (!row.grupo_sede) {
+            rowRef.current?.querySelector(`.${styles.inputSedeForm}`)?.focus();
+          }
+        }, 200); // Margen de espera exacto para que el acordeón complete su renderizado de altura
+        return () => clearTimeout(timer);
       }
-    };
+    }, [isTracked, row.grupo_sede, row.fecha_desde, row.fecha_hasta]);
 
-    const verificarTecladoGrupoSede = (e) => {
-      if (e.key === "Enter") {
-        despacharGrupoSede();
-        e.target.blur();
+    const despacharGrupoSede = () => {
+      const valorLimpio = localGrupoSede.trim().toUpperCase();
+      if (valorLimpio !== row.grupo_sede) {
+        setTracked(row.indexOriginal); // Fuerza el tracking activo antes de que se mueva de categoría
+        handleConfigChange(row.indexOriginal, "grupo_sede", valorLimpio);
       }
     };
 
     return (
       <tr
-        id={`fila-config-${row.indexOriginal}`}
-        className={
-          row.activo === 0
-            ? styles.filaInactivaOpacidad
-            : styles.filaActivaNormal
-        }
+        ref={rowRef}
+        className={`${row.activo === 0 ? styles.rowConfigInactiva : ""} ${isTracked ? styles.rowFilaTrackedHighlight : ""}`}
       >
-        <td style={{ textAlign: "center" }}>
+        <td>
           <button
             type="button"
             onClick={() => toggleEstadoActivo(row.indexOriginal)}
-            className={styles.btnFilaToggle}
+            className={styles.btnToggleRowState}
           >
             <FontAwesomeIcon
               icon={row.activo === 1 ? faToggleOn : faToggleOff}
-              style={{ color: row.activo === 1 ? "#16a34a" : "#94a3b8" }}
+              style={{ color: row.activo === 1 ? "#03996b" : "#94a3b8" }}
             />
           </button>
         </td>
         <td>
           <select
             value={row.categoria}
-            onChange={(e) =>
-              handleConfigChange(row.indexOriginal, "categoria", e.target.value)
-            }
+            onChange={(e) => {
+              setTracked(row.indexOriginal);
+              handleConfigChange(
+                row.indexOriginal,
+                "categoria",
+                e.target.value,
+              );
+            }}
           >
             <option value="PDV">PDV</option>
             <option value="ESTANDAR">ESTANDAR</option>
@@ -89,13 +96,14 @@ const FilaConfiguracionInput = React.memo(
         <td>
           <select
             value={row.tipo_documento}
-            onChange={(e) =>
+            onChange={(e) => {
+              setTracked(row.indexOriginal);
               handleConfigChange(
                 row.indexOriginal,
                 "tipo_documento",
                 e.target.value,
-              )
-            }
+              );
+            }}
           >
             <option value="FACTURA">FACTURA</option>
             <option value="NOTA">NOTA</option>
@@ -109,7 +117,7 @@ const FilaConfiguracionInput = React.memo(
               handleConfigChange(
                 row.indexOriginal,
                 "sub_bloque",
-                e.target.value,
+                e.target.value.trim(),
               )
             }
           />
@@ -117,40 +125,45 @@ const FilaConfiguracionInput = React.memo(
         <td>
           <input
             type="text"
-            data-primer-input="true"
+            className={styles.inputSedeForm}
             value={localGrupoSede}
             onChange={(e) => setLocalGrupoSede(e.target.value)}
             onBlur={despacharGrupoSede}
-            onKeyDown={verificarTecladoGrupoSede}
+            placeholder="Ej: B11"
           />
         </td>
         <td>
           <input
             type="text"
+            className={styles.inputShort}
             value={row.tipo_siesa}
             onChange={(e) =>
               handleConfigChange(
                 row.indexOriginal,
                 "tipo_siesa",
-                e.target.value,
+                e.target.value.trim().toUpperCase(),
               )
             }
-            className={styles.inputShort}
           />
         </td>
         <td>
           <input
             type="text"
+            className={styles.inputShort}
             value={row.co_siesa}
             onChange={(e) =>
-              handleConfigChange(row.indexOriginal, "co_siesa", e.target.value)
+              handleConfigChange(
+                row.indexOriginal,
+                "co_siesa",
+                e.target.value.trim(),
+              )
             }
-            className={styles.inputShort}
           />
         </td>
         <td>
           <input
             type="text"
+            className={styles.inputLong}
             value={row.descripcion}
             onChange={(e) =>
               handleConfigChange(
@@ -159,21 +172,20 @@ const FilaConfiguracionInput = React.memo(
                 e.target.value,
               )
             }
-            className={styles.inputLong}
           />
         </td>
         <td>
           <input
             type="text"
+            className={styles.inputPrefijos}
             value={row.prefijos_dian}
             onChange={(e) =>
               handleConfigChange(
                 row.indexOriginal,
                 "prefijos_dian",
-                e.target.value,
+                e.target.value.trim().toUpperCase(),
               )
             }
-            className={styles.inputPrefijos}
           />
         </td>
         <td>
@@ -181,7 +193,9 @@ const FilaConfiguracionInput = React.memo(
             type="date"
             value={localDesde}
             onChange={(e) => setLocalDesde(e.target.value)}
-            onBlur={despacharFechaDesde}
+            onBlur={() =>
+              handleConfigChange(row.indexOriginal, "fecha_desde", localDesde)
+            }
           />
         </td>
         <td>
@@ -189,13 +203,16 @@ const FilaConfiguracionInput = React.memo(
             type="date"
             value={localHasta}
             onChange={(e) => setLocalHasta(e.target.value)}
-            onBlur={despacharFechaHasta}
+            onBlur={() =>
+              handleConfigChange(row.indexOriginal, "fecha_hasta", localHasta)
+            }
           />
         </td>
         <td>
           <button
+            type="button"
             onClick={() => handleRemoveConfigRow(row.indexOriginal)}
-            className={styles.btnEliminarRow}
+            className={styles.btnTrashRowAction}
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
@@ -203,22 +220,9 @@ const FilaConfiguracionInput = React.memo(
       </tr>
     );
   },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.row.activo === nextProps.row.activo &&
-      prevProps.row.categoria === nextProps.row.categoria &&
-      prevProps.row.tipo_documento === nextProps.row.tipo_documento &&
-      prevProps.row.sub_bloque === nextProps.row.sub_bloque &&
-      prevProps.row.grupo_sede === nextProps.row.grupo_sede &&
-      prevProps.row.tipo_siesa === nextProps.row.tipo_siesa &&
-      prevProps.row.co_siesa === nextProps.row.co_siesa &&
-      prevProps.row.descripcion === nextProps.row.descripcion &&
-      prevProps.row.prefijos_dian === nextProps.row.prefijos_dian &&
-      prevProps.row.fecha_desde === nextProps.row.fecha_desde &&
-      prevProps.row.fecha_hasta === nextProps.row.fecha_hasta
-    );
-  },
 );
+
+FilaConfiguracionInput.displayName = "FilaConfiguracionInput";
 
 export const TabParametrizacion = React.memo(
   ({
@@ -233,62 +237,52 @@ export const TabParametrizacion = React.memo(
     setUltimoIndexCreado,
   }) => {
     const [expandedSedes, setExpandedSedes] = useState({});
-    const [expandedVigencias, setExpandedVigencias] = useState({});
+    const [expandedPeriods, setExpandedPeriods] = useState({});
 
+    // Monitoreo reactivo para expandir instantáneamente las carpetas contenedoras de la fila trackeada
     useEffect(() => {
-      if (ultimoIndexCreado !== null && ultimoIndexCreado !== undefined) {
-        const filaObjetivo = configList.find(
-          (r) => r.indexOriginal === ultimoIndexCreado,
-        );
-        if (filaObjetivo) {
-          const sedeObj = filaObjetivo.grupo_sede
-            ? filaObjetivo.grupo_sede.trim().toUpperCase()
-            : "SIN SEDE";
-          const vigenciaObj = `${filaObjetivo.fecha_desde} AL ${filaObjetivo.fecha_hasta}`;
+      if (ultimoIndexCreado === null || ultimoIndexCreado === undefined) return;
 
-          setExpandedSedes((prev) => ({ ...prev, [sedeObj]: true }));
-          setExpandedVigencias((prev) => ({
-            ...prev,
-            [`${sedeObj}_${vigenciaObj}`]: true,
-          }));
+      let sedeDestino = null;
+      let periodoDestino = null;
 
-          setTimeout(() => {
-            const elementoFila = document.getElementById(
-              `fila-config-${ultimoIndexCreado}`,
-            );
-            if (elementoFila) {
-              elementoFila.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-              const inputAEnfocar = elementoFila.querySelector(
-                '[data-primer-input="true"]',
-              );
-              if (inputAEnfocar) inputAEnfocar.focus();
-            }
-            setUltimoIndexCreado(null);
-          }, 60);
-        }
+      Object.keys(sedesAgrupadas).forEach((sedeKey) => {
+        Object.keys(sedesAgrupadas[sedeKey]).forEach((vKey) => {
+          if (sedesAgrupadas[sedeKey][vKey].includes(ultimoIndexCreado)) {
+            sedeDestino = sedeKey;
+            periodoDestino = `${sedeKey}_${vKey}`;
+          }
+        });
+      });
+
+      if (sedeDestino && periodoDestino) {
+        setExpandedSedes((prev) => ({ ...prev, [sedeDestino]: true }));
+        setExpandedPeriods((prev) => ({ ...prev, [periodoDestino]: true }));
       }
-    }, [ultimoIndexCreado, configList, setUltimoIndexCreado]);
+    }, [ultimoIndexCreado, sedesAgrupadas]);
 
     return (
-      <div className={styles.configContainer}>
-        <div className={styles.configHeaderCard}>
+      <div className={styles.bentoParametrizacionCanvas}>
+        <div className={styles.actionBarParametrizacionHeader}>
           <div>
-            <h3>Maestro Central de Parametrizacion</h3>
-            <p>Rangos de operacion gobernados por vigencias cronologicas.</p>
+            <h3>Maestro Central de Parametrización</h3>
+            <p>
+              Reglas de control de enrutamiento gobernadas por vigencias
+              cronológicas organizacionales.
+            </p>
           </div>
-          <div className={styles.configActionsBox}>
+          <div className={styles.btnParametrizacionFlexGroup}>
             <button
+              type="button"
               onClick={handleAddConfigRow}
-              className={styles.btnAgregarRow}
+              className={styles.appleBtnSecondary}
             >
               <FontAwesomeIcon icon={faPlus} /> Agregar Fila
             </button>
             <button
+              type="button"
               onClick={ejecutarGuardadoConfig}
-              className={styles.btnGuardarCfg}
+              className={styles.appleBtnPrimary}
             >
               <FontAwesomeIcon icon={faSave} /> Guardar Cambios
             </button>
@@ -296,84 +290,96 @@ export const TabParametrizacion = React.memo(
         </div>
 
         {Object.keys(sedesAgrupadas).map((sedeKey) => (
-          <div key={sedeKey} className={styles.accordionSedeCard}>
+          <div key={sedeKey} className={styles.treeSedeCardBlock}>
             <div
               onClick={() =>
                 setExpandedSedes((p) => ({ ...p, [sedeKey]: !p[sedeKey] }))
               }
-              className={styles.accordionSedeHeader}
+              className={styles.treeSedeHeaderRow}
             >
-              <div>
+              <h4>
                 <FontAwesomeIcon
                   icon={expandedSedes[sedeKey] ? faChevronDown : faChevronRight}
                 />{" "}
                 SEDE REPORTE: {sedeKey}
-              </div>
+              </h4>
             </div>
+
             {expandedSedes[sedeKey] && (
-              <div className={styles.accordionSedeContent}>
-                {Object.keys(sedesAgrupadas[sedeKey]).map((vKey) => (
-                  <div key={vKey} className={styles.accordionVigenciaCard}>
-                    <div
-                      onClick={() =>
-                        setExpandedVigencias((p) => ({
-                          ...p,
-                          [`${sedeKey}_${vKey}`]: !p[`${sedeKey}_${vKey}`],
-                        }))
-                      }
-                      className={styles.accordionVigenciaHeader}
-                    >
-                      <div>
-                        <FontAwesomeIcon
-                          icon={
-                            expandedVigencias[`${sedeKey}_${vKey}`]
-                              ? faChevronDown
-                              : faChevronRight
-                          }
-                        />{" "}
-                        Periodo: {vKey}
+              <div className={styles.treeSedeContentChildren}>
+                {Object.keys(sedesAgrupadas[sedeKey]).map((vKey) => {
+                  const compositePeriodKey = `${sedeKey}_${vKey}`;
+                  const isPeriodExpanded =
+                    !!expandedPeriods[compositePeriodKey];
+
+                  return (
+                    <div key={vKey} className={styles.subTabGroupBlock}>
+                      <div
+                        onClick={() =>
+                          setExpandedPeriods((p) => ({
+                            ...p,
+                            [compositePeriodKey]: !p[compositePeriodKey],
+                          }))
+                        }
+                        className={styles.treePeriodSubHeaderRow}
+                      >
+                        <h5 className={styles.titleSubTabIndicator}>
+                          <FontAwesomeIcon
+                            icon={
+                              isPeriodExpanded ? faChevronDown : faChevronRight
+                            }
+                          />{" "}
+                          Vigencia Cronológica: {vKey}
+                        </h5>
                       </div>
+
+                      {isPeriodExpanded && (
+                        <div className={styles.responsiveTableContainer}>
+                          <table className={styles.tableConfigParametros}>
+                            <thead>
+                              <tr>
+                                <th>Est</th>
+                                <th>Categoría</th>
+                                <th>Comprobante</th>
+                                <th>Sub Bloque</th>
+                                <th>Sede Reporte</th>
+                                <th>Tipo Siesa</th>
+                                <th>CO</th>
+                                <th>Descripción</th>
+                                <th>Prefijos DIAN</th>
+                                <th>Desde</th>
+                                <th>Hasta</th>
+                                <th>Acción</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {sedesAgrupadas[sedeKey][vKey].map((idx) => {
+                                const row = configList.find(
+                                  (c) => c.indexOriginal === idx,
+                                );
+                                return row ? (
+                                  <FilaConfiguracionInput
+                                    key={idx}
+                                    row={row}
+                                    handleConfigChange={handleConfigChange}
+                                    toggleEstadoActivo={toggleEstadoActivo}
+                                    handleRemoveConfigRow={
+                                      handleRemoveConfigRow
+                                    }
+                                    isTracked={
+                                      row.indexOriginal === ultimoIndexCreado
+                                    }
+                                    setTracked={setUltimoIndexCreado}
+                                  />
+                                ) : null;
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
-                    {expandedVigencias[`${sedeKey}_${vKey}`] && (
-                      <div className={styles.tableResponsiveCfg}>
-                        <table className={styles.tablaParametros}>
-                          <thead>
-                            <tr>
-                              <th>Est</th>
-                              <th>Categoria</th>
-                              <th>Comprobante</th>
-                              <th>Sub Bloque</th>
-                              <th>Sede Reporte</th>
-                              <th>Tipo Siesa</th>
-                              <th>CO</th>
-                              <th>Descripcion</th>
-                              <th>Prefijos DIAN</th>
-                              <th>Desde</th>
-                              <th>Hasta</th>
-                              <th>Accion</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {sedesAgrupadas[sedeKey][vKey].map((idx) => {
-                              const row = configList.find(
-                                (c) => c.indexOriginal === idx,
-                              );
-                              return row ? (
-                                <FilaConfiguracionInput
-                                  key={idx}
-                                  row={row}
-                                  handleConfigChange={handleConfigChange}
-                                  toggleEstadoActivo={toggleEstadoActivo}
-                                  handleRemoveConfigRow={handleRemoveConfigRow}
-                                />
-                              ) : null;
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -382,3 +388,5 @@ export const TabParametrizacion = React.memo(
     );
   },
 );
+
+TabParametrizacion.displayName = "TabParametrizacion";

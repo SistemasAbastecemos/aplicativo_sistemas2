@@ -1,34 +1,35 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styles from "../ExistenciasAverias.module.css";
+import { formatearCOP } from "../utils/helpers";
 
+/**
+ * Muestra 3 KPIs de resumen del reporte:
+ *  - Fecha de ejecución (hoy)
+ *  - Total de items con novedad
+ *  - Valor total de costo acumulado
+ */
 const TarjetasKpi = ({ datos }) => {
-  const totalItems = datos.length;
-
-  const costoTotalAcumulado = datos.reduce(
-    (acc, current) => acc + parseFloat(current.costo_total || 0),
-    0,
-  );
-
-  const formatPesosColombianos = (valor) => {
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0,
-    }).format(valor);
-  };
+  const { totalItems, costoTotal } = useMemo(() => {
+    const total = datos.length;
+    const costo = datos.reduce(
+      (acc, current) => acc + parseFloat(current.costo_total || 0),
+      0,
+    );
+    return { totalItems: total, costoTotal: costo };
+  }, [datos]);
 
   return (
     <div className={styles.seccionKpiContenedor}>
       <div className={styles.tarjetaKpiItem}>
         <h2>{new Date().toLocaleDateString("es-CO")}</h2>
-        <p>Fecha de ejecucion</p>
+        <p>Fecha de ejecución</p>
       </div>
       <div className={styles.tarjetaKpiItem}>
         <h2>{totalItems.toLocaleString("es-CO")}</h2>
-        <p>Items con Novedad</p>
+        <p>Ítems con Novedad</p>
       </div>
       <div className={styles.tarjetaKpiItem}>
-        <h2>{formatPesosColombianos(costoTotalAcumulado)}</h2>
+        <h2>{formatearCOP(costoTotal)}</h2>
         <p>Valor Total Costo</p>
       </div>
     </div>

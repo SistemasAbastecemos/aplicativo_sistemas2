@@ -1,124 +1,203 @@
+/* ==========================================================================
+   Estructura base — Apple / #f5f5f7 / #03996b
+   ========================================================================== */
 .moduloContainer {
-  padding: 24px;
-  background-color: #f8fafc;
   min-height: 100vh;
+  background-color: #f5f5f7;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1d1d1f;
 }
 
+.content {
+  margin: 0 auto;
+  padding: 24px 32px 32px 32px;
+}
+
+/* ==========================================================================
+   Encabezado del módulo
+   ========================================================================== */
 .encabezadoSeccion {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 95;
 }
 
-.iconContainer {
-  background: #e8f5e9;
-  color: #009b6d;
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+.encabezadoSeccionContent {
+  margin: 0 auto;
+  padding: 0 32px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  font-size: 22px;
 }
 
-.encabezadoSeccion h2 {
-  margin: 0;
-  color: #1e293b;
-  font-size: 20px;
+.title {
+  font-size: 1.55rem;
   font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
-.encabezadoSeccion p {
-  margin: 4px 0 0 0;
-  color: #64748b;
-  font-size: 13px;
+.subtitle {
+  font-size: 0.85rem;
+  color: #86868b;
+  margin: 2px 0 0 0;
+  font-weight: 400;
 }
 
-.tarjetaFiltros {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+.tabsContainer {
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.04);
+  padding: 3px;
+  border-radius: 9px;
   margin-bottom: 24px;
+  max-width: 480px;
+}
+
+.tabsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.tabButton {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #515154;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.12s ease;
+}
+
+.tabButton:hover {
+  color: #1d1d1f;
+}
+
+.tabActive {
+  background-color: #ffffff;
+  color: #1d1d1f;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tabActive:hover {
+  color: #03996b;
+}
+
+/* ==========================================================================
+   Tarjeta de filtros del reporte
+   ========================================================================== */
+.tarjetaFiltros {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  margin-bottom: 20px;
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 16px;
+  animation: fadeInUp 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .controlFormulario {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
-  min-width: 260px;
+  min-width: 240px;
 }
 
 .controlFormulario label {
-  font-size: 13px;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: #475569;
+  color: #515154;
   display: flex;
   align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .iconoLabel {
   margin-right: 6px;
-  color: #64748b;
+  color: #86868b;
 }
 
-.controlFormulario input {
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  outline: none;
-}
-
-.controlFormulario input:focus {
-  border-color: #009b6d;
-}
-
-/* Estilo para los <select> dentro de los formularios (mismo look que los input) */
+.controlFormulario input:not([type="checkbox"]),
 .controlFormulario select {
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
+  padding: 12px 14px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #1d1d1f;
   outline: none;
-  background: white;
+  background-color: #ffffff;
   font-family: inherit;
-  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+.controlFormulario input:focus,
 .controlFormulario select:focus {
-  border-color: #009b6d;
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.15);
 }
 
-/* ── Labels flotantes para los campos de filtro/formulario ──
-   El label queda fijo sobre el borde superior del control (input, select
-   o dropdown), con o sin foco/valor. Fondo blanco para "cortar" el borde. */
+.controlFormulario select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M6%208.5L1.5%204h9z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 32px;
+}
+
+/* Campo flotante (label sobre el borde) */
 .campoFlotante {
   position: relative;
   display: block;
   width: 100%;
 }
 
-/* Selector con 2 clases para sobreescribir `.controlFormulario label` */
 .campoFlotante .labelFlotante {
   position: absolute;
-  top: 0;
-  left: 10px;
-  transform: translateY(-50%);
-  background: #ffffff;
-  padding: 0 5px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #009b6d;
+  top: -9px;
+  left: 12px;
+  background-color: #ffffff;
+  padding: 0 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #515154;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -126,405 +205,156 @@
   white-space: nowrap;
   pointer-events: none;
   z-index: 5;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
+/* Botón Consultar */
 .btnBuscarDatos {
-  background: #009b6d;
-  color: white;
+  background-color: #03996b;
+  color: #ffffff;
   border: none;
-  padding: 11px 24px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  height: 40px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 4px 14px rgba(3, 153, 107, 0.2);
+  font-family: inherit;
+  white-space: nowrap;
 }
 
-.btnBuscarDatos:hover {
-  background: #00825b;
+.btnBuscarDatos:hover:not(:disabled) {
+  background-color: #028059;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(3, 153, 107, 0.3);
 }
 
+.btnBuscarDatos:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ==========================================================================
+   Tarjetas KPI
+   ========================================================================== */
 .seccionKpiContenedor {
-  margin: 20px 0;
-  width: 100%;
-  display: block;
+  margin: 0 0 20px 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
+/* Bloquear el clearfix del legacy que rompe el grid */
 .seccionKpiContenedor::after {
-  content: "";
-  display: table;
-  clear: both;
+  content: none;
 }
 
 .tarjetaKpiItem {
-  float: left;
-  width: 31.3%;
+  float: none;
+  width: auto;
+  margin: 0;
   text-align: center;
-  padding: 16px 10px;
-  margin: 1%;
-  background: #e8f5e9;
-  border-radius: 8px;
-  box-sizing: border-box;
+  padding: 18px 16px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  border-radius: 14px;
+  transition: transform 0.2s ease;
+}
+
+.tarjetaKpiItem:hover {
+  transform: translateY(-1px);
 }
 
 .tarjetaKpiItem h2 {
   margin: 0;
-  color: #1b5e20;
-  font-size: 18px;
+  color: #1d1d1f;
+  font-size: 1.4rem;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
 }
 
 .tarjetaKpiItem p {
   margin: 4px 0 0;
-  color: #64748b;
-  font-size: 13px;
+  color: #86868b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
+/* ==========================================================================
+   Acciones (botón Exportar Excel)
+   ========================================================================== */
 .contenedorAcciones {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   clear: both;
 }
 
 .btnDescargarExcel {
-  background: #16a34a;
-  color: white;
+  background-color: #03996b;
+  color: #ffffff;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 11px 20px;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 0.85rem;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 4px 14px rgba(3, 153, 107, 0.2);
+  font-family: inherit;
 }
 
 .btnDescargarExcel:hover {
-  background: #15803d;
-}
-
-.contenedorTablaMaestra {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  clear: both;
-}
-
-.tablaResponsivaWrapper {
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  text-align: left;
-}
-
-th {
-  background: #f8fafc;
-  color: #475569;
-  font-weight: 600;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
-}
-
-.celdaTruncada {
-  max-width: 170px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.textoDestacado {
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.numeroAlineado {
-  text-align: right;
-  font-family: monospace;
-  font-size: 14px;
-}
-
-.badgeSi {
-  background: #dcfce7;
-  color: #15803d;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 600;
-}
-
-.badgeNo {
-  background: #fee2e2;
-  color: #b91c1c;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 600;
-}
-
-.barraPaginacion {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 16px;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.barraPaginacion button {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.barraPaginacion button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.estadoVacioContainer {
-  text-align: center;
-  padding: 40px;
-  color: #64748b;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-/* Estructura del Dropdown Desplegable */
-.dropdownPersonalizado {
-  position: relative;
-  width: 100%;
-}
-
-.dropdownTrigger {
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  background: white;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-  transition: border-color 0.2s ease;
-}
-
-.dropdownTrigger:hover {
-  border-color: #009b6d;
-}
-
-.iconoChevron {
-  color: #64748b;
-  font-size: 12px;
-}
-
-.dropdownMenuContent {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  width: 100%;
-  background: white;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  max-height: 240px;
-  overflow-y: auto;
-  padding: 6px 0;
-}
-
-.dropdownMenuItem {
-  padding: 8px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 13.5px;
-  color: #334155;
-  user-select: none;
-}
-
-.dropdownMenuItem:hover {
-  background-color: #f1f5f9;
-}
-
-.textoItemBold {
-  font-weight: 700;
-  color: #009b6d;
-}
-
-/* Iconos de Checkbox */
-.checkboxIcon {
-  color: #94a3b8;
-  font-size: 15px;
-}
-
-.checkboxIconActive {
-  color: #009b6d;
-  font-size: 15px;
-}
-
-/* Estilos para el Input de tipo Month */
-.inputMesCalendario {
-  padding: 9px 14px; /* Ajuste sutil para equilibrar alturas con el dropdown */
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #334155;
-  outline: none;
-  background: white;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.inputMesCalendario:focus {
-  border-color: #009b6d;
-}
-
-.disabledElement {
-  background-color: #f1f5f9;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.tabsContainer {
-  display: flex;
-  gap: 4px;
-  border-bottom: 2px solid #e2e8f0;
-  margin-bottom: 24px;
-  padding-left: 4px;
-}
-
-.tabButton {
-  padding: 12px 24px;
-  font-size: 14.5px;
-  font-weight: 600;
-  color: #64748b;
-  background: transparent;
-  border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  outline: none;
-}
-
-.tabButton:hover {
-  color: #334155;
-  background-color: #f1f5f9;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-}
-
-.tabActive {
-  color: #009b6d; /* Verde Corporativo de Supermercado Belalcázar */
-  border-bottom-color: #009b6d;
-  background-color: transparent;
-  font-weight: 700;
-}
-
-.tabActive:hover {
-  background-color: transparent; /* Mantener limpio sin fondo gris si ya está activo */
-}
-
-/* Nuevas clases añadidas para limpiar estilos en línea del JSX */
-.btnIconoMargen {
-  margin-right: 8px;
-}
-
-.btnAccionEliminar {
-  padding: 5px 10px;
-  background-color: #ef4444;
-}
-
-.btnAccionEliminar:hover {
-  background-color: #dc2626 !important;
-}
-
-.celdaParametrizacionVacia {
-  text-align: center;
-  padding: 30px;
-  color: #64748b;
-}
-
-.iconoMargenInfo {
-  margin-right: 6px;
-}
-
-.celdaCentrada {
-  text-align: center;
+  background-color: #028059;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(3, 153, 107, 0.3);
 }
 
 /* ==========================================================================
-   Clases de Anulación para Eliminar Estilos Inline del JSX (Preservando Diseño)
+   Contenedor de tabla
    ========================================================================== */
-
-/* Restaura el style={{ flex: 2 }} del contenedor de Razón Social */
-.controlFormularioFlex2 {
-  flex: 2 !important;
+.contenedorTablaMaestra {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 20px;
+  clear: both;
+  animation: fadeInUp 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Restaura el color rojo de producción (#EF4444) y padding del botón eliminar */
-.btnEliminarParametrizacion {
-  padding: 5px 10px !important;
-  background: #ef4444 !important;
-  background-color: #ef4444 !important;
-}
-
-.btnEliminarParametrizacion:hover {
-  background: #dc2626 !important;
-  background-color: #dc2626 !important;
-}
-
-/* Restaura el alineamiento, espaciado y color gris de la alerta de tabla vacía */
-.celdaParametrizacionVacia {
-  text-align: center !important;
-  padding: 30px !important;
-  color: #64748b !important;
-}
-
-/* Restaura el margin-right: 6px del icono informativo de la tabla vacía */
-.iconoMargenInfo {
-  margin-right: 6px !important;
-}
-
-/* Restaura el centrado estricto de la columna Recoge Averías en la tabla analítica */
-.celdaCentradaResultados {
-  text-align: center !important;
-}
-
+/* ==========================================================================
+   Barra de filtros dropdowns (Proveedor / Línea / Ítem)
+   ========================================================================== */
 .barraFiltrosDropdowns {
   display: flex;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 .dropdownContenedorIndividual {
   position: relative;
-  min-width: 240px;
+  min-width: 220px;
   flex: 1;
-  max-width: 320px;
+  max-width: 300px;
 }
 
 .botonDropdownDisparador {
@@ -534,47 +364,61 @@ td {
   align-items: center;
   padding: 10px 14px;
   background-color: #ffffff;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 13.5px;
-  color: #495057;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #1d1d1f;
   cursor: pointer;
-  transition: all 0.15s ease-in-out;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   text-align: left;
+  font-family: inherit;
 }
 
 .botonDropdownDisparador:hover {
-  border-color: #a1a1a1;
-  background-color: #f8f9fa;
+  border-color: rgba(3, 153, 107, 0.4);
+  background-color: #fafafa;
 }
 
 .botonDropdownFiltrando {
-  border-color: #009b6d;
-  background-color: #f2fef9;
-  color: #009b6d;
+  border-color: #03996b;
+  background-color: rgba(3, 153, 107, 0.05);
+  color: #028059;
   font-weight: 600;
 }
 
 .iconoChevronFlotante {
-  font-size: 11px;
-  color: #6c757d;
+  font-size: 0.7rem;
+  color: #86868b;
+  transition: color 0.2s ease;
 }
 
 .botonDropdownFiltrando .iconoChevronFlotante {
-  color: #009b6d;
+  color: #03996b;
 }
 
 .panelDesplegableFlotante {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
   width: 100%;
   background-color: #ffffff;
-  border: 1px solid #cce0d9;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   z-index: 100;
   padding: 8px;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .buscadorFiltroWrapper {
@@ -587,59 +431,73 @@ td {
 .iconoLupaBuscador {
   position: absolute;
   left: 10px;
-  color: #adb5bd;
-  font-size: 12px;
+  color: #86868b;
+  font-size: 0.72rem;
+  pointer-events: none;
 }
 
 .buscadorFiltroWrapper input {
   width: 100%;
-  padding: 6px 10px 6px 30px;
-  font-size: 13px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  padding: 8px 10px 8px 30px;
+  font-size: 0.82rem;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
   outline: none;
+  background-color: #f9f9fb;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .buscadorFiltroWrapper input:focus {
-  border-color: #009b6d;
+  background-color: #ffffff;
+  border-color: #03996b;
+  box-shadow: 0 0 0 3px rgba(3, 153, 107, 0.12);
 }
 
 .listaOpcionesSeleccionables {
-  max-height: 180px;
+  max-height: 220px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 1px;
 }
 
 .opcionFiltroFila {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px;
-  font-size: 13px;
-  color: #333333;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  color: #1d1d1f;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 6px;
   user-select: none;
+  transition: background-color 0.15s ease;
 }
 
 .opcionFiltroFila:hover {
-  background-color: #f1f3f5;
+  background-color: #f5f5f7;
 }
 
 .opcionFiltroFilaActiva {
-  background-color: #e6f6f1;
-  color: #007250;
+  background-color: rgba(3, 153, 107, 0.08);
+  color: #028059;
   font-weight: 500;
 }
 
+.opcionFiltroFilaActiva:hover {
+  background-color: rgba(3, 153, 107, 0.12);
+}
+
 .iconoCasillaCheck {
-  font-size: 13px;
-  color: #ced4da;
+  font-size: 0.82rem;
+  color: #c7c7cc;
+  flex-shrink: 0;
 }
 
 .opcionFiltroFilaActiva .iconoCasillaCheck {
-  color: #009b6d;
+  color: #03996b;
 }
 
 .opcionFiltroFila span {
@@ -648,4 +506,571 @@ td {
   text-overflow: ellipsis;
   display: block;
   width: 100%;
+}
+
+/* ==========================================================================
+   Dropdown de sedes (formulario principal)
+   ========================================================================== */
+.dropdownPersonalizado {
+  position: relative;
+  width: 100%;
+}
+
+.dropdownTrigger {
+  padding: 12px 14px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  background-color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: all 0.2s ease;
+  min-height: 46px;
+  box-sizing: border-box;
+}
+
+.dropdownTrigger:hover {
+  border-color: rgba(3, 153, 107, 0.4);
+}
+
+.iconoChevron {
+  color: #86868b;
+  font-size: 0.75rem;
+}
+
+.dropdownMenuContent {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px;
+  animation: dropdownFadeIn 0.15s ease;
+}
+
+.dropdownMenuItem {
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #1d1d1f;
+  user-select: none;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.dropdownMenuItem:hover {
+  background-color: #f5f5f7;
+}
+
+.textoItemBold {
+  font-weight: 700;
+  color: #03996b;
+}
+
+.checkboxIcon {
+  color: #c7c7cc;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.checkboxIconActive {
+  color: #03996b;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* Input mes/año */
+.inputMesCalendario {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  outline: none;
+  background-color: #ffffff;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  min-height: 46px;
+}
+
+.inputMesCalendario:focus {
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.15);
+}
+
+.disabledElement {
+  background-color: #f5f5f7;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   Tabla de resultados
+   ========================================================================== */
+.tablaResponsivaWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+}
+
+.contenedorTablaMaestra table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.contenedorTablaMaestra thead {
+  background-color: #f9f9fb;
+}
+
+.contenedorTablaMaestra th {
+  background-color: #f9f9fb;
+  color: #515154;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.contenedorTablaMaestra td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  color: #1d1d1f;
+  font-size: 0.85rem;
+}
+
+.contenedorTablaMaestra tbody tr:hover td {
+  background-color: rgba(3, 153, 107, 0.02);
+}
+
+.contenedorTablaMaestra tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sortIcon {
+  margin-left: 6px;
+  color: #c7c7cc;
+  font-size: 0.7rem;
+  transition: color 0.15s ease;
+}
+
+.contenedorTablaMaestra th[onclick]:hover .sortIcon,
+.contenedorTablaMaestra th:hover .sortIcon {
+  color: #86868b;
+}
+
+.celdaTruncada {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.textoDestacado {
+  font-weight: 600;
+  color: #1d1d1f;
+  font-family: "SF Mono", Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+.numeroAlineado {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.badgeSi {
+  background-color: rgba(3, 153, 107, 0.12);
+  color: #028059;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.72rem;
+  display: inline-block;
+}
+
+.badgeNo {
+  background-color: rgba(214, 48, 48, 0.1);
+  color: #d63030;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.72rem;
+  display: inline-block;
+}
+
+/* ==========================================================================
+   Paginación
+   ========================================================================== */
+.barraPaginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  font-size: 0.82rem;
+  color: #86868b;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.barraPaginacion button {
+  background-color: #ffffff;
+  border: 1px solid #d2d2d7;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #1d1d1f;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.barraPaginacion button:hover:not(:disabled) {
+  background-color: #f5f5f7;
+  border-color: #03996b;
+  color: #03996b;
+}
+
+.barraPaginacion button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.barraPaginacion strong {
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Estado vacío
+   ========================================================================== */
+.estadoVacioContainer {
+  text-align: center;
+  padding: 40px 20px;
+  color: #86868b;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  font-size: 0.88rem;
+}
+
+/* ==========================================================================
+   Utilitarias del legacy (preservadas para no romper componentes hijos)
+   ========================================================================== */
+.btnIconoMargen {
+  margin-right: 6px;
+}
+
+.btnAccionEliminar {
+  padding: 6px 10px;
+  background-color: #d63030;
+}
+
+.btnAccionEliminar:hover {
+  background-color: #b02020 !important;
+}
+
+.celdaParametrizacionVacia {
+  text-align: center;
+  padding: 30px;
+  color: #86868b;
+}
+
+.iconoMargenInfo {
+  margin-right: 6px;
+}
+
+.celdaCentrada {
+  text-align: center;
+}
+
+.celdaCentradaResultados {
+  text-align: center !important;
+}
+
+.controlFormularioFlex2 {
+  flex: 2 !important;
+}
+
+.btnEliminarParametrizacion {
+  padding: 6px 10px !important;
+  background-color: #d63030 !important;
+}
+
+.btnEliminarParametrizacion:hover {
+  background-color: #b02020 !important;
+}
+
+/* ==========================================================================
+   Responsive — Tablet (≤ 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .moduloContainer {
+    padding: 20px;
+  }
+
+  .barraFiltrosDropdowns {
+    gap: 8px;
+  }
+
+  .dropdownContenedorIndividual {
+    min-width: 200px;
+  }
+
+  .seccionKpiContenedor {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Responsive — Móvil (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .moduloContainer {
+    padding: 16px;
+  }
+
+  /* ---------- Encabezado ---------- */
+  .encabezadoSeccion {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .encabezadoSeccion h2 {
+    font-size: 1.2rem;
+  }
+
+  .encabezadoSeccion p {
+    font-size: 0.76rem;
+  }
+
+  /* ---------- Tabs con carrusel horizontal ---------- */
+  .tabsContainer {
+    padding-bottom: 2px;
+  }
+
+  .tabButton {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+
+  /* ---------- Filtros: apilados full-width ---------- */
+  .tarjetaFiltros {
+    padding: 16px;
+    gap: 14px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controlFormulario {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .btnBuscarDatos {
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+  }
+
+  /* ---------- KPIs: apilados verticalmente ---------- */
+  .seccionKpiContenedor {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .tarjetaKpiItem {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .tarjetaKpiItem h2 {
+    font-size: 1.1rem;
+  }
+
+  .tarjetaKpiItem p {
+    order: -1;
+    margin: 0;
+    font-size: 0.72rem;
+  }
+
+  /* ---------- Acciones ---------- */
+  .contenedorAcciones {
+    justify-content: stretch;
+  }
+
+  .btnDescargarExcel {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
+
+  /* ---------- Contenedor tabla ---------- */
+  .contenedorTablaMaestra {
+    padding: 16px;
+  }
+
+  /* Filtros dropdown apilados */
+  .barraFiltrosDropdowns {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dropdownContenedorIndividual {
+    max-width: none;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* ---------- Tabla → cards apiladas ---------- */
+  .tablaResponsivaWrapper {
+    overflow-x: visible;
+    border: none;
+    background-color: transparent;
+  }
+
+  .contenedorTablaMaestra table,
+  .contenedorTablaMaestra tbody,
+  .contenedorTablaMaestra tr {
+    display: block;
+    width: 100%;
+  }
+
+  .contenedorTablaMaestra thead {
+    display: none;
+  }
+
+  .contenedorTablaMaestra tbody tr {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+
+  .contenedorTablaMaestra tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .contenedorTablaMaestra tbody tr:hover td {
+    background-color: transparent;
+  }
+
+  .contenedorTablaMaestra tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    font-size: 0.86rem;
+    text-align: right;
+    white-space: normal;
+    max-width: none;
+  }
+
+  .contenedorTablaMaestra tbody td:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .contenedorTablaMaestra tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #86868b;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    text-align: left;
+  }
+
+  .contenedorTablaMaestra tbody td.celdaTruncada {
+    overflow: visible;
+    text-overflow: unset;
+    white-space: normal;
+  }
+
+  /* Paginación en móvil */
+  .barraPaginacion {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .barraPaginacion button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  .barraPaginacion span {
+    order: -1;
+  }
+
+  /* Prevenir zoom iOS */
+  .controlFormulario input,
+  .controlFormulario select,
+  .inputMesCalendario,
+  .buscadorFiltroWrapper input,
+  .dropdownTrigger {
+    font-size: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive — Móvil pequeño (≤ 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .moduloContainer {
+    padding: 12px;
+  }
+
+  .tarjetaFiltros,
+  .contenedorTablaMaestra {
+    padding: 14px;
+  }
+
+  .tarjetaKpiItem {
+    padding: 12px 14px;
+  }
+
+  .tarjetaKpiItem h2 {
+    font-size: 1rem;
+  }
 }

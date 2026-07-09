@@ -1,143 +1,90 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useEffect } from "react";
 import styles from "./PermisosInventario.module.css";
-import ModalConfiguracion from "./components/ModalConfiguracion";
-import TablaPermisos from "./components/TablaPermisos";
+import LoadingScreen from "../../UI/LoadingScreen";
 import { useNotification } from "../../../contexts/NotificationContext";
-import { apiService } from "../../../services/api";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { usePermisosInventario } from "./hooks/usePermisosInventario";
+import { usePermisos } from "../../../hooks/usePermission"; // Hook maestro de seguridad
+import { useNavigate } from "react-router-dom";
+
+import PermisosHeader from "./components/PermisosHeader";
+import PermisosToolbar from "./components/PermisosToolbar";
+import PermisosInventarioGrid from "./components/PermisosInventarioGrid";
+import ModalConfiguracion from "./components/ModalConfiguracion";
 
 function PermisosInventario() {
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
 
-  const [matrix, setMatrix] = useState([]);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [modalData, setModalData] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Desestructuración de las banderas desde el hook maestro de seguridad
+  const {
+    puedeVer,
+    puedeCrear,
+    puedeEditar,
+    puedeEliminar,
+    loading: permisosLoading,
+  } = usePermisos();
+  const model = usePermisosInventario(addNotification);
 
-  const addNotificationRef = useRef(addNotification);
+  // Expulsión en vivo reactiva si se revocan privilegios en caliente
   useEffect(() => {
-    addNotificationRef.current = addNotification;
-  }, [addNotification]);
-
-  const fetchMatrix = useCallback(async (textSearch) => {
-    setLoading(true);
-    try {
-      const result = await apiService.getPermisosInventario(textSearch);
-      setMatrix(result.rows || []);
-    } catch (err) {
-      addNotificationRef.current({
-        message: "Fallo consultando la matriz unificada de proveedores",
+    if (!permisosLoading && !puedeVer) {
+      addNotification({
+        message:
+          "Se revocaron tus privilegios de acceso para el módulo de inventarios.",
         type: "error",
       });
-    } finally {
-      setLoading(false);
+      navigate("/");
     }
-  }, []);
+  }, [puedeVer, permisosLoading, navigate, addNotification]);
 
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 400);
-    return () => clearTimeout(delay);
-  }, [search]);
-
-  useEffect(() => {
-    fetchMatrix(debouncedSearch);
-  }, [debouncedSearch, fetchMatrix]);
-
-  const handleSavePermisos = async (payload) => {
-    try {
-      await apiService.guardarPermisoInventario(payload);
-      addNotificationRef.current({
-        message: "Parámetros de proveedor sincronizados",
-        type: "success",
-      });
-      fetchMatrix(debouncedSearch);
-      return true;
-    } catch (err) {
-      addNotificationRef.current({
-        message: err.message || "Error guardando políticas",
-        type: "error",
-      });
-      return false;
-    }
-  };
-
-  const handleEliminarRegla = async (row) => {
-    if (
-      !window.confirm(
-        `¿Remover toda la configuración de acceso para el proveedor: ${row.razon_social}?`,
-      )
-    )
-      return;
-    try {
-      await apiService.eliminarPermisoInventario(row.id);
-      addNotificationRef.current({
-        message: "Accesos revocados exitosamente",
-        type: "success",
-      });
-      fetchMatrix(debouncedSearch);
-    } catch (err) {
-      addNotificationRef.current({
-        message: "Error al purgar registro",
-        type: "error",
-      });
-    }
-  };
+  if (permisosLoading) {
+    return (
+      <LoadingScreen message="Validando directivas de seguridad corporativa..." />
+    );
+  }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>Matriz de Permisos de Inventario</h1>
-          <p className={styles.subtitle}>
-            Configuración unificada y granular por cuenta de proveedor.
-          </p>
-        </div>
-      </div>
+      <LoadingScreen
+        isVisible={model.loading && model.matrix.length === 0}
+        message="Sincronizando matriz de privilegios..."
+      />
 
-      <div className={styles.controlCard}>
-        <div className={styles.actionBar}>
-          <div className={styles.searchWrapper}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Buscar por NIT o Razón Social..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <button
-            className={styles.createBtn}
-            onClick={() => {
-              setModalData(null);
-              setIsModalOpen(true);
-            }}
-          >
-            <FontAwesomeIcon icon={faPlus} /> Configurar Proveedor
-          </button>
-        </div>
+      <PermisosHeader />
 
-        <TablaPermisos
-          matrix={matrix}
-          loading={loading}
+      <PermisosToolbar
+        search={model.search}
+        onSearchChange={(e) => model.setSearch(e.target.value)}
+        onRefresh={() => model.fetchMatrix(model.search)} // Llama al consultor real forzando el refresco inmediato
+        cargando={model.loading}
+        puedeCrear={puedeCrear}
+        onNuevo={() => {
+          model.setModalData(null);
+          model.setIsModalOpen(true);
+        }}
+      />
+
+      <main className={styles.mainContent}>
+        <PermisosInventarioGrid
+          matrix={model.matrix}
+          loading={model.loading}
+          search={model.search}
+          puedeEditar={puedeEditar}
+          puedeEliminar={puedeEliminar}
           onEdit={(row) => {
-            setModalData(row);
-            setIsModalOpen(true);
+            model.setModalData(row);
+            model.setIsModalOpen(true);
           }}
-          onDelete={handleEliminarRegla}
+          onDelete={model.handleEliminarRegla}
         />
-      </div>
+      </main>
 
-      {isModalOpen && (
+      {model.isModalOpen && (
         <ModalConfiguracion
-          data={modalData}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSavePermisos}
+          data={model.modalData}
+          sedesDisponibles={model.sedesCatalog}
+          onClose={() => model.setIsModalOpen(false)}
+          onSave={model.handleSavePermisos}
         />
       )}
     </div>

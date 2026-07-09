@@ -3,14 +3,13 @@ import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./LoadingScreen.module.css";
 
-// Componente global de carga optimizado y extensible
+// Componente de carga modular alineado a lineamientos de diseno de Apple
 const LoadingScreen = ({
-  title = "Cargando...",
-  subtitle,
+  title = "Autenticando",
+  subtitle = "Por favor espera un momento...",
   variant = "fullscreen",
   isVisible = true,
 }) => {
-  // Validacion defensiva para evitar renderizados vacios inconsistentes
   if (!isVisible) return null;
 
   const isFullscreen = variant === "fullscreen";
@@ -20,20 +19,22 @@ const LoadingScreen = ({
       className={isFullscreen ? styles.loadingOverlay : styles.inlineContainer}
     >
       <div className={styles.loadingContainer}>
-        {/* Spinner de doble rebote */}
-        <div className={styles.spinner} aria-hidden="true">
-          <div className={styles.doubleBounce1}></div>
-          <div className={styles.doubleBounce2}></div>
+        {/* Spinner Circular Continuo Estilo Apple */}
+        <div className={styles.spinnerWrapper} aria-hidden="true">
+          <div className={styles.appleSpinner}>
+            {[...Array(12)].map((_, index) => (
+              <div key={index} className={styles.spinnerBlade} />
+            ))}
+          </div>
         </div>
 
-        {/* Contenido textual controlado defensivamente */}
+        {/* Bloque Textual con Jerarquia de Grises */}
         {title && <h3 className={styles.loadingTitle}>{title}</h3>}
         {subtitle && <p className={styles.loadingSubtitle}>{subtitle}</p>}
       </div>
     </div>
   );
 
-  // Si es pantalla completa, aplicamos animaciones fluidas de montaje/desmontaje
   if (isFullscreen) {
     return (
       <AnimatePresence>
@@ -41,8 +42,8 @@ const LoadingScreen = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          style={{ position: "fixed", zIndex: 9999, top: 0, left: 0 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          style={{ position: "fixed", zIndex: 99999, top: 0, left: 0 }}
         >
           {content}
         </motion.div>
@@ -53,7 +54,6 @@ const LoadingScreen = ({
   return content;
 };
 
-// Tipado estricto para mantener la robustez del componente en el tiempo
 LoadingScreen.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,

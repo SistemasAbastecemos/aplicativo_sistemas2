@@ -1,81 +1,127 @@
-.notification {
-  padding: 15px 20px;
-  border-radius: 8px;
-  color: white;
+.container {
+  position: fixed;
+  top: 24px;
+  right: 24px; /* Margen lateral limpio */
+  z-index: 10000; /* Contexto de apilamiento prioritario absoluto */
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 300px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 10000;
-  animation: slideIn 0.3s ease-out;
+  flex-direction: column; /* Las nuevas entran arriba, las viejas bajan */
+  gap: 12px;
+  align-items: flex-end;
+  pointer-events: none; /* Evita bloquear clics en la app si el contenedor está vacío */
 }
 
-.success {
-  background-color: #32c369;
-  border-left: 4px solid #28a85a;
+.notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 320px;
+  max-width: 420px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  pointer-events: auto; /* Restaura eventos de clic individuales */
+  animation: appleSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
-.error {
-  background-color: #e74c3c;
-  border-left: 4px solid #c0392b;
-}
-
-.warning {
-  background-color: #f39c12;
-  border-left: 4px solid #d68910;
-}
-
-.info {
-  background-color: #3498db;
-  border-left: 4px solid #2980b9;
+.contentWrapper {
+  flex-grow: 1;
+  padding-top: 1px;
 }
 
 .message {
-  flex-grow: 1;
-  margin-right: 15px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #1d1d1f; /* Gris oscuro Apple */
+  line-height: 1.4;
+  word-break: break-word;
 }
 
+/* Indicador Icónico de Estado */
+.iconIndicator {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Categorización Cromática por Estados (Acentos Semánticos Discretos)
+   ========================================================================== */
+.success {
+  border-left: 4px solid #03996b;
+}
+.success .iconIndicator {
+  background-color: rgba(3, 153, 107, 0.12);
+  color: #03996b;
+}
+
+.error {
+  border-left: 4px solid #ff3b30;
+}
+.error .iconIndicator {
+  background-color: rgba(255, 59, 48, 0.12);
+  color: #ff3b30;
+}
+
+.warning {
+  border-left: 4px solid #ff9500;
+}
+.warning .iconIndicator {
+  background-color: rgba(255, 149, 0, 0.12);
+  color: #ff9500;
+}
+
+.info {
+  border-left: 4px solid #0071e3;
+}
+.info .iconIndicator {
+  background-color: rgba(0, 113, 227, 0.12);
+  color: #0071e3;
+}
+
+/* ==========================================================================
+   Botón de Cierre Minimalista
+   ========================================================================== */
 .closeBtn {
   background: none;
   border: none;
-  color: white;
-  font-size: 20px;
+  color: #86868b;
+  font-size: 0.75rem;
   cursor: pointer;
   padding: 0;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s;
+  background-color: rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .closeBtn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #1d1d1f;
 }
 
-@keyframes slideIn {
+@keyframes appleSlideIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(30px) scale(0.96);
     opacity: 0;
   }
-
   to {
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
     opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-
-  to {
-    transform: translateX(100%);
-    opacity: 0;
   }
 }

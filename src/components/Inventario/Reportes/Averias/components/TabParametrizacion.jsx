@@ -16,7 +16,7 @@ const TabParametrizacion = ({ addNotification, permisos = {} }) => {
   const { user } = useAuth();
   const loginUsuario = user?.login || "sistema";
 
-  // Capacidades sobre el maestro de proveedores (vienen del menu).
+  // Capacidades operativas controladas por RBAC
   const puedeCrear = !!permisos.crear;
   const puedeEditar = !!permisos.editar;
   const puedeEliminar = !!permisos.eliminar;
@@ -145,13 +145,7 @@ const TabParametrizacion = ({ addNotification, permisos = {} }) => {
   };
 
   const handleEliminar = async (id) => {
-    if (!puedeEliminar) {
-      addNotification({
-        type: "error",
-        message: "No tiene permisos para eliminar.",
-      });
-      return;
-    }
+    if (!puedeEliminar) return;
     if (
       !window.confirm(
         "¿Desea remover este proveedor de la lista? Volverá a asumir que SÍ RECOGE averías.",
@@ -231,6 +225,7 @@ const TabParametrizacion = ({ addNotification, permisos = {} }) => {
                   setShowDropdown(true);
                 }}
                 required={!form.codigo_proveedor}
+                disabled={form.id ? !puedeEditar : !puedeCrear}
                 style={{ width: "100%", boxSizing: "border-box" }}
               />
               {searching && (
@@ -320,6 +315,7 @@ const TabParametrizacion = ({ addNotification, permisos = {} }) => {
                 onChange={(e) =>
                   setForm({ ...form, activo: Number(e.target.value) })
                 }
+                disabled={form.id ? !puedeEditar : !puedeCrear}
                 style={{ width: "100%", boxSizing: "border-box" }}
               >
                 <option value={1}>Activo</option>
@@ -353,6 +349,11 @@ const TabParametrizacion = ({ addNotification, permisos = {} }) => {
                   (form.id ? !puedeEditar : !puedeCrear)
                     ? 0.6
                     : 1,
+                cursor:
+                  !form.codigo_proveedor ||
+                  (form.id ? !puedeEditar : !puedeCrear)
+                    ? "not-allowed"
+                    : "pointer",
               }}
             >
               <FontAwesomeIcon icon={faSave} style={{ marginRight: "6px" }} />
@@ -415,45 +416,56 @@ const TabParametrizacion = ({ addNotification, permisos = {} }) => {
                       </span>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      {puedeEditar && (
-                        <button
-                          onClick={() => {
-                            setForm({
-                              id: item.id,
-                              codigo_proveedor: item.codigo_proveedor,
-                              descripcion: item.descripcion,
-                              activo: Number(item.activo),
-                            });
-                            setTermBusqueda(
-                              `${item.codigo_proveedor} - ${item.descripcion}`,
-                            );
-                          }}
-                          className={styles.btnDescargarExcel}
-                          style={{
-                            padding: "5px 10px",
-                            background: "#0EA5E9",
-                            marginRight: "6px",
-                          }}
-                          title="Editar"
-                        >
-                          <FontAwesomeIcon icon={faEdit} />
-                        </button>
-                      )}
-                      {puedeEliminar && (
-                        <button
-                          onClick={() => handleEliminar(item.id)}
-                          className={styles.btnDescargarExcel}
-                          style={{ padding: "5px 10px", background: "#EF4444" }}
-                          title="Eliminar"
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                      )}
-                      {!puedeEditar && !puedeEliminar && (
-                        <span style={{ color: "#94A3B8", fontSize: "12px" }}>
-                          Solo lectura
-                        </span>
-                      )}
+                      {/* Botón Editar deshabilitado visual y lógicamente si !puedeEditar */}
+                      <button
+                        onClick={() => {
+                          if (!puedeEditar) return;
+                          setForm({
+                            id: item.id,
+                            codigo_proveedor: item.codigo_proveedor,
+                            descripcion: item.descripcion,
+                            activo: Number(item.activo),
+                          });
+                          setTermBusqueda(
+                            `${item.codigo_proveedor} - ${item.descripcion}`,
+                          );
+                        }}
+                        className={styles.btnDescargarExcel}
+                        disabled={!puedeEditar}
+                        style={{
+                          padding: "5px 10px",
+                          background: puedeEditar ? "#0EA5E9" : "#CBD5E1",
+                          marginRight: "6px",
+                          cursor: puedeEditar ? "pointer" : "not-allowed",
+                        }}
+                        title={
+                          puedeEditar ? "Editar" : "Sin permiso de modificación"
+                        }
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+
+                      {/* Botón Eliminar deshabilitado visual y lógicamente si !puedeEliminar */}
+                      <button
+                        onClick={() => {
+                          if (!puedeEliminar) return;
+                          handleEliminar(item.id);
+                        }}
+                        className={styles.btnDescargarExcel}
+                        disabled={!puedeEliminar}
+                        style={{
+                          padding: "5px 10px",
+                          background: puedeEliminar ? "#EF4444" : "#CBD5E1",
+                          cursor: puedeEliminar ? "pointer" : "not-allowed",
+                        }}
+                        title={
+                          puedeEliminar
+                            ? "Eliminar"
+                            : "Sin permiso de eliminación"
+                        }
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
                     </td>
                   </tr>
                 ))}

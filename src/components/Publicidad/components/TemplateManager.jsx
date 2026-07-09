@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from "react";
-import TemplateCanvas from "./TemplateCanvas";
-import { apiService } from "../../../services/api";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./TemplateManager.module.css";
+import { apiService } from "../../../services/api";
 import { useNotification } from "../../../contexts/NotificationContext";
+import { usePermisos } from "../../../hooks/usePermission";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faSpinner } from "@fortawesome/free-solid-svg-icons";
+
+import TemplateTable from "./TemplateTable";
+import TemplateCanvas from "./TemplateCanvas";
 
 export default function TemplateManager() {
   const { addNotification } = useNotification();
+  const { puedeCrear, puedeEditar, puedeEliminar } = usePermisos();
+
   const [templates, setTemplates] = useState([]);
   const [currentTemplate, setCurrentTemplate] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
-
-  const fetchTemplates = async () => {
+  const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
       const res = await apiService.obtenerPlantillas();
-      if (res && res.success && Array.isArray(res.resultado)) {
+      if (res?.success && Array.isArray(res.resultado)) {
         setTemplates(res.resultado);
       }
     } catch (err) {
@@ -27,81 +30,74 @@ export default function TemplateManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [fetchTemplates]);
 
   const handleCreateNew = () => {
+    if (!puedeCrear) return;
     setCurrentTemplate({
-      id: `tpl_${Date.now()}`,
-      name: "Nueva Plantilla",
-      width: 300,
-      height: 150,
-      padding: 5,
+      id: `new_${Date.now()}`,
+      name: "Nueva Plantilla Rollo",
+      width: 440,
+      height: 240,
+      padding: 10,
       fields: [],
     });
     setIsEditing(true);
   };
 
-  const handleEdit = (template) => {
-    setCurrentTemplate(JSON.parse(JSON.stringify(template)));
-    setIsEditing(true);
-  };
-
-  const handleDelete = async (id) => {
-    if (
-      window.confirm(
-        "Esta seguro de que desea eliminar de forma permanente esta plantilla de etiquetas?",
-      )
-    ) {
-      try {
-        const res = await apiService.eliminarPlantilla(id);
-        if (res && res.success) {
-          addNotification({
-            type: "success",
-            message: "Plantilla eliminada correctamente.",
-          });
-          fetchTemplates();
-        } else {
-          addNotification({
-            type: "error",
-            message:
-              "No se pudo eliminar la plantilla: " +
-              (res.message || "Error desconocido"),
-          });
-        }
-      } catch (err) {
-        console.error("Error al eliminar plantilla:", err);
-        addNotification({
-          type: "error",
-          message: "Fallo la conexion con el servidor.",
-        });
-      }
-    }
-  };
-
-  const handleSaveTemplate = async (savedTemplate) => {
+  // ==========================================================================
+  // Sincronización con el método correcto unificado de api.js
+  // ==========================================================================
+  const handleSaveCanvas = async (updatedData) => {
     try {
-      const res = await apiService.guardarPlantilla(savedTemplate);
-      if (res && res.success) {
+      // Invocamos directamente el método real de tu API corporativa
+      const res = await apiService.guardarPlantilla(updatedData);
+
+      if (res?.success) {
         addNotification({
           type: "success",
-          message: "Plantilla guardada con exito en la base de datos.",
+          message:
+            "Estructura vectorial guardada correctamente en el servidor.",
         });
         setIsEditing(false);
         setCurrentTemplate(null);
         fetchTemplates();
       } else {
-        addNotification({
-          type: "error",
-          message:
-            "Error al guardar la plantilla: " +
-            (res.message || "Error del servidor"),
-        });
+        throw new Error("Respuesta de servidor inválida o fallida");
       }
     } catch (err) {
-      console.error("Error al guardar:", err);
+      console.error("Fallo interno en guardado:", err);
       addNotification({
         type: "error",
-        message: "No se pudo transmitir la plantilla al servidor.",
+        message: "Inconsistencia al guardar la plantilla en el repositorio.",
+      });
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!puedeEliminar) return;
+    if (
+      !window.confirm("¿Está seguro de eliminar esta plantilla de impresión?")
+    )
+      return;
+
+    try {
+      const res = await apiService.eliminarPlantilla(id);
+      if (res?.success) {
+        addNotification({
+          type: "success",
+          message: "Plantilla removida del sistema corporativo.",
+        });
+        fetchTemplates();
+      }
+    } catch (err) {
+      addNotification({
+        type: "error",
+        message: "Fallo al procesar la remoción de la plantilla.",
       });
     }
   };
@@ -110,90 +106,58 @@ export default function TemplateManager() {
     return (
       <TemplateCanvas
         template={currentTemplate}
-        onSave={handleSaveTemplate}
-        onCancel={() => setIsEditing(false)}
+        onSave={handleSaveCanvas}
+        onCancel={() => {
+          setIsEditing(false);
+          setCurrentTemplate(null);
+        }}
       />
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <div className={styles.managerContainerApple}>
+      <header className={styles.managerHeaderApple}>
         <div className={styles.titleSection}>
-          <h2>Gestor de Plantillas de Marcacion</h2>
+          <h2>Gestión de Plantillas</h2>
           <p className={styles.subtitle}>
-            Administracion y control de estructuras de codigos de barras
-            corporativos
+            Estructure los vectores, áreas métricas y campos dinámicos de las
+            etiquetas.
           </p>
         </div>
-        <button className={styles.btnCreate} onClick={handleCreateNew}>
-          Crear Nueva Plantilla
-        </button>
-      </div>
+        {puedeCrear && (
+          <button
+            type="button"
+            className={styles.appleBtnPrimary}
+            onClick={handleCreateNew}
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            <span>Nueva Plantilla</span>
+          </button>
+        )}
+      </header>
 
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableCardApple}>
         {loading ? (
-          <div className={styles.tableLoading}>
-            <div className={styles.spinner}></div>
-            <span>Sincronizando base de datos corporativa...</span>
+          <div className={styles.spinnerWrapper}>
+            <FontAwesomeIcon
+              icon={faSpinner}
+              spin
+              size="2x"
+              className={styles.appleSpinner}
+            />
           </div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Nombre de la Plantilla</th>
-                <th>Ancho (px)</th>
-                <th>Alto (px)</th>
-                <th>Campos Asignados</th>
-                <th style={{ textAlign: "center" }}>Acciones de Control</th>
-              </tr>
-            </thead>
-            <tbody>
-              {templates.map((tpl) => (
-                <tr key={tpl.id}>
-                  <td className={styles.templateName}>{tpl.name}</td>
-                  <td className={styles.dimText}>{tpl.width} px</td>
-                  <td className={styles.dimText}>{tpl.height} px</td>
-                  <td>
-                    <span className={styles.badgeFields}>
-                      {tpl.fields && Array.isArray(tpl.fields)
-                        ? tpl.fields.length
-                        : 0}{" "}
-                      Activos
-                    </span>
-                  </td>
-                  <td>
-                    <div className={styles.actions}>
-                      <button
-                        className={styles.btnEdit}
-                        onClick={() => handleEdit(tpl)}
-                      >
-                        Editar Config
-                      </button>
-                      <button
-                        className={styles.btnDelete}
-                        onClick={() => handleDelete(tpl.id)}
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {templates.length === 0 && (
-                <tr>
-                  <td colSpan="5" className={styles.emptyRow}>
-                    <div className={styles.emptyStateContainer}>
-                      <p>
-                        No se han parametrizado plantillas de impresion en este
-                        modulo corporativo.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          <TemplateTable
+            templates={templates}
+            onEdit={(tpl) => {
+              setCurrentTemplate(tpl);
+              setIsEditing(true);
+            }}
+            onDelete={handleDelete}
+            puedeEditar={puedeEditar}
+            puedeEliminar={puedeEliminar}
+          />
         )}
       </div>
     </div>

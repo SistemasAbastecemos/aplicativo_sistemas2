@@ -1,54 +1,70 @@
+/* ==========================================================================
+   Estructura Canvas Base Estilo Apple
+   ========================================================================== */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background-color: #f5f5f7;
   font-family:
-    "Inter",
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1d1d1f;
 }
 
-/* Header */
 .header {
-  background: #ffffff;
-  padding: 0.3rem 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 95;
 }
 
 .headerContent {
-  max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .subtitle {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #86868b;
+  margin: 2px 0 0 0;
   font-weight: 400;
 }
 
-/* Controls */
+.mainContent {
+  margin: 0 auto;
+  padding: 0 32px 32px 32px;
+}
+
+/* ==========================================================================
+   Barra de Filtros y Búsqueda Unificada (Spotlight Search)
+   ========================================================================== */
 .controls {
-  margin: 0 auto 1.5rem;
-  padding: 0 1rem;
+  margin: 24px auto;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 16px;
 }
 
 .filters {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
   flex: 1;
 }
 
@@ -57,282 +73,248 @@
   display: flex;
   align-items: center;
   flex: 1;
-  max-width: 400px;
+  max-width: 380px;
 }
 
 .searchIcon {
   position: absolute;
-  left: 1rem;
-  color: #6b7280;
-  font-size: 0.9rem;
+  left: 14px;
+  color: #86868b;
+  font-size: 0.85rem;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: #86868b;
+  font-size: 0.85rem;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .searchInput {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #d1d5db;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid transparent;
   border-radius: 10px;
-  background: #ffffff;
-  font-size: 0.9rem;
+  background-color: #ffffff;
+  font-size: 0.88rem;
+  color: #1d1d1f;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background-color: #ffffff;
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.15);
 }
 
 .refreshButton {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 10px;
-  background: #ffffff;
-  color: #374151;
+  background-color: #ffffff;
+  color: #515154;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
-  min-height: 48px;
 }
 
 .refreshButton:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  transform: translateY(-1px);
+  background-color: #f5f5f7;
+  color: #1d1d1f;
 }
 
 .createButton {
-  padding: 0.75rem 1.5rem;
+  padding: 10px 20px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ec4899, #db2777);
-  color: white;
+  background-color: #03996b; /* Unificado con el color de acento de marca */
+  color: #ffffff;
   font-weight: 600;
+  font-size: 0.88rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
-  white-space: nowrap;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(3, 153, 107, 0.2);
 }
 
 .createButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+  background-color: #028059;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(3, 153, 107, 0.3);
 }
 
-/* Stats */
+/* ==========================================================================
+   Indicadores Analíticos de Control de Nodos
+   ========================================================================== */
 .stats {
-  max-width: 1200px;
-  margin: 0 auto 1.5rem;
-  padding: 0 1rem;
+  margin: 0 auto 24px auto;
+  padding: 0 32px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 }
 
 .statCard {
-  background: #ffffff;
-  padding: 1rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.01);
   text-align: center;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 .statNumber {
   display: block;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin-bottom: 2px;
 }
 
 .statLabel {
-  font-size: 0.8rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  color: #86868b;
   font-weight: 500;
 }
 
-/* Content */
-.content {
-  margin: 0 auto;
-  padding: 0 1rem 2rem;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: #ffffff;
-  border-radius: 16px;
-  border: 2px dashed #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.emptyIcon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.7;
-}
-
-.emptyState h3 {
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-}
-
-.emptyState p {
-  color: #64748b;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
-}
-
-/* Drag hint */
+/* Hint de Arrastre */
 .dragHint {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  font-size: 0.78rem;
-  color: #94a3b8;
-  margin-bottom: 0.75rem;
-  letter-spacing: 0.02em;
-  animation: fadeIn 0.4s ease;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #86868b;
+  margin-bottom: 12px;
+  font-weight: 500;
 }
 
-/* Menus Grid */
+/* ==========================================================================
+   Cuadrícula Asimétrica Bento Box y Tarjetas
+   ========================================================================== */
 .menusGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
 }
 
 .gridDragging {
   cursor: grabbing;
 }
 
-/* Tarjeta base */
 .menuCard {
-  background: #ffffff;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  padding: 1.25rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e2e7;
+  padding: 20px;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: default;
+  gap: 16px;
+  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Estado de Activación en Cascada Unificada */
+.menuCard.nodeActive {
+  border-color: #03996b;
+  box-shadow:
+    0 0 0 1px #03996b,
+    0 4px 16px rgba(3, 153, 107, 0.04);
 }
 
 .statusDot {
   position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  width: 9px;
-  height: 9px;
+  top: 11px;
+  right: 11px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   z-index: 2;
 }
 
 .menuCard.activo .statusDot {
-  background-color: #ec4899; /* El color rosa que usas en este módulo */
-  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15);
+  background-color: #03996b;
+  box-shadow: 0 0 0 3px rgba(3, 153, 107, 0.15);
 }
 
 .menuCard.inactivo .statusDot {
-  background-color: #94a3b8;
+  background-color: #86868b;
 }
 
-/* Estados de Arrastre (DND) Modernos */
+/* Comportamientos Drag and Drop Nativos */
 .cardDragging {
-  opacity: 0.4;
-  transform: scale(0.96);
-  border: 2px dashed #ec4899 !important;
-  background: #fdf2f8 !important;
+  opacity: 0.35;
+  transform: scale(0.97);
+  border: 2px dashed #03996b !important;
+  background-color: #f5f5f7 !important;
 }
 
 .cardDragOver {
-  border-color: #3b82f6 !important;
-  background-color: #eff6ff !important;
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+  border-color: #0071e3 !important;
+  background-color: rgba(0, 113, 227, 0.02) !important;
+  transform: translateY(-2px);
 }
 
 .cardDimmed {
   opacity: 0.6;
-  filter: grayscale(0.4);
+}
+
+.dropIndicator {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #0071e3;
+  border-radius: 4px;
 }
 
 .cardTop {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-/* ── Indicador de inserción (línea superior en el destino) ─────────────── */
-.dropIndicator {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #3b82f6 20%,
-    #60a5fa 80%,
-    transparent
-  );
-  border-radius: 12px 12px 0 0;
-  animation: slideInIndicator 0.18s ease-out forwards;
-  z-index: 10;
-}
-
-/* ── Card Header ───────────────────────────────────────────────────────── */
-.cardHeader {
-  padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  gap: 14px;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
-  background: #fdf2f8;
-  color: #db2777;
-  font-size: 1.1rem;
+  background-color: #f5f5f7;
+  color: #515154;
+  font-size: 1.05rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid #fbcfe8;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-.cardDragOver .avatar {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-}
-
-.menuMain {
-  flex: 1;
-  min-width: 0;
+.menuCard.nodeActive .avatar {
+  background-color: rgba(3, 153, 107, 0.08);
+  color: #03996b;
+  border-color: rgba(3, 153, 107, 0.1);
 }
 
 .menuDetails {
@@ -344,74 +326,73 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.15rem;
+  gap: 8px;
+}
+
+.menuName {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
 }
 
 .orderLabel {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #94a3b8;
-  background: #f1f5f9;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #86868b;
+  background-color: #f5f5f7;
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+.menuPath {
+  font-size: 0.8rem;
+  color: #86868b;
+  margin: 2px 0 0 0;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .metaBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.65rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: #f5f5f7;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #475569;
+  color: #515154;
 }
 
 .metaIcon {
-  color: #cbd5e1;
+  color: #86868b;
+  font-size: 0.75rem;
 }
 
-/* Acciones e Interacción */
 .cardActions {
   margin-top: auto;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  border-top: 1px dashed #e2e8f0;
-  padding-top: 0.85rem;
+  gap: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 12px;
 }
 
 .dragHandle {
-  color: #cbd5e1;
+  color: #86868b;
   cursor: grab;
-  padding: 0.5rem;
-  transition: color 0.2s;
+  padding: 4px;
+  transition: color 0.15s;
 }
 
 .dragHandle:hover {
-  color: #ec4899;
-}
-
-.menuPath {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin: 0;
-  font-family:
-    "JetBrains Mono", "Courier New", monospace; /* Toque técnico para rutas */
-}
-
-/* Metadatos (Jerarquía y Atributos) */
-.cardMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.cardDragOver .menuPath {
-  color: #3b82f6;
+  color: #1d1d1f;
 }
 
 .editActionBtn {
@@ -419,530 +400,416 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  gap: 6px;
+  padding: 8px;
+  background-color: #ffffff;
+  border: 1px solid #d2d2d7;
   border-radius: 8px;
-  color: #334155;
-  font-size: 0.85rem;
-  font-weight: 600;
+  color: #1d1d1f;
+  font-size: 0.82rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .editActionBtn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background-color: #f5f5f7;
+  border-color: #86868b;
 }
 
-/* Card Content */
-.cardContent {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.menuInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.infoRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #f8fafc;
-  border-radius: 6px;
-  border: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
-}
-
-.infoRow:hover {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
-}
-
-.infoIcon {
-  color: #6b7280;
-  font-size: 0.7rem;
-  min-width: 12px;
-  margin-top: 0.1rem;
-}
-
-.infoText {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #374151;
-  line-height: 1.3;
-  flex: 1;
-}
-
-.cardFooter {
-  display: flex;
-  justify-content: center;
-  padding-top: 0.5rem;
-  border-top: 1px solid #f1f5f9;
-}
-
-.statusBadge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.statusBadge.active {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.statusBadge.inactive {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-/* ── Drag Handle ────────────────────────────────────────────────────────── */
-.dragHandle {
-  cursor: grab;
-  color: #cbd5e1;
-  padding-right: 4px;
-  display: flex;
-  align-items: center;
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.dragHandle:hover {
-  color: #64748b;
-  transform: scaleY(1.2);
-}
-
-.dragHandle:active {
-  cursor: grabbing;
-  color: #3b82f6;
-}
-
-/* ── Pagination ─────────────────────────────────────────────────────────── */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.paginationButton {
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #ffffff;
-  color: #374151;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.paginationButton:hover:not(:disabled) {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  transform: translateY(-1px);
-}
-
-.paginationButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.paginationInfo {
-  font-size: 0.85rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-/* ========================= */
-/* FORM STYLES               */
-/* ========================= */
-
-.formGroup {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.formGroup:last-child {
-  margin-bottom: 0;
-}
-
-.formLabel {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.formGroup.floating {
-  margin-top: 1rem;
-}
-
-.formGroup.floating .formLabel {
-  position: absolute;
-  top: -0.75rem;
-  left: 0.75rem;
-  background: white;
-  padding: 0 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  z-index: 2;
-  margin: 0;
-  transition: all 0.2s ease;
-}
-
-.formInput,
-.formSelect {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  background: #ffffff;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  font-family: inherit;
-  position: relative;
-}
-
-.formInput:focus,
-.formSelect:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.formInput:disabled,
-.formSelect:disabled {
-  background: #f8fafc;
-  color: #6b7280;
-  cursor: not-allowed;
-}
-
-.formGroup.floating .formInput:focus + .formLabel,
-.formGroup.floating .formSelect:focus + .formLabel {
-  color: #3b82f6;
-  transform: translateY(-1px);
-}
-
-.inputError {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-}
-
-/* ========================= */
-/* MODAL STYLES              */
-/* ========================= */
-
+/* ==========================================================================
+   Modales e Interfaces Flotantes de Configuración
+   ========================================================================== */
 .modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.8);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  backdrop-filter: blur(8px);
+  z-index: 2000;
+  padding: 24px;
 }
 
 .modalContent {
-  background: #ffffff;
+  background-color: #ffffff;
   border-radius: 16px;
   width: 100%;
-  max-width: 1000px;
-  max-height: 90vh;
-  overflow: auto;
-  animation: modalSlideIn 0.3s ease;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 920px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: appleSheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes appleSheetUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .modalHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1d1d1f;
   margin: 0;
-  background: linear-gradient(135deg, #1e293b, #374151);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .modalClose {
-  padding: 0.5rem;
   border: none;
-  background: #e5e6e7;
-  color: #6b7280;
-  border-radius: 8px;
+  background-color: #f5f5f7;
+  color: #86868b;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.15s;
 }
 
 .modalClose:hover {
-  background: #ef4444;
+  background-color: #ff3b30;
   color: white;
 }
 
 .tabContainer {
   display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 2rem;
-  margin-top: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0 24px;
+  background-color: #f5f5f7;
 }
 
 .tab {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem;
+  gap: 8px;
+  padding: 12px 16px;
   background: none;
   border: none;
-  color: #64748b;
+  color: #515154;
   font-weight: 500;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-bottom: 3px solid transparent;
+  border-bottom: 2px solid transparent;
 }
 
 .tab:hover {
-  color: #374151;
-  background: #f8fafc;
+  color: #1d1d1f;
 }
 
 .activeTab {
-  color: #ec4899;
-  border-bottom-color: #ec4899;
-  background: #fdf2f8;
+  color: #03996b;
+  border-bottom-color: #03996b;
+  font-weight: 600;
 }
 
 .modalBody {
-  padding: 1rem 2rem;
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .formColumns {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 24px;
 }
 
 .formColumn {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
-.permisosContainer {
+.formGroup {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
 }
 
-.filtroArea {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8fafc;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+/* ==========================================================================
+   Efecto Avanzado de Floating Labels (Estilo Adaptativo Pure CSS)
+   ========================================================================== */
+.formGroup.floating {
+  position: relative;
+  margin-top: 16px; /* Espacio superior preventivo para evitar traslapes */
 }
 
-.filtroArea h4 {
-  margin: 0;
-  font-size: 0.95rem;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* 1. LABEL SIEMPRE VISIBLE Y FLOTANDO en el borde superior */
+.formGroup.floating label {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #86868b; /* gris Apple; pasa a acento al enfocar */
+  background-color: #ffffff; /* tapa el borde del input */
+  padding: 0 4px;
+  z-index: 11;
+  pointer-events: none;
+  transition: color 0.2s ease;
 }
 
-.areaSelector {
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
+/* 2. Acento del label unicamente cuando el campo tiene foco */
+.formGroup.floating input:focus ~ label,
+.formGroup.floating select:focus ~ label {
+  color: #03996b;
+}
+
+/* El placeholder nativo se muestra normalmente (el label vive siempre arriba). */
+.formInput::placeholder {
+  color: #86868b;
+  opacity: 1;
+}
+
+/* Ajustes de encapsulamiento estructural para cajas de texto y selectores */
+.formInput,
+.formSelect {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d2d2d7;
   border-radius: 8px;
-  background: #ffffff;
-  font-size: 0.9rem;
+  background-color: #ffffff;
+  font-size: 0.88rem;
+  color: #1d1d1f;
+  box-sizing: border-box;
+  font-family: inherit;
+  position: relative;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  outline: none;
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.1);
+}
+
+.inputError {
+  border-color: #ff3b30 !important;
+}
+
+/* ==========================================================================
+   Matriz Semántica de Directivas de Permisos
+   ========================================================================== */
+.politicasAccesoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tipoPermisoNavbar {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.subTabBtn {
+  padding: 8px 14px;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #86868b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.subTabBtn:hover {
+  color: #1d1d1f;
+}
+
+.subTabActive {
+  color: #0071e3;
+  border-bottom-color: #0071e3;
+  font-weight: 600;
+}
+
+.seccionPermisosDinamica {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filtroAreaRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f5f5f7; /* Gris claro de Apple */
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.filtroAreaRow label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #515154;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap; /* Evita que el texto del label se rompa en pantallas medianas */
+}
+
+.filtroAreaRow select {
+  flex: 1; /* Permite al select ocupar todo el espacio restante en escritorio */
+  padding: 8px 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 0.84rem;
+  color: #1d1d1f;
+  font-family: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.areaSelector:focus {
+.filtroAreaRow select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.15);
 }
 
-.permisosSection {
+.headerLine {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.permisosSection h4 {
-  margin: 0;
-  font-size: 1rem;
-  color: #1e293b;
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
 }
 
+.headerLine h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btnToggleAll {
+  background: none;
+  border: none;
+  color: #0071e3;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btnToggleAll:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Contenedor de la Tabla de Permisos Estilo Apple
+   ========================================================================== */
 .permisosTableContainer {
-  overflow-x: auto;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid #e2e2e7;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
 }
 
 .permisosTable {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  font-size: 0.84rem;
 }
 
 .permisosTable th {
-  background: #f1f5f9;
-  padding: 0.75rem 1rem;
-  font-size: 0.8rem;
+  background-color: #f5f5f7;
+  padding: 12px 10px;
   font-weight: 600;
-  color: #374151;
-  text-align: center;
-  border-bottom: 1px solid #e2e8f0;
+  color: #515154;
+  border-bottom: 1px solid #e2e2e7;
 }
 
 .permisosTable td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e2e2e7;
   text-align: center;
 }
 
-.permisosTable tr:hover {
-  background: #f9fafb;
+.permisoNombre,
+.permisoArea {
+  text-align: left !important;
 }
 
 .permisoNombre {
-  text-align: left !important;
   font-weight: 500;
-  color: #374151;
+  color: #1d1d1f;
 }
 
 .permisoArea {
-  text-align: left !important;
-  font-size: 0.8rem;
-  color: #64748b;
-}
-
-.permisoCheckbox {
-  text-align: center;
+  color: #86868b;
+  font-size: 0.78rem;
 }
 
 .permisoInput {
+  accent-color: #03996b;
+  cursor: pointer;
   width: 18px;
   height: 18px;
-  cursor: pointer;
-}
-
-.emptyPermisos {
-  text-align: center;
-  padding: 2rem;
-  color: #64748b;
-  font-style: italic;
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px dashed #e2e8f0;
 }
 
 .modalActions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  padding: 1rem 2rem;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #f5f5f7;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .cancelButton {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  padding: 10px 16px;
+  border: 1px solid #d2d2d7;
   border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
-  font-weight: 600;
+  background-color: #ffffff;
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .cancelButton:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background-color: #f5f5f7;
 }
 
 .saveButton {
-  padding: 0.75rem 1.5rem;
+  padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #ec4899, #db2777);
-  color: white;
+  background-color: #03996b;
+  color: #ffffff;
   font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 4px 12px rgba(3, 153, 107, 0.15);
 }
 
 .saveButton:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+  background-color: #028059;
 }
 
 .saveButton.disabled {
-  background: #9ca3af;
+  background-color: #d2d2d7;
+  color: #86868b;
   cursor: not-allowed;
-  transform: none;
   box-shadow: none;
 }
 
@@ -952,264 +819,17 @@
   align-items: center;
   justify-content: center;
   min-height: 50vh;
-  text-align: center;
-  padding: 2rem;
+  color: #ff3b30;
 }
 
-.errorPermisos h2 {
-  color: #ef4444;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-}
-
-.errorPermisos p {
-  color: #64748b;
-  font-size: 1rem;
-}
-
-/* ESTILOS PARA LA SECCION DE POLITICAS DE ACCESO */
-.politicasAccesoContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-}
-
-.tipoPermisoNavbar {
-  display: flex;
-  gap: 0.5rem;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 2px;
-}
-
-.subTabBtn {
-  padding: 0.6rem 1.2rem;
-  border: none;
-  background: none;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #64748b;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: all 0.2s ease;
-}
-
-.subTabBtn:hover {
-  color: #1e293b;
-  background-color: #f1f5f9;
-  border-radius: 4px 4px 0 0;
-}
-
-.subTabActive {
-  color: #3b82f6;
-  border-bottom: 2px solid #3b82f6;
-}
-
-.seccionPermisosDinamica {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.filtroAreaRow {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: #f8fafc;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.filtroAreaRow label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #475569;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.filtroAreaRow select {
-  padding: 0.4rem 0.8rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  background-color: #ffffff;
-  color: #1e293b;
-  font-size: 0.85rem;
-  min-width: 240px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.filtroAreaRow select:focus {
-  border-color: #3b82f6;
-}
-
-.headerLine {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.headerLine h4 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.btnToggleAll {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
-}
-
-.btnToggleAll:hover {
-  text-decoration: underline;
-  color: #1d4ed8;
-}
-
-.checkboxGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.75rem;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-/* Scrollbar personalizado para la rejilla de checkboxes */
-.checkboxGrid::-webkit-scrollbar {
-  width: 6px;
-}
-
-.checkboxGrid::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.checkboxGrid::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.checkboxGrid::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-.checkboxItem {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.75rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  color: #334155;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.checkboxItem:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #0f172a;
-}
-
-.checkboxItem input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-  accent-color: #3b82f6;
-}
-
-/* ========================= */
-/* KEYFRAME ANIMATIONS       */
-/* ========================= */
-
-/* Aparición suave del hint de drag */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Slide del modal */
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Pulso del destino de drop */
-@keyframes pulseTarget {
-  0% {
-    box-shadow:
-      0 0 0 2px #3b82f6,
-      0 12px 32px rgba(59, 130, 246, 0.25);
-  }
-  50% {
-    box-shadow:
-      0 0 0 4px #60a5fa,
-      0 16px 40px rgba(59, 130, 246, 0.35);
-  }
-  100% {
-    box-shadow:
-      0 0 0 2px #3b82f6,
-      0 12px 32px rgba(59, 130, 246, 0.25);
-  }
-}
-
-/* Línea indicadora de inserción */
-@keyframes slideInIndicator {
-  from {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-}
-
-/* ========================= */
-/* RESPONSIVE                */
-/* ========================= */
-
+/* ==========================================================================
+   Responsividad Móvil Sincronizada
+   ========================================================================== */
 @media (max-width: 768px) {
-  .container {
-    padding: 0.5rem;
-  }
-
   .controls {
     flex-direction: column;
     align-items: stretch;
+    padding: 0 16px;
   }
 
   .filters {
@@ -1220,109 +840,157 @@
     max-width: none;
   }
 
+  .mainContent,
+  .stats {
+    padding: 0 16px;
+  }
+
   .formColumns {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .menusGrid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .modalContent {
-    margin: 0.5rem;
-    max-width: 95%;
-  }
-
-  .modalBody {
-    padding: 1.5rem;
   }
 
   .tabContainer {
-    padding: 0 1rem;
     flex-direction: column;
+    padding: 0;
   }
 
   .tab {
     justify-content: center;
+    border-bottom: none;
+    border-left: 3px solid transparent;
   }
 
-  .permisosTableContainer {
+  .activeTab {
+    border-left-color: #03996b;
+    background-color: rgba(3, 153, 107, 0.04);
+  }
+
+  .filtroAreaRow {
+    flex-direction: column; /* Apila el label y el select verticalmente */
+    align-items: stretch; /* Fuerza a que ambos elementos ocupen todo el ancho */
+    gap: 8px;
+    padding: 14px; /* Más espacio interno para mejorar la legibilidad */
+  }
+
+  .filtroAreaRow label {
+    white-space: normal; /* Permite que el texto se ajuste si el dispositivo es muy pequeño */
+    font-size: 0.85rem; /* Ajuste sutil de tamaño para mejorar lectura */
+  }
+
+  .filtroAreaRow select {
+    width: 100%; /* Estira el select a todo el ancho de la tarjeta */
+    padding: 12px; /* Área de toque (Touch Target) expandida para el dedo */
+    font-size: 0.88rem; /* Previene el zoom automático errático en navegadores iOS Safari */
+    height: 44px; /* Altura mínima recomendada por Apple para elementos interactivos */
+  }
+
+  /* Removemos el comportamiento rígido de la tabla */
+  .permisosTable,
+  .permisosTable thead,
+  .permisosTable tbody,
+  .permisosTable th,
+  .permisosTable tr,
+  .permisosTable td {
+    display: block;
+  }
+
+  /* Ocultamos los encabezados de la tabla tradicionales */
+  .permisosTable thead {
+    display: none;
+  }
+
+  .permisosTable tbody tr {
+    background-color: #ffffff;
+    border: 1px solid #e2e2e7;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  }
+
+  .permisosTable tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  /* El nombre del rol/cargo ahora actúa como cabecera de la tarjeta */
+  .permisoNombre {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    border-bottom: 1px solid #f5f5f7;
+    padding-bottom: 8px !important;
+    margin-bottom: 10px;
+  }
+
+  /* Ajuste para el texto del área si aplica */
+  .permisoArea {
+    display: block;
+    margin-top: -6px;
+    margin-bottom: 10px;
     font-size: 0.8rem;
   }
 
-  .filtroArea {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .modalActions {
-    flex-direction: column;
-  }
-
-  .cancelButton,
-  .saveButton {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .menusGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .headerContent {
+  /* Transformamos los campos de checkbox en filas de opción anchas (Touch Targets) */
+  .permisosTable td:not(.permisoNombre):not(.permisoArea) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 !important;
+    border-bottom: 1px solid #f5f5f7;
     text-align: left;
   }
 
-  .title {
-    font-size: 1.5rem;
+  .permisosTable td:last-child {
+    border-bottom: none;
   }
 
-  .statCard {
-    padding: 0.75rem 0.5rem;
+  /* Inyectamos los títulos de las columnas de forma semántica usando CSS puro */
+  .permisosTable td:nth-child(2):not(.permisoArea)::before {
+    content: "Ver Módulo";
+    font-weight: 500;
+    color: #515154;
+  }
+  .permisosTable td:nth-child(3):not(.permisoArea)::before {
+    content: "Permiso Crear";
+    font-weight: 500;
+    color: #515154;
+  }
+  .permisosTable td:nth-child(4):not(.permisoArea)::before {
+    content: "Permiso Editar";
+    font-weight: 500;
+    color: #515154;
+  }
+  .permisosTable td:nth-child(5):not(.permisoArea)::before {
+    content: "Permiso Eliminar";
+    font-weight: 500;
+    color: #515154;
   }
 
-  .statNumber {
-    font-size: 1.25rem;
+  /* En caso de que se muestre la columna Área (Cargos), ajustamos los selectores hermanos */
+  .permisosTable td:nth-child(3).permisoCheckbox::before {
+    content: "Ver Módulo";
+    font-weight: 500;
+    color: #515154;
+  }
+  .permisosTable td:nth-child(4).permisoCheckbox::before {
+    content: "Permiso Crear";
+    font-weight: 500;
+    color: #515154;
+  }
+  .permisosTable td:nth-child(5).permisoCheckbox::before {
+    content: "Permiso Editar";
+    font-weight: 500;
+    color: #515154;
+  }
+  .permisosTable td:nth-child(6).permisoCheckbox::before {
+    content: "Permiso Eliminar";
+    font-weight: 500;
+    color: #515154;
   }
 
-  .modalHeader {
-    padding: 1rem 1.5rem;
-  }
-
-  .modalBody {
-    padding: 1rem;
-  }
-
-  .permisosTable {
-    font-size: 0.75rem;
-  }
-
-  .permisosTable th,
-  .permisosTable td {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .formGroup.floating {
-    margin-top: 0.75rem;
-  }
-
-  .formGroup.floating .formLabel {
-    font-size: 0.75rem;
-    top: -0.6rem;
-  }
-
-  .formInput,
-  .formSelect {
-    padding: 0.75rem 0.875rem;
-    font-size: 0.85rem;
+  .permisoInput {
+    width: 22px; /* Target óptimo para interacción táctil en iOS */
+    height: 22px;
+    margin: 0;
   }
 }

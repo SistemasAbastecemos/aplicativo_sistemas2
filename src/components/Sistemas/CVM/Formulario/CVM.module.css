@@ -1,0 +1,966 @@
+/* ==========================================================================
+   Estructura Base — Estilo Apple / #f5f5f7 / #03996b
+   ========================================================================== */
+.container {
+  min-height: 100vh;
+  background-color: #f5f5f7;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1d1d1f;
+  padding-bottom: 100px; /* Espacio para el action bar sticky */
+}
+
+/* ==========================================================================
+   Header con info del usuario
+   ========================================================================== */
+.header {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 95;
+}
+
+.headerContent {
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.headerMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.userDetail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #515154;
+  font-weight: 500;
+}
+
+.userDetail svg {
+  color: #03996b;
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   Main content
+   ========================================================================== */
+.mainContent {
+  margin: 0 auto;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Section header (título entre secciones) */
+.sectionHeader {
+  margin-bottom: 12px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Form Card (Supervisor)
+   ========================================================================== */
+.formSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.formCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+
+.cardHeaderPanel {
+  padding: 14px 20px;
+  background-color: #f9f9fb;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cardHeaderPanel h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.cardIcon {
+  color: #03996b;
+  font-size: 1rem;
+}
+
+.cardContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ==========================================================================
+   Form Groups con Floating Labels
+   ========================================================================== */
+.formGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup.floating .formSelect,
+.formGroup.floating .formTextarea,
+.formGroup.floating .formInput {
+  padding: 14px 14px 8px 14px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  background-color: #ffffff;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  width: 100%;
+}
+
+.formGroup.floating .formTextarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.formGroup.floating .formSelect {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M6%208.5L1.5%204h9z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 32px !important;
+}
+
+.formGroup.floating .formSelect:focus,
+.formGroup.floating .formTextarea:focus,
+.formGroup.floating .formInput:focus {
+  outline: none;
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.15);
+}
+
+.formGroup.floating .formLabel {
+  position: absolute;
+  top: -9px;
+  left: 12px;
+  background-color: #ffffff;
+  padding: 0 6px;
+  font-size: 0.72rem;
+  color: #515154;
+  font-weight: 500;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.formGroup.floating .formLabel svg {
+  color: #03996b;
+  font-size: 0.72rem;
+}
+
+/* ==========================================================================
+   Grilla de Cajas
+   ========================================================================== */
+.cajasSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.cajasContainer {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 16px 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.cajasGrid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 12px 12px 12px;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 12px;
+  -webkit-overflow-scrolling: touch;
+
+  /* Scrollbar minimalista estilo macOS */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.cajasGrid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.cajasGrid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cajasGrid::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.cajasGrid::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Fade en los bordes para indicar contenido scrolleable */
+.cajasContainer::before,
+.cajasContainer::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  width: 24px;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.cajasContainer::before {
+  left: 8px;
+  background: linear-gradient(to right, #ffffff, transparent);
+}
+
+.cajasContainer::after {
+  right: 8px;
+  background: linear-gradient(to left, #ffffff, transparent);
+}
+
+.cajaCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e2e7;
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+
+  /* Ancho fijo para carrusel + snap */
+  flex: 0 0 160px;
+  scroll-snap-align: start;
+}
+
+.cajaCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border-color: rgba(3, 153, 107, 0.3);
+}
+
+.cajaSeleccionada {
+  border-color: #03996b;
+  background-color: rgba(3, 153, 107, 0.03);
+  box-shadow:
+    0 0 0 1px #03996b,
+    0 4px 14px rgba(3, 153, 107, 0.1);
+}
+
+.cajaTodas {
+  border-color: rgba(255, 149, 0, 0.3);
+  background-color: rgba(255, 149, 0, 0.02);
+}
+
+.cajaTodas.cajaSeleccionada {
+  border-color: #ff9500;
+  box-shadow:
+    0 0 0 1px #ff9500,
+    0 4px 14px rgba(255, 149, 0, 0.15);
+}
+
+.cajaIcon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: #f5f5f7;
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+.cajaIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cajaInfo h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.cajaInfo p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #86868b;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   Sección del Equipo
+   ========================================================================== */
+.equipoSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.equipoCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+
+.equipoHeader {
+  padding: 16px 20px;
+  background-color: #f9f9fb;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.equipoIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.equipoIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.equipoTitle h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.equipoDetails {
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #1d1d1f;
+  padding: 8px 12px;
+  background-color: #f9f9fb;
+  border-radius: 10px;
+}
+
+.detailItem svg {
+  color: #03996b;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.detailItem strong {
+  color: #515154;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+/* Info cards (todas sin novedad / sin equipo) */
+.infoCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+}
+
+.infoIcon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.infoCardSuccess .infoIcon {
+  background-color: rgba(3, 153, 107, 0.1);
+  color: #03996b;
+}
+
+.infoCardWarning .infoIcon {
+  background-color: rgba(255, 149, 0, 0.1);
+  color: #ff9500;
+}
+
+.infoContent h3 {
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.infoContent p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #515154;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Verificaciones
+   ========================================================================== */
+.verificacionesSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.verificacionesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.verificacionCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.verificacionHeader {
+  padding: 14px 16px;
+  background-color: #f9f9fb;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.verificacionIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  padding: 4px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verificacionIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.verificacionInfo h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.verificacionInfo p {
+  margin: 2px 0 0 0;
+  font-size: 0.72rem;
+  color: #86868b;
+  line-height: 1.3;
+}
+
+.verificacionContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+/* Foto */
+.fotoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fotoButton {
+  padding: 32px 20px;
+  border: 2px dashed #d2d2d7;
+  border-radius: 12px;
+  background-color: #f9f9fb;
+  color: #515154;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.fotoButton:hover {
+  background-color: #f5f5f7;
+  border-color: #03996b;
+  color: #03996b;
+}
+
+.fotoButton svg {
+  font-size: 1.5rem;
+}
+
+.fotoPreview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #f5f5f7;
+}
+
+.fotoPreview img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.fotoRetake {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fotoRetake:hover {
+  background-color: #ffffff;
+  transform: scale(1.05);
+}
+
+.estadoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   Action Bar sticky al fondo
+   ========================================================================== */
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+  z-index: 90;
+  padding: 14px 32px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+
+.actionSummary {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.summaryText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryText strong {
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.summaryText span {
+  font-size: 0.78rem;
+  color: #86868b;
+}
+
+.submitBtn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background-color: #03996b;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(3, 153, 107, 0.2);
+  white-space: nowrap;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #028059;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(3, 153, 107, 0.3);
+}
+
+.submitBtn:disabled {
+  background-color: #d2d2d7;
+  color: #86868b;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spinRotation 0.8s linear infinite;
+}
+
+@keyframes spinRotation {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================================
+   Responsive — Tablet (≤ 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .headerContent,
+  .mainContent,
+  .actionBar {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .verificacionesGrid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .cajasGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Responsive — Móvil (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .container {
+    padding-bottom: 120px;
+  }
+
+  /* ---------- Header ---------- */
+  .header {
+    padding: 12px 0;
+  }
+
+  .headerContent {
+    padding: 0 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .title {
+    font-size: 1.15rem;
+  }
+
+  .userSection {
+    width: 100%;
+  }
+
+  .userInfo {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .userDetail {
+    font-size: 0.75rem;
+  }
+
+  /* ---------- Main content ---------- */
+  .mainContent {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1rem;
+  }
+
+  /* ---------- Supervisor form ---------- */
+  .cardContent {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* ---------- Cajas grid (carrusel horizontal) ---------- */
+  .cajasContainer {
+    padding: 12px 4px;
+  }
+
+  .cajasGrid {
+    gap: 10px;
+    padding: 4px 12px 8px 12px;
+  }
+
+  .cajaCard {
+    flex: 0 0 140px;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .cajaIcon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .cajaInfo h4 {
+    font-size: 0.82rem;
+  }
+
+  .cajaInfo p {
+    font-size: 0.68rem;
+  }
+
+  /* ---------- Equipo ---------- */
+  .equipoHeader {
+    padding: 12px 14px;
+  }
+
+  .equipoDetails {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .detailItem {
+    font-size: 0.82rem;
+    padding: 8px 10px;
+  }
+
+  .infoCard {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* ---------- Verificaciones ---------- */
+  .verificacionesGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .verificacionHeader {
+    padding: 12px 14px;
+  }
+
+  .verificacionContent {
+    padding: 14px;
+  }
+
+  .fotoButton {
+    padding: 24px 16px;
+    font-size: 0.85rem;
+  }
+
+  .fotoButton svg {
+    font-size: 1.3rem;
+  }
+
+  .fotoPreview img {
+    height: 200px; /* Un poco más alto en móvil para verificar detalles */
+  }
+
+  .fotoRetake {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* ---------- Action bar ---------- */
+  .actionBar {
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .actionSummary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .summaryText {
+    text-align: center;
+  }
+
+  .summaryText strong {
+    font-size: 0.85rem;
+  }
+
+  .submitBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+  }
+
+  /* Evitar zoom automático de iOS en inputs */
+  .formSelect,
+  .formTextarea,
+  .formInput {
+    font-size: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive — Móvil pequeño (≤ 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .headerContent,
+  .mainContent,
+  .actionBar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .title {
+    font-size: 1.05rem;
+  }
+
+  .userInfo {
+    gap: 8px;
+  }
+
+  .userDetail {
+    font-size: 0.72rem;
+  }
+
+  .cajasGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cajaCard {
+    flex: 0 0 130px;
+    padding: 10px;
+  }
+
+  .cajaIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cajaInfo {
+    flex: 1;
+  }
+
+  .fotoPreview img {
+    height: 180px;
+  }
+}

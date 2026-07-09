@@ -43,8 +43,8 @@ import PrefijosDian from "./components/Contabilidad/Prefijos Dian/PrefijosDian";
 
 // SISTEMAS //
 import ActualizarInventario from "./components/AdminPanel/Inventario/ActualizarInventario";
-import VisualizaReportesCVM from "./components/Sistemas/CVM/Reportes";
-import CVM from "./components/Sistemas/CVM/CVM";
+import VisualizaReportesCVM from "./components/Sistemas/CVM/Reportes/Reportes";
+import CVM from "./components/Sistemas/CVM/Formulario/CVM";
 import Logs from "./components/Sistemas/Logs/Logs";
 
 // SEGURIDAD //
@@ -71,7 +71,7 @@ function AppContent() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <LoadingScreen message="Verificando sesión..." />;
+    return <LoadingScreen />;
   }
 
   return (

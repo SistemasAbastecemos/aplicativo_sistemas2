@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      setLoading(true);
+      // setLoading(true);
       setError("");
       const response = await apiService.login(credentials);
 
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithMicrosoft = async (code, redirectUri) => {
     try {
-      setLoading(true);
+      // setLoading(true);
       setError("");
       const response = await apiService.loginMicrosoft(code, redirectUri);
 

@@ -12,25 +12,21 @@ function SelectorProveedor({ onSelect, disabled, valueInicial = "" }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (valueInicial) {
-      setQuery(valueInicial);
-    }
+    if (valueInicial) setQuery(valueInicial);
   }, [valueInicial]);
 
   useEffect(() => {
-    if (query.trim().length < 3) {
+    const cleanQuery = query.trim();
+    if (cleanQuery.length < 3) {
       setOptions([]);
       return;
     }
-
-    if (valueInicial && query === valueInicial) {
-      return;
-    }
+    if (valueInicial && query === valueInicial) return;
 
     const delayDebounce = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await apiService.buscarProveedoresSiesa(query);
+        const data = await apiService.buscarProveedoresSiesa(cleanQuery);
         setOptions(data || []);
         setShowDropdown(true);
       } catch (err) {
@@ -53,26 +49,21 @@ function SelectorProveedor({ onSelect, disabled, valueInicial = "" }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleInputChange = (e) => {
-    const val = e.target.value;
-    setQuery(val);
-    onSelect(null);
-  };
-
   return (
     <div className={styles.autocompleteContainer} ref={containerRef}>
-      <div className={styles.floatingField}>
+      <div className={`${styles.formGroup} ${styles.floating}`}>
         <input
           type="text"
-          className={styles.modalInput}
-          placeholder="Escriba NIT o Nombre comercial..."
+          className={styles.formInput}
+          placeholder=" "
           value={query}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            onSelect(null);
+          }}
           disabled={disabled}
         />
-        <label className={styles.floatingLabel}>
-          Buscar Proveedor Central (Siesa)
-        </label>
+        <label>Buscar Proveedor Central (Siesa)</label>
         {loading && (
           <FontAwesomeIcon
             icon={faSpinner}
@@ -89,12 +80,12 @@ function SelectorProveedor({ onSelect, disabled, valueInicial = "" }) {
               key={`${prov.nit}-${index}`}
               onClick={() => {
                 onSelect(prov);
-                setQuery(`${prov.nit} - ${prov.razon_social}`);
+                setQuery(`${prov.nit} - ${prov.razon_social.trim()}`);
                 setShowDropdown(false);
               }}
             >
               <FontAwesomeIcon icon={faBuilding} /> <strong>{prov.nit}</strong>{" "}
-              - {prov.razon_social}
+              - {prov.razon_social.trim()}
             </li>
           ))}
         </ul>

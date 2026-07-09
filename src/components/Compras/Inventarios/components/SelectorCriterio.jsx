@@ -12,7 +12,8 @@ function SelectorCriterio({ onSelect, disabled }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
+    const cleanQuery = query.trim();
+    if (cleanQuery.length < 2) {
       setOptions([]);
       return;
     }
@@ -20,7 +21,7 @@ function SelectorCriterio({ onSelect, disabled }) {
     const delayDebounce = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await apiService.buscarCriterios1(query);
+        const data = await apiService.buscarCriterios1(cleanQuery);
         setOptions(data || []);
         setShowDropdown(true);
       } catch (err) {
@@ -45,18 +46,16 @@ function SelectorCriterio({ onSelect, disabled }) {
 
   return (
     <div className={styles.autocompleteContainer} ref={containerRef}>
-      <div className={styles.floatingField}>
+      <div className={`${styles.formGroup} ${styles.floating}`}>
         <input
           type="text"
-          className={styles.modalInput}
-          placeholder="Escriba el codigo o descripcion del criterio..."
+          className={styles.formInput}
+          placeholder=" "
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           disabled={disabled}
         />
-        <label className={styles.floatingLabel}>
-          Buscar e Incluir Criterio 1
-        </label>
+        <label>Buscar e Incluir Criterio 1</label>
         {loading && (
           <FontAwesomeIcon
             icon={faSpinner}
@@ -72,13 +71,13 @@ function SelectorCriterio({ onSelect, disabled }) {
             <li
               key={`${crit.codigo}-${index}`}
               onClick={() => {
-                onSelect(crit.codigo);
+                onSelect(crit.codigo.trim());
                 setQuery("");
                 setShowDropdown(false);
               }}
             >
-              <FontAwesomeIcon icon={faTags} /> <strong>{crit.codigo}</strong> -{" "}
-              {crit.descripcion}
+              <FontAwesomeIcon icon={faTags} />{" "}
+              <strong>{crit.codigo.trim()}</strong> - {crit.descripcion.trim()}
             </li>
           ))}
         </ul>

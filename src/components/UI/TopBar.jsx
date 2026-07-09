@@ -35,7 +35,6 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
     };
   }, []);
 
-  // Cerrar menú al hacer click fuera de él
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -50,7 +49,6 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
 
     if (showUserMenu) {
       document.addEventListener("mousedown", handleClickOutside);
-      // Prevenir scroll del body cuando el menú está abierto en móvil
       if (isMobile) {
         document.body.style.overflow = "hidden";
       }
@@ -79,27 +77,26 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
     navigate("/perfil");
   };
 
-  const handleUserMenuToggle = () => {
-    setShowUserMenu(!showUserMenu);
-  };
-
-  const closeMenu = () => {
-    setShowUserMenu(false);
-  };
-
   return (
     <>
       <header className={styles.topBar}>
-        {/* Seccion izquierda */}
+        {/* Sección Izquierda */}
         <div className={styles.leftSection}>
-          {/* Botón collapse desktop */}
-          <button className={styles.collapseBtn} onClick={onToggleSidebar}>
+          <button
+            className={styles.collapseBtn}
+            onClick={onToggleSidebar}
+            aria-label="Expandir/colapsar menú"
+          >
             <FontAwesomeIcon icon={collapsed ? faAnglesRight : faAnglesLeft} />
           </button>
-          {/* logo */}
+
           <div className={styles.logoSection}>
             <div className={styles.logo}>
-              <img src={logo} alt="Logo" className={styles.logoImg} />
+              <img
+                src={logo}
+                alt="Identidad Corporativa"
+                className={styles.logoImg}
+              />
             </div>
             <div className={styles.companyInfo}>
               <h1 className={styles.companyName}>{empresaNombre}</h1>
@@ -113,14 +110,14 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
           </div>
         </div>
 
-        {/* Seccion derecha */}
+        {/* Sección Derecha */}
         <div className={styles.rightSection}>
-          {/* Empresa Toggle - Deshabilitado */}
-          <div className={`${styles.toggleContainer} ${styles.disabled}`}>
+          <div
+            className={`${styles.toggleContainer} ${styles.disabled}`}
+            title="Control mutable deshabilitado"
+          >
             <div
-              className={`${styles.toggleSwitch} ${
-                empresa === "tobar" ? styles.toggleActive : ""
-              }`}
+              className={`${styles.toggleSwitch} ${empresa === "tobar" ? styles.toggleActive : ""}`}
             >
               <span className={styles.toggleText}>
                 {empresa === "abastecemos" ? "A" : "T"}
@@ -129,11 +126,10 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
             <span className={styles.toggleLabel}>Empresa</span>
           </div>
 
-          {/* Perfil del usuario */}
           <div
             ref={userProfileRef}
             className={styles.userProfile}
-            onClick={handleUserMenuToggle}
+            onClick={() => setShowUserMenu(!showUserMenu)}
           >
             <div className={styles.avatar}>
               <FontAwesomeIcon
@@ -141,9 +137,8 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
                 className={styles.avatarIcon}
               />
             </div>
-
             <div className={styles.userInfo}>
-              <span className={styles.userName}>
+              <span className={styles.userProfileName}>
                 {user?.nombres_completos || user?.login || "Usuario"}
               </span>
               <span className={styles.userRole}>
@@ -152,16 +147,19 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
             </div>
           </div>
 
-          {/* Boton de cerrar sesion (mobile) */}
           {isMobile && (
-            <button className={styles.logoutButton} onClick={onLogout}>
+            <button
+              className={styles.logoutButton}
+              onClick={onLogout}
+              aria-label="Cerrar sesión"
+            >
               <FontAwesomeIcon icon={faSignOutAlt} />
             </button>
           )}
         </div>
       </header>
 
-      {/* Menu usuario desplegable - Versión móvil */}
+      {/* Vista Desplegable Móvil (Malla de Fondo Translúcida) */}
       {showUserMenu && isMobile && (
         <div className={styles.mobileMenuOverlay}>
           <div ref={userMenuRef} className={styles.mobileMenuContent}>
@@ -179,37 +177,33 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
                   </span>
                 </div>
               </div>
-              <button className={styles.closeMenuButton} onClick={closeMenu}>
+              <button
+                className={styles.closeMenuButton}
+                onClick={() => setShowUserMenu(false)}
+              >
                 <FontAwesomeIcon icon={faTimes} />
               </button>
             </div>
-
             <div className={styles.menuDivider}></div>
-
             <button className={styles.menuItem} onClick={handleProfileClick}>
-              <FontAwesomeIcon icon={faUserCircle} />
-              Mi Perfil
+              <FontAwesomeIcon icon={faUserCircle} /> Mi Perfil
             </button>
-
             <div className={styles.menuDivider}></div>
-
             <button
               className={`${styles.menuItem} ${styles.logoutItem}`}
               onClick={onLogout}
             >
-              <FontAwesomeIcon icon={faSignOutAlt} />
-              Cerrar Sesión
+              <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar Sesión
             </button>
           </div>
         </div>
       )}
 
-      {/* Menu usuario desplegable - Versión desktop */}
+      {/* Vista Desplegable Escritorio (Menú Flotante Translúcido) */}
       {showUserMenu && !isMobile && (
         <div
           ref={userMenuRef}
           className={styles.userMenu}
-          onMouseEnter={() => setShowUserMenu(true)}
           onMouseLeave={() => setShowUserMenu(false)}
         >
           <div className={styles.menuHeader}>
@@ -225,22 +219,16 @@ const TopBar = ({ onLogout, onToggleSidebar, collapsed }) => {
               </span>
             </div>
           </div>
-
           <div className={styles.menuDivider}></div>
-
           <button className={styles.menuItem} onClick={handleProfileClick}>
-            <FontAwesomeIcon icon={faUserCircle} />
-            Mi Perfil
+            <FontAwesomeIcon icon={faUserCircle} /> Mi Perfil
           </button>
-
           <div className={styles.menuDivider}></div>
-
           <button
             className={`${styles.menuItem} ${styles.logoutItem}`}
             onClick={onLogout}
           >
-            <FontAwesomeIcon icon={faSignOutAlt} />
-            Cerrar Sesión
+            <FontAwesomeIcon icon={faSignOutAlt} /> Cerrar Sesión
           </button>
         </div>
       )}

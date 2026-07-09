@@ -1,799 +1,802 @@
-.container {
+/* ==========================================================================
+   Contenedores Base de Estilo macOS / Apple
+   ========================================================================== */
+.canvasModuloContainer {
+  --accent: #0071e3;
+  --accent-hover: #0063c1;
+  --accent-tint: rgba(0, 113, 227, 0.15);
+
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding-bottom: 60px;
 }
 
-/* Header */
-.header {
-  background: #ffffff;
-  padding: 0.3rem 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
+.cuerpoMainCanvas {
+  margin: 24px auto 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
 }
 
-.headerContent {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
-  gap: 1rem;
-}
-
-.titleIcon {
-  color: #059669;
-}
-
-.subtitle {
-  font-size: 0.85rem;
-  color: #64748b;
-  font-weight: 400;
-  margin: 0;
-}
-
-/* Controls */
+/* ==========================================================================
+   Barra de Herramientas Estilo Módulo de Áreas
+   ========================================================================== */
 .controls {
   margin: 0 auto 1.5rem;
-  padding: 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-}
-
-.searchContainer {
-  position: relative;
-  flex: 1;
-  max-width: 500px;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
+  gap: 16px;
   background: #ffffff;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.refreshButton {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 48px;
-  min-height: 48px;
-}
-
-.refreshButton:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  transform: translateY(-1px);
-}
-
-.refreshIconLoading {
-  animation: spin 1s linear infinite;
+  border-radius: 14px;
+  padding: 16px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
 }
 
 .filters {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
   flex: 1;
-  margin-top: 20px;
+  max-width: 600px;
 }
 
-.newButton {
-  padding: 0.75rem 1.5rem;
-  border: none;
+.searchGroup {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #86868b;
+  font-size: 0.9rem;
+  z-index: 5;
+}
+
+.spin {
+  animation: spinLoader 0.8s linear infinite;
+}
+
+@keyframes spinLoader {
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.searchInput {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 40px;
+  background-color: #f5f5f7;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  color: #1d1d1f;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: #03996b;
+  box-shadow: 0 0 0 3px rgba(3, 153, 107, 0.12);
+}
+
+.refreshButton {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 10px;
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: white;
-  font-weight: 600;
+  background-color: #ffffff;
+  color: #515154;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+}
+
+.refreshButton:hover {
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+}
+
+.createButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 18px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background-color: #03996b;
+  color: white;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
-.newButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+.createButton:hover {
+  background-color: #028059;
+  transform: translateY(-0.5px);
 }
 
-/* Stats */
-.stats {
-  max-width: 1200px;
-  margin: 0 auto 2rem;
-  padding: 0 1rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.statCard {
-  background: #ffffff;
-  padding: 1.25rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  text-align: center;
-  min-width: 120px;
-}
-
-.statNumber {
+/* ==========================================================================
+   Estructuras de Tabla de Escritorio Nativas de Sistema
+   ========================================================================== */
+.desktopViewContainer {
   display: block;
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+}
+.mobileViewContainer {
+  display: none;
 }
 
-.statLabel {
-  font-size: 0.8rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-/* Content */
-.content {
-  margin: 0 auto;
-  padding: 0 1rem 0.5rem;
-}
-
-/* Table */
-.tableContainer {
+.tableResponsiveContainer {
   background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  margin-bottom: 0.5rem;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+  overflow-x: auto;
+  width: 100%;
 }
 
-.table {
+.appleDataTableNative {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
-}
-
-.table th {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  color: #374151;
+  font-size: 0.86rem;
   text-align: left;
-  padding: 1rem 1.25rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.tableRow {
-  transition: all 0.2s ease;
-  border-bottom: 1px solid #f1f5f9;
+.appleDataTableNative th {
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  padding: 14px 18px;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
-.tableRow:hover {
-  background: #f8fafc;
+.appleDataTableNative td {
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  color: #3a3a3c;
 }
 
-.tableRow:last-child {
+.appleDataTableNative tr:last-child td {
   border-bottom: none;
 }
 
-.table td {
-  padding: 1rem 1.25rem;
-  color: #475569;
-  font-size: 0.9rem;
-  vertical-align: top;
+.tdItemCode {
+  font-family: monospace;
+  font-weight: 700;
+  color: #1d1d1f;
 }
-
-.itemCode {
+.tdItemDesc {
   font-weight: 600;
-  color: #1e293b;
-  font-family: "Monaco", "Consolas", monospace;
+  color: #1d1d1f;
 }
-
-.itemDescription {
-  font-weight: 500;
-  color: #374151;
-  max-width: 200px;
+.tableDaysText {
+  color: #03996b;
+  font-weight: 550;
 }
-
-.adminBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.adminActive {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.adminInactive {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.daysContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  max-width: 150px;
-}
-
-.dayTag {
-  background: #e0f2fe;
-  color: #0369a1;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.noDays {
-  color: #9ca3af;
+.tableDaysEmpty {
+  color: #aeaeae;
   font-style: italic;
 }
-
-.comprador {
-  font-weight: 500;
-  color: #374151;
+.tdObservacionesText {
+  color: #86868b;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.observaciones {
-  color: #6b7280;
-  max-width: 200px;
-  line-height: 1.4;
-}
-
-.editButton {
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
+.btnTableEditAction {
+  background-color: rgba(3, 153, 107, 0.06);
+  color: #03996b;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  transition: all 0.15s ease;
 }
 
-.editButton:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
-  color: white;
-  transform: translateY(-1px);
+.btnTableEditAction:hover {
+  background-color: rgba(3, 153, 107, 0.15);
 }
 
-/* Empty State */
-.emptyState {
-  text-align: center;
-  padding: 4rem 2rem;
+/* ==========================================================================
+   Bento Cards & Pills de Días
+   ========================================================================== */
+.appleResponsiveGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.itemBentoCard {
   background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.01);
+  display: flex;
+  flex-direction: column;
 }
 
-.emptyIcon {
-  font-size: 4rem;
-  color: #9ca3af;
-  margin-bottom: 1.5rem;
+.badgeCodigoRef {
+  font-family: monospace;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background-color: #eeeef0;
+  color: #424245;
+  padding: 3px 8px;
+  border-radius: 5px;
 }
-
-.emptyState h3 {
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-}
-
-.emptyState p {
-  color: #64748b;
-  margin-bottom: 2rem;
-}
-
-/* Pagination */
-.pagination {
+.btnActionEditCircle {
+  background: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #86868b;
+  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+}
+.btnActionEditCircle:hover {
+  background-color: #f5f5f7;
+  color: #03996b;
+}
+.itemCardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #1d1d1f;
+}
+.buyerTextIndicator {
+  font-size: 0.8rem;
+  color: #424245;
+  margin: 0 0 8px 0;
+}
+.buyerTextIndicator strong {
+  color: #03996b;
+}
+.itemCardDesc {
+  font-size: 0.82rem;
+  color: #86868b;
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+  flex: 1;
 }
 
-.paginationButton {
-  padding: 0.75rem 1.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.diasAsignadosFooter {
+  border-top: 1px solid #f5f5f7;
+  padding-top: 12px;
+}
+.titleDiasLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #86868b;
+  text-transform: uppercase;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
+}
+.pillsFlexContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dayOperationPill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background-color: rgba(3, 153, 107, 0.06);
+  color: #03996b;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.noDaysWarningPill {
+  font-size: 0.72rem;
+  color: #aeaeae;
+  font-style: italic;
 }
 
-.paginationButton:hover:not(:disabled) {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+.paginationCanvasFooter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
 }
-
-.paginationButton:disabled {
-  opacity: 0.5;
+.btnPageActionControl {
+  background-color: #ffffff;
+  border: 1px solid #d2d2d7;
+  color: #1d1d1f;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 550;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btnPageActionControl:hover:not(:disabled) {
+  background-color: #f5f5f7;
+  border-color: #86868b;
+}
+.btnPageActionControl:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
-
-.paginationInfo {
-  font-size: 0.9rem;
-  color: #6b7280;
-  font-weight: 500;
+.pageIndicatorText {
+  font-size: 0.8rem;
+  color: #86868b;
+}
+.pageIndicatorText strong {
+  color: #1d1d1f;
 }
 
-/* Modal */
-.modalOverlay {
+/* ==========================================================================
+   Modales Avanzados & Floating Labels Anclados Correctamente
+   ========================================================================== */
+.modalBackdropOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 120;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.modal {
+.modalAppleSheetContainer {
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow: auto;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-  animation: modalSlideIn 0.3s ease;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.modalHeader {
+.header {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 95;
+}
+
+.headerContent {
+  margin: 0 auto;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 2rem 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.modalHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
+.modalSheetHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: #f5f5f7;
 }
-
-.closeButton {
-  padding: 0.5rem;
+.modalSheetHeader h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0;
+}
+.btnCloseModalX {
   border: none;
-  background: #f3f4f6;
-  color: #6b7280;
-  border-radius: 8px;
+  background-color: #e2e2e7;
+  color: #515154;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
   cursor: pointer;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.15s;
 }
 
-.closeButton:hover {
-  background: #ef4444;
+.btnCloseModalX:hover {
+  background-color: #ff3b30;
   color: white;
 }
 
-.modalContent {
-  padding: 2rem;
-}
-
-/* Form Styles */
-.formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Contenedor base para form groups */
-.formGroup {
-  position: relative;
-}
-
-.formGroup:last-child {
-  margin-bottom: 0;
-}
-
-/* Label base - NO usar para floating */
-.formLabel {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #374151;
+.modalSheetBodyContent {
+  padding: 24px;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  max-height: 65vh;
 }
-
-/* Floating label específico */
-.formGroup.floating {
-  margin-top: 1rem;
-}
-
-.formGroup.floating .formLabel {
-  position: absolute;
-  top: -0.75rem;
-  left: 0.75rem;
-  background: white;
-  padding: 0 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #374151;
-  z-index: 2;
-  margin: 0;
-  transition: all 0.3s ease; /* Transición más suave */
-}
-
-.formInput,
-.formSelect,
-.formTextarea {
+.formGroupModal {
+  position: relative;
   width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  background: #ffffff;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  font-family: inherit;
-  position: relative;
 }
 
-.formInput:focus,
-.formSelect:focus,
-.formTextarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.formTextarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* Efecto cuando el input/select/textarea está enfocado */
-.formGroup.floating .formInput:focus + .formLabel,
-.formGroup.floating .formSelect:focus + .formLabel,
-.formGroup.floating .formTextarea:focus + .formLabel {
-  color: #3b82f6;
-  transform: translateY(-1px); /* Efecto sutil de elevación */
-}
-
-/* También cambia el color cuando tiene contenido */
-.formGroup.floating .formInput:not(:placeholder-shown) + .formLabel,
-.formGroup.floating .formSelect:not(:default) + .formLabel,
-.formGroup.floating .formTextarea:not(:placeholder-shown) + .formLabel {
-  color: #3b82f6;
-}
-
-/* Checkbox Styles */
-.checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  font-weight: 500;
-  color: #374151;
-  margin-top: 1rem;
-}
-
-.checkboxInput {
-  display: none;
-}
-
-.checkboxCustom {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 6px;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.checkboxInput:checked + .checkboxCustom {
-  background: #059669;
-  border-color: #059669;
-}
-
-.checkboxInput:checked + .checkboxCustom::after {
-  content: "";
-  position: absolute;
-  left: 6px;
-  top: 2px;
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-/* Days Section */
-.daysSection {
-  margin-bottom: 2rem;
-}
-
-.sectionLabel {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.daysGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.75rem;
-}
-
-.dayCheckbox {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.75rem;
-  border: 1px solid #e5e7eb;
+.appleFormInputModal,
+.appleFormTextareaModal {
+  width: 100%;
+  padding: 12px;
+  background-color: #ffffff;
+  border: 1px solid #d2d2d7;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  font-size: 0.88rem;
+  color: #1d1d1f;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
 }
 
-.dayCheckbox:hover {
-  border-color: #3b82f6;
-  background: #f8fafc;
+.appleFormInputModal {
+  height: 44px;
+}
+.appleFormTextareaModal {
+  resize: none;
+  padding-top: 14px;
+}
+.inputDisabledModal {
+  background-color: #f5f5f7;
+  cursor: not-allowed;
+  color: #86868b;
 }
 
-.dayInput {
-  display: none;
+.appleFormInputModal:focus,
+.appleFormTextareaModal:focus {
+  outline: none;
+  border-color: #03996b;
+  box-shadow: 0 0 0 3px rgba(3, 153, 107, 0.15);
 }
 
-.dayCustomCheckbox {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #d1d5db;
-  border-radius: 4px;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.dayInput:checked + .dayCustomCheckbox {
-  background: #3b82f6;
-  border-color: #3b82f6;
-}
-
-.dayInput:checked + .dayCustomCheckbox::after {
-  content: "";
+.formLabelModal {
   position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.88rem;
+  color: #86868b;
+  background: #ffffff;
+  padding: 0 6px;
+  pointer-events: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dayName {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+.appleFormTextareaModal ~ .formLabelModal {
+  top: 24px;
+  transform: none;
 }
 
-/* Modal Actions */
-.modalActions {
+/* Fijación perfecta del Label sobre la línea de borde */
+.floating .appleFormInputModal:focus ~ .formLabelModal,
+.floating .appleFormInputModal:not(:placeholder-shown) ~ .formLabelModal,
+.floating .appleFormTextareaModal:focus ~ .formLabelModal,
+.floating .appleFormTextareaModal:not(:placeholder-shown) ~ .formLabelModal {
+  top: 0;
+  transform: translateY(-50%);
+  font-size: 0.74rem;
+  color: #03996b;
+  font-weight: 600;
+}
+
+.seccionDiasModalContainer {
+  width: 100%;
+}
+.labelTituloSeccionDias {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #86868b;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 10px;
+}
+.gridPillsModalSeleccion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pillDiaSeleccionableBtn {
+  background-color: #f5f5f7;
+  border: 1px solid transparent;
+  color: #424245;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 550;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.pillDiaSeleccionableBtn:hover {
+  background-color: #e8e8ed;
+}
+.pillDiaSeleccionadoActive {
+  background-color: #03996b;
+  color: #ffffff;
+}
+.modalSheetFooterActions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  padding: 0.5rem 2rem 0.5rem;
-  border-top: 1px solid #e2e8f0;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #f5f5f7;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .cancelButton {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #374151;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .cancelButton:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background-color: #f5f5f7;
+  border-color: #86868b;
 }
 
 .saveButton {
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--accent);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px var(--accent-tint);
 }
 
-.saveButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+.saveButton:hover:not(.disabled) {
+  background-color: var(--accent-hover);
 }
 
-/* Animations */
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+.saveButton.disabled {
+  background-color: #d2d2d7;
+  color: #86868b;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   Badges de Estado de Pedido (Administrador vs Estándar)
+   ========================================================================== */
+.badgeAdminSi,
+.badgeAdminNo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.badgeAdminSi {
+  background-color: rgba(0, 113, 227, 0.08);
+  color: #0071e3; /* Azul SF nativo de Apple */
+}
+
+.badgeAdminNo {
+  background-color: rgba(142, 142, 147, 0.08);
+  color: #8e8e93; /* Gris de sistema macOS */
+}
+
+.cardHeaderActionsRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   Fila del Checkbox Estilo macOS Settings Panel
+   ========================================================================== */
+.appleSwitchRowContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5f7;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.switchRowInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconSwitchLabel {
+  color: #0071e3;
+  font-size: 1.05rem;
+}
+
+.titleSwitchLabel {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  display: block;
+}
+
+.descSwitchLabel {
+  font-size: 0.74rem;
+  color: #86868b;
+  margin: 2px 0 0 0;
+  line-height: 1.3;
+}
+
+/* Checkbox Personalizado con Estilo Nativo */
+.appleCheckboxWrapper {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.appleNativeCheckbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.appleCustomCheckboxCheck {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #ffffff;
+  border: 1.5px solid #d2d2d7;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.appleCheckboxWrapper:hover .appleCustomCheckboxCheck {
+  border-color: #86868b;
+}
+
+.appleNativeCheckbox:checked ~ .appleCustomCheckboxCheck {
+  background-color: #03996b;
+  border-color: #03996b;
+}
+
+.appleCustomCheckboxCheck:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.appleNativeCheckbox:checked ~ .appleCustomCheckboxCheck:after {
+  display: block;
+}
+
+/* ==========================================================================
+   Extensiones del Sistema de Ordenamiento y Formularios Obligatorios
+   ========================================================================== */
+
+/* Cabeceras de tabla interactivas para ordenamiento */
+.thSortableHeader {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.thSortableHeader:hover {
+  background-color: #e8e8ed !important;
+  color: #1d1d1f !important;
+}
+
+/* Indicador iconográfico de orden activo o inactivo */
+.iconSortIndicator {
+  margin-left: 6px;
+  font-size: 0.76rem;
+  color: #86868b;
+  opacity: 0.7;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease;
+}
+
+.thSortableHeader:hover .iconSortIndicator {
+  color: #03996b;
+  opacity: 1;
+}
+
+/* Marca de campo obligatorio de alta legibilidad */
+.requiredMark {
+  color: #ff3b30; /* Rojo vibrante del ecosistema Apple */
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* ==========================================================================
+   Responsive Líquido (Media Queries)
+   ========================================================================== */
+@media (max-width: 992px) {
+  .desktopViewContainer {
+    display: none;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  .mobileViewContainer {
+    display: block;
   }
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
-  .header {
-    padding: 1.5rem 1rem;
+  .cuerpoMainCanvas {
+    padding: 0 16px;
+    margin-top: 16px;
   }
-
-  .title {
-    font-size: 1.75rem;
-  }
-
   .controls {
-    padding: 1rem;
     flex-direction: column;
     align-items: stretch;
+    padding: 14px;
   }
-
   .filters {
-    width: 100%;
-  }
-
-  .searchContainer {
     max-width: none;
   }
-
-  .stats {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .statCard {
+  .createButton {
     width: 100%;
-    max-width: 200px;
-  }
-
-  .content {
-    padding: 0 0.5rem 2rem;
-  }
-
-  .tableContainer {
-    border-radius: 12px;
-    overflow-x: auto;
-  }
-
-  .modal {
-    margin: 0.5rem;
-    border-radius: 16px;
-  }
-
-  .modalHeader {
-    padding: 1.5rem 1.5rem 1rem;
-  }
-
-  .modalContent {
-    padding: 1.5rem;
-  }
-
-  .formGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .daysGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .modalActions {
-    padding: 1.5rem;
-    flex-direction: column;
-  }
-
-  .cancelButton,
-  .saveButton {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .modalHeader h2 {
-    font-size: 1.25rem;
-  }
-
-  .daysGrid {
-    grid-template-columns: 1fr;
   }
 }

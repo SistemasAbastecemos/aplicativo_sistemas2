@@ -1,85 +1,97 @@
+/* ==========================================================================
+   Menú Contextual Flotante en Cascada (Nativo de macOS) — renderizado en portal
+   ========================================================================== */
 .submenuTooltip {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  z-index: 10050; /* Más alto que otros elementos */
-  background: #1e293b;
-  border-radius: 8px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: fixed;
+  z-index: 10080;
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   min-width: 220px;
-  animation: slideIn 0.2s ease-out;
+  animation: appleFlyIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes slideIn {
+@keyframes appleFlyIn {
   from {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateX(6px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
 }
 
 .submenuContent {
-  padding: 0.5rem 0;
+  padding: 6px 0;
 }
 
 .submenuHeader {
-  padding: 0.75rem 1rem 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 0.25rem;
+  padding: 8px 14px 6px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  margin-bottom: 4px;
 }
 
 .submenuHeader h4 {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: white;
+  color: #86868b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .submenuItems {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
-  padding: 0.25rem 0;
+  gap: 2px;
+  padding: 0 6px;
 }
 
 .submenuItem {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  color: #cbd5e1;
+  gap: 10px;
+  padding: 8px 10px;
+  color: #515154;
   text-decoration: none;
-  transition: all 0.2s ease;
+  border-radius: 6px;
   position: relative;
-  border: none;
   background: none;
+  border: none;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .submenuItem:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #1d1d1f;
 }
 
 .submenuItem.active {
-  background: rgba(102, 126, 234, 0.2);
-  color: white;
+  background-color: rgba(3, 153, 107, 0.06);
+  color: #03996b;
+  font-weight: 600;
 }
 
 .submenuIcon {
   width: 16px;
   display: flex;
   justify-content: center;
+  align-items: center;
+  opacity: 0.8;
 }
 
 .submenuItemIcon {
   font-size: 0.8rem;
-  opacity: 0.8;
 }
 
 .submenuText {
@@ -88,103 +100,73 @@
 }
 
 .activeIndicator {
+  width: 4px;
+  height: 10px;
+  background-color: #03996b;
+  border-radius: 4px;
   position: absolute;
-  right: 1rem;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
+  right: 6px;
 }
 
-/* Flecha del tooltip */
-.submenuTooltip::before {
-  content: "";
-  position: absolute;
-  left: -6px;
-  top: 1rem;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 6px 6px 6px 0;
-  border-color: transparent #1e293b transparent transparent;
-}
-
-/* Puente invisible para mejor transición */
+/* Puente invisible de proximidad para evitar desmontajes erráticos del puntero */
 .submenuTooltip::after {
   content: "";
   position: absolute;
-  left: -20px;
+  left: -16px;
   top: 0;
-  width: 20px;
+  width: 16px;
   height: 100%;
   background: transparent;
 }
 
-/* Container relativo para anclar el menu cascada */
 .flyoutContainer {
   position: relative;
   width: 100%;
 }
 
-.flyoutContainer::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: -15px;
-  width: 15px;
-  height: 100%;
-  z-index: 1009;
-}
-
-/* Apariencia del trigger para que parezca un link normal */
 .flyoutTrigger {
   display: flex;
   align-items: center;
-  cursor: default;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Icono flecha alineado a la derecha */
 .flyoutArrow {
   margin-left: auto;
-  font-size: 0.75rem;
-  opacity: 0.5;
-  transition: transform 0.2s ease;
+  font-size: 0.65rem;
+  color: #86868b;
+  opacity: 0.6;
 }
 
-/* El menu emergente lateral */
+/* Menú Cascada de Segundo Nivel */
 .flyoutMenu {
   position: absolute;
   left: 100%;
-  top: -10px;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  min-width: 220px;
+  top: -6px;
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  min-width: 200px;
   z-index: 1010;
-  padding: 0.5rem 0;
-
-  /* Estado oculto */
+  padding: 6px;
   opacity: 0;
   visibility: hidden;
-  transform: translateX(0px);
-  transition: all 0.2s ease;
+  transform: translateX(2px);
+  transition:
+    opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.2s cubic-bezier(0.25, 1, 0.5, 1),
+    visibility 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
-/* Activacion por hover delegada a CSS */
+
 .flyoutContainer:hover > .flyoutMenu {
   opacity: 1;
   visibility: visible;
-  transform: translateX(5px);
+  transform: translateX(6px);
 }
 
-.flyoutContainer:hover > .flyoutTrigger .flyoutArrow {
-  opacity: 1;
-}
-
-/* Si la resolucion es menor, la cascada hereda comportamientos base */
 @media (max-width: 768px) {
   .flyoutMenu {
     display: none;

@@ -5,57 +5,35 @@
   width: 100%;
 }
 
+/* Tooltip Premium Translúcido Estilo macOS */
 .tooltip {
   position: absolute;
-  background: #1e293b;
-  color: white;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  background-color: rgba(30, 30, 32, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
   font-weight: 500;
-  z-index: 10000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10090;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   pointer-events: none;
-
-  /* Nuevas propiedades para adaptarse al contenido */
-  white-space: normal; /* Cambiado de nowrap a normal */
-  word-wrap: break-word;
-  max-width: 250px; /* Ancho máximo para evitar tooltips demasiado anchos */
-  width: max-content; /* Se adapta al contenido */
-  text-align: center; /* Opcional: centra el texto */
+  white-space: nowrap;
 }
 
-/* Posiciones del tooltip */
+/* Orientación Espacial */
 .tooltip.right {
   left: 100%;
   top: 50%;
-  transform: translateY(-50%) translateX(10px);
+  transform: translateY(-50%) translateX(6px);
 }
 
-.tooltip.left {
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%) translateX(-10px);
-}
-
-/* Posiciones adicionales para mejor cobertura */
-.tooltip.top {
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-10px);
-}
-
-.tooltip.bottom {
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-}
-
-/* Mostrar tooltip al hacer hover */
+/* Disparador por Enfoque de Cursor */
 .tooltipContainer:hover .tooltip {
   opacity: 1;
   visibility: visible;
@@ -63,57 +41,4 @@
 
 .tooltipContainer:hover .tooltip.right {
   transform: translateY(-50%) translateX(12px);
-}
-
-.tooltipContainer:hover .tooltip.left {
-  transform: translateY(-50%) translateX(-12px);
-}
-
-.tooltipContainer:hover .tooltip.top {
-  transform: translateX(-50%) translateY(-12px);
-}
-
-.tooltipContainer:hover .tooltip.bottom {
-  transform: translateX(-50%) translateY(12px);
-}
-
-/* Flecha del tooltip */
-.tooltip::before {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-}
-
-.tooltip.right::before {
-  left: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 6px 6px 6px 0;
-  border-color: transparent #1e293b transparent transparent;
-}
-
-.tooltip.left::before {
-  right: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 6px 0 6px 6px;
-  border-color: transparent transparent transparent #1e293b;
-}
-
-.tooltip.top::before {
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 6px 6px 0 6px;
-  border-color: #1e293b transparent transparent transparent;
-}
-
-.tooltip.bottom::before {
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 0 6px 6px 6px;
-  border-color: transparent transparent #1e293b transparent;
 }

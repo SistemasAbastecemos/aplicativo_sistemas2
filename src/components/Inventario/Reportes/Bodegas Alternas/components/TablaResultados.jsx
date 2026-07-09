@@ -1,143 +1,184 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import styles from "../BodegasAlternas.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faSort,
+  faSortUp,
+  faSortDown,
+  faMapMarkerAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
-const TablaResultadosAlternas = ({ datos, estructuras }) => {
-  const { bodegas02, bodegasAlt } = estructuras;
+export const TablaResultados = React.memo(
+  ({ items, onEditClick, puedeEditar }) => {
+    const [sortConfig, setSortConfig] = useState({
+      key: null,
+      direction: "asc",
+    });
 
-  // Si no hay bodegas de venta 02 activas/parametrizadas, se ocultan las
-  // columnas "Total Exist B02" y "Total Venta M-1".
-  const hayB02 = Array.isArray(bodegas02) && bodegas02.length > 0;
+    const handleRequestSort = (key) => {
+      let direction = "asc";
+      if (sortConfig.key === key && sortConfig.direction === "asc") {
+        direction = "desc";
+      }
+      setSortConfig({ key, direction });
+    };
 
-  if (!datos || datos.length === 0) {
+    const sortedItems = useMemo(() => {
+      if (!items || !Array.isArray(items)) return [];
+
+      const listado = [...items];
+      if (sortConfig.key) {
+        listado.sort((a, b) => {
+          const valA = String(a[sortConfig.key] ?? "")
+            .trim()
+            .toUpperCase();
+          const valB = String(b[sortConfig.key] ?? "")
+            .trim()
+            .toUpperCase();
+          return sortConfig.direction === "asc"
+            ? valA.localeCompare(valB)
+            : valB.localeCompare(valA);
+        });
+      }
+      return listado;
+    }, [items, sortConfig]);
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return (
+        <div className={styles.estadoVacioContainer}>
+          No se registran datos para mostrar. Modifique las variables de entrada
+          e inicie la consulta.
+        </div>
+      );
+    }
+
     return (
-      <div
-        className={styles.tarjetaFiltros}
-        style={{ textAlign: "center", padding: "40px", color: "#64748B" }}
-      >
-        <FontAwesomeIcon
-          icon={faFolderOpen}
-          size="2x"
-          style={{ marginBottom: "12px", color: "#CBD5E1" }}
-        />
-        <p style={{ margin: 0, fontSize: "14px" }}>
-          No hay datos disponibles para el periodo seleccionado.
-        </p>
+      <div className={styles.gridModuloWrapper}>
+        <div className={styles.desktopViewContainer}>
+          <div className={styles.tableResponsiveContainer}>
+            <table className={styles.appleDataTableNative}>
+              <thead>
+                <tr>
+                  <th
+                    onClick={() => handleRequestSort("codigo")}
+                    className={styles.thSortableHeader}
+                  >
+                    Código{" "}
+                    <FontAwesomeIcon
+                      icon={
+                        sortConfig.key === "codigo"
+                          ? sortConfig.direction === "asc"
+                            ? faSortUp
+                            : faSortDown
+                          : faSort
+                      }
+                    />
+                  </th>
+                  <th
+                    onClick={() => handleRequestSort("nombre")}
+                    className={styles.thSortableHeader}
+                  >
+                    Nombre de Bodega{" "}
+                    <FontAwesomeIcon
+                      icon={
+                        sortConfig.key === "nombre"
+                          ? sortConfig.direction === "asc"
+                            ? faSortUp
+                            : faSortDown
+                          : faSort
+                      }
+                    />
+                  </th>
+                  <th
+                    onClick={() => handleRequestSort("sede_codigo")}
+                    className={styles.thSortableHeader}
+                  >
+                    Sede Relacionada{" "}
+                    <FontAwesomeIcon
+                      icon={
+                        sortConfig.key === "sede_codigo"
+                          ? sortConfig.direction === "asc"
+                            ? faSortUp
+                            : faSortDown
+                          : faSort
+                      }
+                    />
+                  </th>
+                  <th>Observaciones Operativas</th>
+                  {puedeEditar && (
+                    <th style={{ textAlign: "center" }}>Acción</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {sortedItems.map((bodega) => (
+                  <tr key={bodega.id || bodega.codigo}>
+                    <td className={styles.tdItemCode}>{bodega.codigo}</td>
+                    <td className={styles.tdItemDesc}>{bodega.nombre}</td>
+                    <td>
+                      <span className={styles.storeBadgeCustom}>
+                        <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                        {bodega.sede_codigo || "N/A"}
+                      </span>
+                    </td>
+                    <td className={styles.tdObservacionesText}>
+                      {bodega.observaciones || "Sin anotaciones."}
+                    </td>
+                    {puedeEditar && (
+                      <td style={{ textAlign: "center" }}>
+                        <button
+                          type="button"
+                          onClick={() => onEditClick(bodega)}
+                          className={styles.btnTableEditAction}
+                        >
+                          <FontAwesomeIcon icon={faEdit} /> Ajustar
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className={styles.mobileViewContainer}>
+          <div className={styles.appleResponsiveGrid}>
+            {sortedItems.map((bodega) => (
+              <div
+                key={bodega.id || bodega.codigo}
+                className={styles.itemBentoCard}
+              >
+                <div className={styles.cardHeaderFlex}>
+                  <span className={styles.badgeCodigoRef}>{bodega.codigo}</span>
+                  {puedeEditar && (
+                    <button
+                      type="button"
+                      onClick={() => onEditClick(bodega)}
+                      className={styles.btnActionEditCircle}
+                    >
+                      <FontAwesomeIcon icon={faEdit} />
+                    </button>
+                  )}
+                </div>
+                <h3 className={styles.itemCardTitle}>{bodega.nombre}</h3>
+                <p className={styles.itemCardDesc}>
+                  {bodega.observaciones || "Sin anotaciones registradas."}
+                </p>
+                <div className={styles.diasAsignadosFooter}>
+                  <span className={styles.storeBadgeCustom}>
+                    <FontAwesomeIcon icon={faMapMarkerAlt} /> Sede:{" "}
+                    {bodega.sede_codigo || "N/A"}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
-  }
+  },
+);
 
-  return (
-    <div className={styles.contenedorTablaMaestra}>
-      <div className={styles.tablaResponsivaWrapper}>
-        <table className={styles.tablaMatricial}>
-          <thead>
-            {/* Nivel 1: Agrupaciones de Columnas */}
-            <tr>
-              <th rowSpan={2} style={{ zIndex: 30 }}>
-                Item
-              </th>
-              <th rowSpan={2} style={{ zIndex: 30 }}>
-                Descripción
-              </th>
-              <th rowSpan={2} style={{ zIndex: 30 }}>
-                Embalaje
-              </th>
-              {bodegas02.map((b) => (
-                <th key={`group-b02-${b}`} colSpan={2}>
-                  SEDE {b.slice(0, 3)} ({b})
-                </th>
-              ))}
-              {bodegasAlt.length > 0 ? (
-                <th colSpan={bodegasAlt.length}>BODEGAS ALTERNAS</th>
-              ) : null}
-              <th colSpan={hayB02 ? 3 : 1}>TOTALES GENERALES</th>
-            </tr>
-            {/* Nivel 2: Sub-métricas por Columna */}
-            <tr>
-              {bodegas02.map((b) => (
-                <React.Fragment key={`sub-b02-${b}`}>
-                  <th>Exist. Und</th>
-                  <th>Venta M-1</th>
-                </React.Fragment>
-              ))}
-              {bodegasAlt.map((a) => (
-                <th key={`sub-alt-${a}`}>{a}</th>
-              ))}
-              {hayB02 && (
-                <>
-                  <th>Total Exist B02</th>
-                  <th>Total Venta M-1</th>
-                </>
-              )}
-              <th>Total Alt.</th>
-            </tr>
-          </thead>
-          <tbody>
-            {datos.map((item, idx) => (
-              <tr key={`${item.Item}-${idx}`}>
-                <td className={styles.textoDestacado}>{item.Item}</td>
-                <td>{item.Descripcion}</td>
-                <td style={{ color: "#64748B" }}>{item.Embalaje || "N/A"}</td>
-
-                {/* Columnas Dinámicas Pisos de Venta (Cantidades físicas) */}
-                {bodegas02.map((b) => (
-                  <React.Fragment key={`cell-b02-${b}-${idx}`}>
-                    <td className={styles.numeroAlineado}>
-                      {(item[`Existencia_Und_${b}`] || 0).toLocaleString()}
-                    </td>
-                    <td className={styles.numeroAlineado}>
-                      {(item[`Venta_Und_${b}`] || 0).toLocaleString()}
-                    </td>
-                  </React.Fragment>
-                ))}
-
-                {/* Columnas Dinámicas Bodegas Alternas */}
-                {bodegasAlt.map((a) => (
-                  <td
-                    key={`cell-alt-${a}-${idx}`}
-                    className={styles.numeroAlineado}
-                    style={{ color: "#475569" }}
-                  >
-                    {(item[`Exist_${a}`] || 0).toLocaleString()}
-                  </td>
-                ))}
-
-                {/* Totales Consolidados por Ítem */}
-                {hayB02 && (
-                  <>
-                    <td
-                      className={styles.numeroAlineado}
-                      style={{ fontWeight: "600" }}
-                    >
-                      {Number(item.Total_Exist_Und_B02).toLocaleString()}
-                    </td>
-                    <td
-                      className={styles.numeroAlineado}
-                      style={{ fontWeight: "600" }}
-                    >
-                      {Number(item.Total_Venta_Und).toLocaleString()}
-                    </td>
-                  </>
-                )}
-                <td
-                  className={styles.numeroAlineado}
-                  style={{
-                    fontWeight: "700",
-                    color: "#B91C1C",
-                    backgroundColor: "#FEF2F2",
-                  }}
-                >
-                  {Number(item.Total_Exist_Und_Alternas).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-export default TablaResultadosAlternas;
+TablaResultados.displayName = "TablaResultados";

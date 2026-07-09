@@ -47,6 +47,41 @@ import Tooltip from "./Tooltip";
 import SubmenuTooltip from "./SubmenuTooltip";
 import styles from "./Sidebar.module.css";
 
+// Definido a nivel de módulo para no reconstruirlo en cada render
+const iconMap = {
+  home: faHome,
+  user: faUser,
+  user2: faUserCog,
+  users: faUsers,
+  "bar-chart": faChartBar,
+  formatos: faClipboardList,
+  costos: faDollarSign,
+  list: faList,
+  documents: faFile,
+  pdf: faFilePdf,
+  codificacion: faThLarge,
+  admin: faWrench,
+  inv: faBoxOpen,
+  sedes: faBuilding,
+  cargos: faIdCard,
+  areas: faBook,
+  menu: faProjectDiagram,
+  box: faCube,
+  file: faFileUpload,
+  informes: faChartColumn,
+  report: faExclamationTriangle,
+  pedidos: faShop,
+  fruver: faAppleWhole,
+  carnes: faFish,
+  porcentaje: faPercent,
+  cvm: faRulerCombined,
+  proveedor: faUserCheck,
+  contabilidad: faFileInvoiceDollar,
+  recaudo: faMoneyBillTransfer,
+  sistemas: faComputer,
+  compras: faStore,
+};
+
 const Sidebar = ({ collapsed }) => {
   const { addNotification } = useNotification();
   const [menus, setMenus] = useState([]);
@@ -58,40 +93,6 @@ const Sidebar = ({ collapsed }) => {
   const { user } = useAuth();
   const location = useLocation();
   const { empresa } = useEmpresa();
-
-  const iconMap = {
-    home: faHome,
-    user: faUser,
-    user2: faUserCog,
-    users: faUsers,
-    "bar-chart": faChartBar,
-    formatos: faClipboardList,
-    costos: faDollarSign,
-    list: faList,
-    documents: faFile,
-    pdf: faFilePdf,
-    codificacion: faThLarge,
-    admin: faWrench,
-    inv: faBoxOpen,
-    sedes: faBuilding,
-    cargos: faIdCard,
-    areas: faBook,
-    menu: faProjectDiagram,
-    box: faCube,
-    file: faFileUpload,
-    informes: faChartColumn,
-    report: faExclamationTriangle,
-    pedidos: faShop,
-    fruver: faAppleWhole,
-    carnes: faFish,
-    porcentaje: faPercent,
-    cvm: faRulerCombined,
-    proveedor: faUserCheck,
-    contabilidad: faFileInvoiceDollar,
-    recaudo: faMoneyBillTransfer,
-    sistemas: faComputer,
-    compras: faStore,
-  };
 
   // Cargar menú desde backend
   useEffect(() => {
@@ -130,6 +131,15 @@ const Sidebar = ({ collapsed }) => {
     if (!menu.children) return false;
     const childRoutes = getAllChildRoutes(menu);
     return childRoutes.some((route) => location.pathname.startsWith(route));
+  };
+
+  // Verifica si la ruta activa está dentro del árbol de un item (él mismo o cualquier descendiente)
+  const containsActiveRoute = (item) => {
+    if (item.ruta && location.pathname === item.ruta) return true;
+    if (Array.isArray(item.children)) {
+      return item.children.some(containsActiveRoute);
+    }
+    return false;
   };
 
   // Efecto para expandir automáticamente menús basados en la ruta actual
@@ -182,6 +192,21 @@ const Sidebar = ({ collapsed }) => {
     }
   }, [menus, location.pathname]);
 
+  // Cerrar el tooltip flotante al hacer scroll o redimensionar
+  // (el rect capturado quedaria desactualizado)
+  useEffect(() => {
+    if (!hoveredMenu) return;
+
+    const closeOnMove = () => setHoveredMenu(null);
+    window.addEventListener("scroll", closeOnMove, true);
+    window.addEventListener("resize", closeOnMove);
+
+    return () => {
+      window.removeEventListener("scroll", closeOnMove, true);
+      window.removeEventListener("resize", closeOnMove);
+    };
+  }, [hoveredMenu]);
+
   const toggleExpand = (id) => {
     setExpanded((prev) => ({
       ...prev,
@@ -189,14 +214,16 @@ const Sidebar = ({ collapsed }) => {
     }));
   };
 
-  // Función para manejar hover en menús con hijos
-  const handleMenuHover = (menu, index) => {
+  // Función para manejar hover en menús con hijos.
+  // Captura el rect del elemento disparador para posicionar el tooltip en el portal.
+  const handleMenuHover = (menu, index, anchorEl) => {
     if (collapsed && !isMobile && menu.children && menu.children.length > 0) {
       // Limpiar timeout anterior
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
       }
-      setHoveredMenu({ menu, index });
+      const rect = anchorEl ? anchorEl.getBoundingClientRect() : null;
+      setHoveredMenu({ menu, index, rect });
     }
   };
 
@@ -243,10 +270,13 @@ const Sidebar = ({ collapsed }) => {
         Array.isArray(child.children) && child.children.length > 0;
 
       if (hasChildren) {
+        const isBranchActive = containsActiveRoute(child);
         return (
           <div key={childKey} className={styles.nestedMenuContainer}>
             <div
-              className={`${styles.subLink} ${styles.nestedHeader}`}
+              className={`${styles.subLink} ${styles.nestedHeader} ${
+                isBranchActive ? styles.activeParent : ""
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleExpand(childKey);
@@ -295,7 +325,7 @@ const Sidebar = ({ collapsed }) => {
     const hasChildren =
       Array.isArray(menu.children) && menu.children.length > 0;
     const isActive = location.pathname === menu.ruta;
-    const isActiveParent = shouldBeExpanded(menu);
+    const isActiveParent = containsActiveRoute(menu);
 
     if (hasChildren) {
       const menuHeader = (
@@ -311,7 +341,7 @@ const Sidebar = ({ collapsed }) => {
               toggleExpand(menuKey);
             }
           }}
-          onMouseEnter={() => handleMenuHover(menu, index)}
+          onMouseEnter={(e) => handleMenuHover(menu, index, e.currentTarget)}
           onMouseLeave={handleMenuLeave}
         >
           {Icon && <FontAwesomeIcon icon={Icon} className={styles.navIcon} />}
@@ -344,6 +374,7 @@ const Sidebar = ({ collapsed }) => {
           {collapsed && !isMobile && hoveredMenu?.index === index && (
             <SubmenuTooltip
               menu={menu}
+              anchorRect={hoveredMenu.rect}
               onClose={handleTooltipLeave}
               onNavigate={() => {
                 if (isMobile) setOpen(false);

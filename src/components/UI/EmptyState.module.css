@@ -1,0 +1,68 @@
+.emptyStateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px dashed #d2d2d7; /* Borde suave Apple */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.emptyIconWrapper {
+  font-size: 2.5rem;
+  color: #86868b;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stringIcon {
+  line-height: 1;
+}
+
+.emptyTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1d1d1f; /* Gris obscuro Apple */
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+.emptyDescription {
+  font-size: 0.88rem;
+  color: #86868b; /* Gris secundario Apple */
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+  max-width: 400px;
+}
+
+.emptyActions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Estilo global estandarizado para botones de accion primaria dentro de estados vacios */
+.emptyActions button {
+  padding: 8px 16px;
+  background-color: #03996b; /* Color corporativo principal */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.84rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.emptyActions button:hover {
+  background-color: #028059;
+}

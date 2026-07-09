@@ -12,17 +12,6 @@ export const TabAuditoriaMatriz = React.memo(
     formatMiles,
     diasConciliados = {},
   }) => {
-    if (columnas.length === 0 || reporte.length === 0) {
-      return (
-        <div className={styles.vacioState}>
-          <p>
-            No hay datos cargados para el rango seleccionado. Ejecuta una
-            consulta para visualizar el consolidado.
-          </p>
-        </div>
-      );
-    }
-
     const ordenarResultadosMatriz = (a, b) => {
       const sedeA = a.grupo ? a.grupo.trim().toUpperCase() : "";
       const sedeB = b.grupo ? b.grupo.trim().toUpperCase() : "";
@@ -31,16 +20,11 @@ export const TabAuditoriaMatriz = React.memo(
           numeric: true,
           sensitivity: "base",
         });
-
       const subA = a.sub_bloque ? a.sub_bloque.trim().toUpperCase() : "";
       const subB = b.sub_bloque ? b.sub_bloque.trim().toUpperCase() : "";
-      if (subA !== subB) {
-        return (
-          (subA === "NORMAL" ? 1 : subA === "ALTERNA" ? 2 : 3) -
-          (subB === "NORMAL" ? 1 : subB === "ALTERNA" ? 2 : 3)
-        );
-      }
-      return (a.tipo_documento || "").localeCompare(b.tipo_documento || "");
+      if (subA !== subB)
+        return (subA === "NORMAL" ? 1 : 2) - (subB === "NORMAL" ? 1 : 2);
+      return (a.tipo || "").localeCompare(b.tipo || "");
     };
 
     const registrosPDV = reporte
@@ -50,91 +34,55 @@ export const TabAuditoriaMatriz = React.memo(
       .filter((r) => r.bloque === "ESTANDAR")
       .sort(ordenarResultadosMatriz);
 
-    const tieneExcel = (col) => {
-      return !!datosDian;
-    };
-
-    const tieneHistorico = (col) => {
-      return !!diasConciliados[col];
-    };
-
-    const calcularTotalSiesaPorBloque = (bloque, col) => {
-      const fk = col.replace(/-/g, "");
-      const conjunto =
-        bloque === "TOTAL"
-          ? reporte
-          : bloque === "PDV"
-            ? registrosPDV
-            : registrosEstandar;
-      return conjunto.reduce(
-        (sum, item) => sum + (item.dias[fk]?.total || 0),
-        0,
-      );
-    };
-
     const evaluarFilaPorColumna = (item, col) => {
       const fk = col.replace(/-/g, "");
-      const totalSiesa = item.dias[fk]?.total || 0;
-
+      const totalSiesa = item.dias?.[fk]?.total || 0;
       let totalDianFresco = 0;
-      let existeExcel = false;
+      let existeExcel = !!datosDian;
 
-      if (datosDian) {
-        existeExcel = true;
-        if (datosDian[fk]) {
-          const centroOad = item.co_siesa
-            ? String(item.co_siesa).padStart(3, "0")
-            : "";
-          const reglasAsociadas = maestroDianActivo.filter(
-            (r) =>
-              String(r.co_siesa).padStart(3, "0") === centroOad &&
-              String(r.tipo_siesa).trim().toUpperCase() ===
-                String(item.tipo).trim().toUpperCase(),
-          );
+      if (datosDian && datosDian[fk]) {
+        const centroOad = item.co_siesa
+          ? String(item.co_siesa).padStart(3, "0")
+          : "";
+        const reglasAsociadas = maestroDianActivo.filter(
+          (r) =>
+            String(r.co_siesa).padStart(3, "0") === centroOad &&
+            String(r.tipo_siesa).trim().toUpperCase() ===
+              String(item.tipo).trim().toUpperCase(),
+        );
 
-          reglasAsociadas.forEach((reglaAsoc) => {
-            const prefijos = String(reglaAsoc.prefijos_dian || "")
-              .split(",")
-              .map((x) => x.trim().toUpperCase())
-              .filter(Boolean);
-            prefijos.forEach((prefijo) => {
-              const llaveCompuesta = `${centroOad}_${String(item.tipo).trim().toUpperCase()}_${prefijo}`;
-              if (datosDian[fk].totales_compuestos?.[llaveCompuesta]) {
-                totalDianFresco +=
-                  datosDian[fk].totales_compuestos[llaveCompuesta];
-              }
-            });
+        reglasAsociadas.forEach((reglaAsoc) => {
+          const prefijos = String(reglaAsoc.prefijos_dian || "")
+            .split(",")
+            .map((x) => x.trim().toUpperCase())
+            .filter(Boolean);
+          prefijos.forEach((prefijo) => {
+            const llaveCompuesta = `${centroOad}_${String(item.tipo).trim().toUpperCase()}_${prefijo}`;
+            if (datosDian[fk].totales_compuestos?.[llaveCompuesta]) {
+              totalDianFresco +=
+                datosDian[fk].totales_compuestos[llaveCompuesta];
+            }
           });
-        }
+        });
       }
 
       let totalDianHistorico = null;
       let existeHistorico = false;
-      const h = diasConciliados[col];
+      const snapshotDia = diasConciliados[col];
 
-      if (h) {
+      if (snapshotDia && Array.isArray(snapshotDia.detalle_filas)) {
         existeHistorico = true;
-        if (Array.isArray(h.detalle_filas)) {
-          const limpiarCodigo = (cd) =>
-            String(cd || "")
-              .replace(/^0+/, "")
-              .trim();
-
-          const filaGuardada = h.detalle_filas.find(
-            (f) =>
-              limpiarCodigo(f.co_siesa) === limpiarCodigo(item.co_siesa) &&
-              String(f.tipo).trim().toUpperCase() ===
-                String(item.tipo).trim().toUpperCase(),
-          );
-
-          if (filaGuardada) {
-            totalDianHistorico = Number(filaGuardada.total_dian);
-          } else {
-            totalDianHistorico = 0;
-          }
-        } else {
-          totalDianHistorico = 0;
-        }
+        const limpiarCodigo = (cd) =>
+          String(cd || "")
+            .replace(/^0+/, "")
+            .trim();
+        const filaGuardada = snapshotDia.detalle_filas.find(
+          (f) =>
+            limpiarCodigo(f.co_siesa) === limpiarCodigo(item.co_siesa) &&
+            String(f.tipo).trim().toUpperCase() ===
+              String(item.tipo).trim().toUpperCase(),
+        );
+        totalDianHistorico = filaGuardada ? Number(filaGuardada.total_dian) : 0;
       }
 
       return {
@@ -149,34 +97,52 @@ export const TabAuditoriaMatriz = React.memo(
       };
     };
 
+    const obtenerTotalesColumnaBloque = (conjuntoFilas, col) => {
+      let acumuladoSiesa = 0;
+      let acumuladoDianFresco = 0;
+      let acumuladoDianHist = 0;
+      let tieneHist = !!diasConciliados[col];
+
+      conjuntoFilas.forEach((row) => {
+        const res = evaluarFilaPorColumna(row, col);
+        acumuladoSiesa += res.totalSiesa;
+        acumuladoDianFresco += res.totalDianFresco;
+        if (res.totalDianHistorico !== null)
+          acumuladoDianHist += res.totalDianHistorico;
+      });
+
+      return {
+        siesa: acumuladoSiesa,
+        dianFresco: acumuladoDianFresco,
+        difFresco: acumuladoSiesa - acumuladoDianFresco,
+        dianHist: acumuladoDianHist,
+        difHist: acumuladoSiesa - acumuladoDianHist,
+        tieneHist,
+      };
+    };
+
     return (
       <div className={styles.resultadosCard}>
         <div className={styles.scrollXContainer}>
-          <table className={styles.tablaMatriz}>
+          <table className={styles.appleMatrixTable}>
             <thead>
               <tr>
-                <th
-                  rowSpan="2"
-                  className={`${styles.fixedTh} ${styles.fixedCol1} ${styles.fixedThSede}`}
-                >
+                <th rowSpan="2" className={styles.stickyColSede}>
                   Sede
                 </th>
-                <th
-                  rowSpan="2"
-                  className={`${styles.fixedTh} ${styles.fixedCol2} ${styles.fixedThTipo}`}
-                >
+                <th rowSpan="2" className={styles.stickyColTipo}>
                   Tipo
                 </th>
                 <th
                   rowSpan="2"
-                  className={`${styles.fixedTh} ${styles.fixedCol3} ${styles.fixedThDesc}`}
+                  className={styles.stickyColDesc}
+                  style={{ borderRight: "2px solid #cbd5e1" }}
                 >
-                  Descripcion de Comprobante
+                  Descripción de Comprobante
                 </th>
                 {columnas.map((col) => {
-                  const conExcel = tieneExcel(col);
-                  const conHist = tieneHistorico(col);
-
+                  const conExcel = !!datosDian;
+                  const conHist = !!diasConciliados[col];
                   let colSpan = 3;
                   if (conExcel && conHist) colSpan = 5;
                   else if (conExcel || conHist) colSpan = 4;
@@ -187,98 +153,95 @@ export const TabAuditoriaMatriz = React.memo(
                       colSpan={colSpan}
                       className={`${styles.fechaHeader} ${conHist ? styles.fechaHeaderCerrada : ""}`}
                     >
-                      {col}
-                      {conHist && (
-                        <span
-                          className={styles.badgeColumnaCerrada}
-                          title="Conciliacion guardada en BD"
-                        >
-                          {" "}
-                          <FontAwesomeIcon icon={faLock} /> guardado
-                        </span>
-                      )}
+                      <div className={styles.flexThHeaderContainer}>
+                        <span>{col}</span>
+                        {conHist && (
+                          <span className={styles.badgeColumnaCerrada}>
+                            <FontAwesomeIcon icon={faLock} /> guardado
+                          </span>
+                        )}
+                      </div>
                     </th>
                   );
                 })}
               </tr>
               <tr>
-                {columnas.map((col, idx) => {
-                  const conExcel = tieneExcel(col);
-                  const conHist = tieneHistorico(col);
-                  return (
-                    <React.Fragment key={`sub-headers-${idx}`}>
-                      <th className={styles.subHeader}>Inicial</th>
-                      <th className={styles.subHeader}>Final</th>
-                      <th className={styles.subHeaderCant}>Total Siesa</th>
-                      {conExcel && (
-                        <th className={styles.subHeaderDian}>
-                          Diferencia Actual
-                        </th>
-                      )}
-                      {conHist && (
-                        <th
-                          className={styles.subHeaderDian}
-                          style={{ backgroundColor: "#1e3a8a", color: "#fff" }}
-                        >
-                          Diferencia Hist. 🔒
-                        </th>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
+                {columnas.map((col, idx) => (
+                  <React.Fragment key={`sh-${idx}`}>
+                    <th className={styles.thSubHeaderMonto}>Inicial</th>
+                    <th className={styles.thSubHeaderMonto}>Final</th>
+                    <th className={styles.thSubHeaderMonto}>Total Siesa</th>
+                    {!!datosDian && (
+                      <th className={styles.thSubHeaderDiferencia}>
+                        Diferencia Actual
+                      </th>
+                    )}
+                    {!!diasConciliados[col] && (
+                      <th className={styles.thSubHeaderSnapshot}>
+                        Diferencia Hist. 🔒
+                      </th>
+                    )}
+                  </React.Fragment>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {/* Fila 1: CONSOLIDADO DIARIO GENERAL */}
+              {/* FILA 1 DE TOTALES EN EL TOPE: CONSOLIDADO DIARIO GENERAL */}
               <tr className={styles.rowGranTotalFinalTop}>
                 <td
                   colSpan="3"
-                  className={`${styles.fixedTd} ${styles.fixedCol1} ${styles.tdGranSumLabelTop}`}
+                  className={`${styles.stickyColumnLeft} ${styles.tdGranSumLabelTop}`}
                 >
                   CONSOLIDADO DIARIO GENERAL (PDV + ESTANDAR)
                 </td>
                 {columnas.map((col) => {
-                  const totalSiesa = calcularTotalSiesaPorBloque("TOTAL", col);
-                  const conExcel = tieneExcel(col);
-                  const conHist = tieneHistorico(col);
+                  const tPdv = obtenerTotalesColumnaBloque(registrosPDV, col);
+                  const tEst = obtenerTotalesColumnaBloque(
+                    registrosEstandar,
+                    col,
+                  );
 
-                  const fk = col.replace(/-/g, "");
-                  const totalDianExcel =
-                    conExcel && datosDian && datosDian[fk]
-                      ? datosDian[fk].total_general
-                      : 0;
-                  const totalDianHist = conHist
-                    ? diasConciliados[col].total_dian_general
-                    : 0;
+                  const siesaGen = tPdv.siesa + tEst.siesa;
+                  const frescoGen = tPdv.dianFresco + tEst.dianFresco;
+                  const histGen = tPdv.dianHist + tEst.dianHist;
 
-                  const difExcel = totalSiesa - totalDianExcel;
-                  const difHist = totalSiesa - totalDianHist;
+                  const difFrescaGen = siesaGen - frescoGen;
+                  const difHistGen = siesaGen - histGen;
 
                   return (
                     <React.Fragment key={`gt-${col}`}>
-                      <td className={styles.tdVacioFinalTop}></td>
-                      <td className={styles.tdVacioFinalTop}></td>
-                      <td className={styles.tdGranTotalCellTop}>
-                        {formatMiles(totalSiesa)}
+                      <td className={styles.tdFilaTotalGeneralBase}>—</td>
+                      <td className={styles.tdFilaTotalGeneralBase}>—</td>
+                      <td className={styles.tdMontoGeneralValTop}>
+                        {formatMiles(siesaGen)}
                       </td>
 
-                      {conExcel && (
+                      {/* Diferencia Fresca General */}
+                      {!!datosDian && (
                         <td
-                          className={`${styles.tdDiferencia} ${difExcel === 0 ? styles.conciliado : styles.descuadrado}`}
+                          className={`${styles.tdDiferenciaFila} ${difFrescaGen === 0 ? styles.conciliadoFilaTop : styles.descuadradoFilaTop}`}
                         >
-                          {difExcel === 0
-                            ? `✔ 0 (DIAN: ${formatMiles(totalDianExcel)})`
-                            : `${formatMiles(difExcel)} (DIAN: ${formatMiles(totalDianExcel)})`}
+                          {difFrescaGen === 0
+                            ? `✔ 0`
+                            : formatMiles(difFrescaGen)}
+                          <span className={styles.lblDianSubVolumenTop}>
+                            {" "}
+                            (DIAN: {formatMiles(frescoGen)})
+                          </span>
                         </td>
                       )}
-                      {conHist && (
+
+                      {/* Diferencia Histórica General */}
+                      {!!diasConciliados[col] && (
                         <td
-                          className={`${styles.tdDiferencia} ${difHist === 0 ? styles.conciliado : styles.descuadrado}`}
-                          style={{ fontWeight: "bold" }}
+                          className={`${styles.tdDiferenciaFila} ${difHistGen === 0 ? styles.conciliadoFilaTop : styles.descuadradoFilaTop}`}
                         >
-                          {difHist === 0
-                            ? `✔ 0 (HIST: ${formatMiles(totalDianHist)}) 🔒`
-                            : `${formatMiles(difHist)} (HIST: ${formatMiles(totalDianHist)}) 🔒`}
+                          🔒{" "}
+                          {difHistGen === 0 ? `✔ 0` : formatMiles(difHistGen)}
+                          <span className={styles.lblDianSubVolumenTop}>
+                            {" "}
+                            (DIAN: {formatMiles(histGen)})
+                          </span>
                         </td>
                       )}
                     </React.Fragment>
@@ -286,55 +249,39 @@ export const TabAuditoriaMatriz = React.memo(
                 })}
               </tr>
 
-              {/* Fila 2: TOTAL COMPROBANTES EMITIDOS EN PUNTOS DE VENTA (PDV) */}
-              <tr className={styles.rowResumenPdvTop}>
+              {/* FILA 2 DE TOTALES EN EL TOPE: TOTAL COMPROBANTES EMITIDOS EN PUNTOS DE VENTA (PDV) */}
+              <tr className={styles.rowSubtotalBloqueTopHeader}>
                 <td
                   colSpan="3"
-                  className={`${styles.fixedTd} ${styles.fixedCol1} ${styles.tdResumenPdvLabel}`}
+                  className={`${styles.stickyColumnLeft} ${styles.tdLabelSubtotalTop}`}
                 >
                   TOTAL COMPROBANTES EMITIDOS EN PUNTOS DE VENTA (PDV)
                 </td>
                 {columnas.map((col) => {
-                  const totalSiesa = calcularTotalSiesaPorBloque("PDV", col);
-                  const conExcel = tieneExcel(col);
-                  const conHist = tieneHistorico(col);
-
-                  const fk = col.replace(/-/g, "");
-                  const totalDianExcel =
-                    conExcel && datosDian && datosDian[fk]
-                      ? datosDian[fk].total_pdv
-                      : 0;
-                  const totalDianHist = conHist
-                    ? diasConciliados[col].total_dian_pdv
-                    : 0;
-
-                  const difExcel = totalSiesa - totalDianExcel;
-                  const difHist = totalSiesa - totalDianHist;
-
+                  const tBlk = obtenerTotalesColumnaBloque(registrosPDV, col);
                   return (
-                    <React.Fragment key={`pdv-sum-${col}`}>
-                      <td className={styles.tdVacioPdvTop}></td>
-                      <td className={styles.tdVacioPdvTop}></td>
-                      <td className={styles.tdResumenPdvCell}>
-                        {formatMiles(totalSiesa)}
+                    <React.Fragment key={`subtop-pdv-${col}`}>
+                      <td className={styles.tdFilaTotalSubTopBase}>—</td>
+                      <td className={styles.tdFilaTotalSubTopBase}>—</td>
+                      <td className={styles.tdMontoSubtotalValTop}>
+                        {formatMiles(tBlk.siesa)}
                       </td>
-                      {conExcel && (
+                      {!!datosDian && (
                         <td
-                          className={`${styles.tdResumenPdvCellDian} ${difExcel === 0 ? styles.conciliado : styles.descuadrado}`}
+                          className={`${styles.tdDiferenciaFila} ${tBlk.difFresco === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
                         >
-                          {difExcel === 0
-                            ? `✔ 0 (DIAN: ${formatMiles(totalDianExcel)})`
-                            : `${formatMiles(difExcel)} (DIAN: ${formatMiles(totalDianExcel)})`}
+                          {tBlk.difFresco === 0
+                            ? `✔ 0 (DIAN: ${formatMiles(tBlk.dianFresco)})`
+                            : `${formatMiles(tBlk.difFresco)} (DIAN: ${formatMiles(tBlk.dianFresco)})`}
                         </td>
                       )}
-                      {conHist && (
+                      {tBlk.tieneHist && (
                         <td
-                          className={`${styles.tdResumenPdvCellDian} ${difHist === 0 ? styles.conciliado : styles.descuadrado}`}
-                          style={{ fontStyle: "italic" }}
+                          className={`${styles.tdDiferenciaFila} ${tBlk.difHist === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
                         >
-                          {difHist === 0
-                            ? `✔ 0 (HIST: ${formatMiles(totalDianHist)}) 🔒`
-                            : `${formatMiles(difHist)} (HIST: ${formatMiles(totalDianHist)}) 🔒`}
+                          {tBlk.difHist === 0
+                            ? `🔒 ✔ 0 (DIAN: ${formatMiles(tBlk.dianHist)})`
+                            : `🔒 ${formatMiles(tBlk.difHist)} (DIAN: ${formatMiles(tBlk.dianHist)})`}
                         </td>
                       )}
                     </React.Fragment>
@@ -342,58 +289,42 @@ export const TabAuditoriaMatriz = React.memo(
                 })}
               </tr>
 
-              {/* Fila 3: TOTAL COMPROBANTES FACTURACION ESTANDAR (EST) */}
-              <tr className={styles.rowResumenEstTop}>
+              {/* FILA 3 DE TOTALES EN EL TOPE: TOTAL COMPROBANTES FACTURACION ESTANDAR (EST) */}
+              <tr className={styles.rowSubtotalBloqueTopHeader}>
                 <td
                   colSpan="3"
-                  className={`${styles.fixedTd} ${styles.fixedCol1} ${styles.tdResumenEstLabel}`}
+                  className={`${styles.stickyColumnLeft} ${styles.tdLabelSubtotalTop}`}
                 >
                   TOTAL COMPROBANTES FACTURACION ESTANDAR (EST)
                 </td>
                 {columnas.map((col) => {
-                  const totalSiesa = calcularTotalSiesaPorBloque(
-                    "ESTANDAR",
+                  const tBlk = obtenerTotalesColumnaBloque(
+                    registrosEstandar,
                     col,
                   );
-                  const conExcel = tieneExcel(col);
-                  const conHist = tieneHistorico(col);
-
-                  const fk = col.replace(/-/g, "");
-                  const totalDianExcel =
-                    conExcel && datosDian && datosDian[fk]
-                      ? datosDian[fk].total_estandar
-                      : 0;
-                  const totalDianHist = conHist
-                    ? diasConciliados[col].total_dian_est
-                    : 0;
-
-                  const difExcel = totalSiesa - totalDianExcel;
-                  const difHist = totalSiesa - totalDianHist;
-
                   return (
-                    <React.Fragment key={`est-sum-${col}`}>
-                      <td className={styles.tdVacioEstTop}></td>
-                      <td className={styles.tdVacioEstTop}></td>
-                      <td className={styles.tdResumenEstCell}>
-                        {formatMiles(totalSiesa)}
+                    <React.Fragment key={`subtop-est-${col}`}>
+                      <td className={styles.tdFilaTotalSubTopBase}>—</td>
+                      <td className={styles.tdFilaTotalSubTopBase}>—</td>
+                      <td className={styles.tdMontoSubtotalValTop}>
+                        {formatMiles(tBlk.siesa)}
                       </td>
-                      {conExcel && (
+                      {!!datosDian && (
                         <td
-                          className={`${styles.tdResumenEstCellDian} ${difExcel === 0 ? styles.conciliado : styles.descuadrado}`}
+                          className={`${styles.tdDiferenciaFila} ${tBlk.difFresco === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
                         >
-                          {difExcel === 0
-                            ? `✔ 0 (DIAN: ${formatMiles(totalDianExcel)})`
-                            : `${formatMiles(difExcel)} (DIAN: ${formatMiles(totalDianExcel)})`}
+                          {tBlk.difFresco === 0
+                            ? `✔ 0 (DIAN: ${formatMiles(tBlk.dianFresco)})`
+                            : `${formatMiles(tBlk.difFresco)} (DIAN: ${formatMiles(tBlk.dianFresco)})`}
                         </td>
                       )}
-                      {conHist && (
+                      {tBlk.tieneHist && (
                         <td
-                          className={`${styles.tdResumenEstCellDian} ${difHist === 0 ? styles.conciliado : styles.descuadrado}`}
-                          style={{ fontStyle: "italic" }}
+                          className={`${styles.tdDiferenciaFila} ${tBlk.difHist === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
                         >
-                          {difHist === 0
-                            ? `✔ 0 (HIST: ${formatMiles(totalDianHist)}) 🔒`
-                            : `${formatMiles(difHist)} (HIST: ${formatMiles(totalDianHist)}) 🔒`}
+                          {tBlk.difHist === 0
+                            ? `🔒 ✔ 0 (DIAN: ${formatMiles(tBlk.dianHist)})`
+                            : `🔒 ${formatMiles(tBlk.difHist)} (DIAN: ${formatMiles(tBlk.dianHist)})`}
                         </td>
                       )}
                     </React.Fragment>
@@ -401,67 +332,44 @@ export const TabAuditoriaMatriz = React.memo(
                 })}
               </tr>
 
-              {/* Separador para filas individuales PDV */}
-              <tr className={styles.rowSeparadora}>
-                <td colSpan={3 + columnas.length * 4}>
-                  <div className={styles.stickySeparadorTexto}>
-                    BLOQUE COMPROBANTES PUNTOS DE VENTA (PDV)
-                  </div>
+              {/* DESGLOSE SECCIONAL: DETALLE INDIVIDUAL PDV */}
+              <tr className={styles.subTabGroupBlock}>
+                <td
+                  colSpan={3 + columnas.length * 5}
+                  className={styles.categoryDividerLabel}
+                >
+                  <span className={styles.stickySectionLabel}>
+                    DETALLE PUNTOS DE VENTA (PDV)
+                  </span>
                 </td>
               </tr>
-
-              {/* Mapeo de filas individuales de PDV */}
               {registrosPDV.map((row, rIdx) => (
-                <tr
-                  key={`pdv-row-${rIdx}`}
-                  className={
-                    row.sub_bloque === "ALTERNA" ? styles.rowAlternaColor : ""
-                  }
-                >
-                  <td
-                    className={`${styles.fixedTd} ${styles.fixedCol1} ${styles.tdGrupo}`}
-                  >
-                    {row.grupo}
+                <tr key={`pdv-${rIdx}`}>
+                  <td className={styles.stickyColSede}>{row.grupo}</td>
+                  <td className={styles.stickyColTipo}>
+                    <span className={styles.textCodeBadge}>{row.tipo}</span>
                   </td>
                   <td
-                    className={`${styles.fixedTd} ${styles.fixedCol2} ${styles.tdCenter}`}
+                    className={styles.stickyColDesc}
+                    style={{ borderRight: "2px solid #cbd5e1" }}
                   >
-                    <span className={styles.badgeTipo}>{row.tipo}</span>
-                  </td>
-                  <td
-                    className={`${styles.fixedTd} ${styles.fixedCol3} ${styles.tdDesc}`}
-                  >
-                    {row.descripcion}{" "}
-                    <small style={{ color: "#64748b" }}>
-                      ({row.sub_bloque})
-                    </small>
+                    {row.descripcion}
                   </td>
                   {columnas.map((col) => {
                     const fk = col.replace(/-/g, "");
-                    const diaData = row.dias[fk] || {
+                    const diaData = row.dias?.[fk] || {
                       inicial: "-",
                       final: "-",
                       total: 0,
-                      sin_movimiento: true,
                     };
                     const resFila = evaluarFilaPorColumna(row, col);
-
                     return (
-                      <React.Fragment key={`pdv-data-${col}`}>
-                        <td
-                          className={`${styles.tdNum} ${diaData.sin_movimiento ? styles.sinMovimientoCelda : ""}`}
-                        >
-                          {diaData.inicial}
-                        </td>
-                        <td
-                          className={`${styles.tdNum} ${diaData.sin_movimiento ? styles.sinMovimientoCelda : ""}`}
-                        >
-                          {diaData.final}
-                        </td>
-                        <td className={styles.tdSiesaCant}>
+                      <React.Fragment key={`cell-pdv-${col}`}>
+                        <td>{diaData.inicial}</td>
+                        <td>{diaData.final}</td>
+                        <td style={{ fontWeight: "600" }}>
                           {formatMiles(diaData.total)}
                         </td>
-
                         {resFila.existeExcel && (
                           <td
                             className={`${styles.tdDiferenciaFila} ${resFila.difFresca === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
@@ -474,19 +382,10 @@ export const TabAuditoriaMatriz = React.memo(
                         {resFila.existeHistorico && (
                           <td
                             className={`${styles.tdDiferenciaFila} ${resFila.difHistorica === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
-                            style={{ backgroundColor: "#f0fdf4" }}
                           >
-                            {resFila.totalDianHistorico !== null ? (
-                              resFila.difHistorica === 0 ? (
-                                `🔒 ✔ 0 (DIAN: ${formatMiles(resFila.totalDianHistorico)})`
-                              ) : (
-                                `🔒 ${formatMiles(resFila.difHistorica)} (DIAN: ${formatMiles(resFila.totalDianHistorico)})`
-                              )
-                            ) : (
-                              <span className={styles.textoSinDatosFila}>
-                                Sin Snapshot
-                              </span>
-                            )}
+                            {resFila.difHistorica === 0
+                              ? `🔒 ✔ 0 (DIAN: ${formatMiles(resFila.totalDianHistorico)})`
+                              : `🔒 ${formatMiles(resFila.difHistorica)} (DIAN: ${formatMiles(resFila.totalDianHistorico)})`}
                           </td>
                         )}
                       </React.Fragment>
@@ -495,67 +394,39 @@ export const TabAuditoriaMatriz = React.memo(
                 </tr>
               ))}
 
-              {/* Separador para filas individuales ESTANDAR */}
-              <tr className={styles.rowSeparadora}>
-                <td colSpan={3 + columnas.length * 4}>
-                  <div className={styles.stickySeparadorTexto}>
-                    BLOQUE COMPROBANTES FACTURACION ESTANDAR (EST)
-                  </div>
+              {/* DESGLOSE SECCIONAL: DETALLE INDIVIDUAL ESTANDAR */}
+              <tr className={styles.subTabGroupBlock}>
+                <td
+                  colSpan={3 + columnas.length * 5}
+                  className={styles.categoryDividerLabel}
+                >
+                  <span className={styles.stickySectionLabel}>
+                    DETALLE FACTURACIÓN ESTÁNDAR (EST)
+                  </span>
                 </td>
               </tr>
-
-              {/* Mapeo de filas individuales de ESTANDAR */}
               {registrosEstandar.map((row, rIdx) => (
-                <tr
-                  key={`est-row-${rIdx}`}
-                  className={
-                    row.sub_bloque === "ALTERNA" ? styles.rowAlternaColor : ""
-                  }
-                >
-                  <td
-                    className={`${styles.fixedTd} ${styles.fixedCol1} ${styles.tdGrupo}`}
-                  >
-                    {row.grupo}
+                <tr key={`est-${rIdx}`}>
+                  <td className={styles.stickyColSede}>{row.grupo}</td>
+                  <td className={styles.stickyColTipo}>
+                    <span className={styles.textCodeBadge}>{row.tipo}</span>
                   </td>
-                  <td
-                    className={`${styles.fixedTd} ${styles.fixedCol2} ${styles.tdCenter}`}
-                  >
-                    <span className={styles.badgeTipo}>{row.tipo}</span>
-                  </td>
-                  <td
-                    className={`${styles.fixedTd} ${styles.fixedCol3} ${styles.tdDesc}`}
-                  >
-                    {row.descripcion}{" "}
-                    <small style={{ color: "#64748b" }}>
-                      ({row.sub_bloque})
-                    </small>
-                  </td>
+                  <td className={styles.stickyColDesc}>{row.descripcion}</td>
                   {columnas.map((col) => {
                     const fk = col.replace(/-/g, "");
-                    const diaData = row.dias[fk] || {
+                    const diaData = row.dias?.[fk] || {
                       inicial: "-",
                       final: "-",
                       total: 0,
-                      sin_movimiento: true,
                     };
                     const resFila = evaluarFilaPorColumna(row, col);
-
                     return (
-                      <React.Fragment key={`est-data-${col}`}>
-                        <td
-                          className={`${styles.tdNum} ${diaData.sin_movimiento ? styles.sinMovimientoCelda : ""}`}
-                        >
-                          {diaData.inicial}
-                        </td>
-                        <td
-                          className={`${styles.tdNum} ${diaData.sin_movimiento ? styles.sinMovimientoCelda : ""}`}
-                        >
-                          {diaData.final}
-                        </td>
-                        <td className={styles.tdSiesaCant}>
+                      <React.Fragment key={`cell-est-${col}`}>
+                        <td>{diaData.inicial}</td>
+                        <td>{diaData.final}</td>
+                        <td style={{ fontWeight: "600" }}>
                           {formatMiles(diaData.total)}
                         </td>
-
                         {resFila.existeExcel && (
                           <td
                             className={`${styles.tdDiferenciaFila} ${resFila.difFresca === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
@@ -568,19 +439,10 @@ export const TabAuditoriaMatriz = React.memo(
                         {resFila.existeHistorico && (
                           <td
                             className={`${styles.tdDiferenciaFila} ${resFila.difHistorica === 0 ? styles.conciliadoFila : styles.descuadradoFila}`}
-                            style={{ backgroundColor: "#f0fdf4" }}
                           >
-                            {resFila.totalDianHistorico !== null ? (
-                              resFila.difHistorica === 0 ? (
-                                `🔒 ✔ 0 (DIAN: ${formatMiles(resFila.totalDianHistorico)})`
-                              ) : (
-                                `🔒 ${formatMiles(resFila.difHistorica)} (DIAN: ${formatMiles(resFila.totalDianHistorico)})`
-                              )
-                            ) : (
-                              <span className={styles.textoSinDatosFila}>
-                                Sin Snapshot
-                              </span>
-                            )}
+                            {resFila.difHistorica === 0
+                              ? `🔒 ✔ 0 (DIAN: ${formatMiles(resFila.totalDianHistorico)})`
+                              : `🔒 ${formatMiles(resFila.difHistorica)} (DIAN: ${formatMiles(resFila.totalDianHistorico)})`}
                           </td>
                         )}
                       </React.Fragment>
@@ -595,3 +457,5 @@ export const TabAuditoriaMatriz = React.memo(
     );
   },
 );
+
+TabAuditoriaMatriz.displayName = "TabAuditoriaMatriz";

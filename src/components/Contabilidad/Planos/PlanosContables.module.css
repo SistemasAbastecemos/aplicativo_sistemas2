@@ -1,226 +1,241 @@
+/* ==========================================================================
+   Estructura base — Apple / #f5f5f7 / #03996b
+   ========================================================================== */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background-color: #f5f5f7;
   font-family:
-    "Inter",
-    "Segoe UI",
-    system-ui,
-    -apple-system,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1d1d1f;
 }
 
-/* Header */
+/* ==========================================================================
+   Header
+   ========================================================================== */
 .header {
-  background: #ffffff;
-  padding: 0.3rem 0.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 95;
 }
 
 .headerContent {
-  max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .title {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .subtitle {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #86868b;
+  margin: 0;
   font-weight: 400;
 }
 
-/* ─── Tabs ─── */
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
 .tabsContainer {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 0;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 1rem;
+  gap: 4px;
+  padding: 0 32px;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 66px;
+  z-index: 90;
 }
 
 .tab {
   background: none;
   border: none;
-  padding: 0.75rem 1.25rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #64748b;
+  padding: 14px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #515154;
   cursor: pointer;
-  border-radius: 6px 6px 0 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
   transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
 }
 
 .tab:hover {
-  color: #334155;
-  background-color: #f8fafc;
+  color: #1d1d1f;
 }
 
 .activeTab {
-  color: #009b6d;
-  background-color: #f0fdf4;
-  border-bottom: 3px solid #009b6d;
+  color: #03996b;
+  border-bottom-color: #03996b;
+  font-weight: 600;
 }
 
-/* ─── Content wrapper ─── */
+/* ==========================================================================
+   Content wrapper
+   ========================================================================== */
 .content {
-  padding: 1.25rem 1rem 3rem;
+  margin: 0 auto;
+  padding: 24px 32px 40px 32px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
 }
 
-/* ─── WARNING BANNER ─── */
+/* ==========================================================================
+   Warning banner
+   ========================================================================== */
 .warningBanner {
-  background: #fffbeb;
-  border-left: 4px solid #f59e0b;
+  background-color: rgba(255, 149, 0, 0.08);
+  border-left: 4px solid #ff9500;
   color: #b45309;
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
-/* ─── CARGA: card unificada ─── */
+.warningBanner svg {
+  flex-shrink: 0;
+  color: #ff9500;
+}
+
+/* ==========================================================================
+   Main card (tab de carga)
+   ========================================================================== */
 .mainCard {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
   overflow: hidden;
-  animation: fadeInUp 0.4s ease;
+  animation: fadeInUp 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .cardContent {
-  padding: 1.25rem 1.5rem;
+  padding: 24px;
 }
 
-/* Layout horizontal: filtros izquierda | upload derecha */
 .uploadArea {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 24px;
   align-items: start;
 }
 
-/* Panel izquierdo: selects de empresa y tipo */
+/* Panel izquierdo (filtros) */
 .filtersPanel {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
 }
 
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.filterLabel {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.filterIcon {
-  color: #6b7280;
-  font-size: 0.7rem;
-}
-
-.filterSelect {
-  padding: 0.6rem 0.875rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #ffffff;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  color: #1e293b;
-}
-
-.filterSelect:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.filterSelect:hover {
-  border-color: #9ca3af;
-}
-
-/* ─── Labels flotantes para los selects de filtro ───
-   El label queda fijo sobre el borde superior del select. Como los
-   <select> siempre tienen valor, el label permanece arriba siempre. */
-.floatingField {
-  position: relative;
-  width: 100%;
-}
-
-.floatingField .filterSelect {
-  width: 100%;
-}
-
-.floatingLabel {
-  position: absolute;
-  top: 0;
-  left: 0.7rem;
-  transform: translateY(-50%);
-  background: #ffffff; /* tapa el borde del select para el efecto flotante */
-  padding: 0 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #009b6d;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Divisor vertical entre los dos paneles */
-.uploadDivider {
-  display: none;
-}
-
-/* Panel derecho: selector de archivo */
+/* Panel derecho (upload) */
 .uploadInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .uploadInfo h3 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #1d1d1f;
   margin: 0;
 }
 
 .uploadControls {
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 12px;
 }
 
+/* ==========================================================================
+   Form Groups con floating label
+   ========================================================================== */
+.formGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup.floating .formSelect,
+.formGroup.floating .formInput {
+  padding: 14px 14px 8px 14px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  background-color: #ffffff;
+  font-size: 0.9rem;
+  color: #1d1d1f;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  width: 100%;
+}
+
+.formGroup.floating .formSelect {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M6%208.5L1.5%204h9z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 32px !important;
+}
+
+.formGroup.floating .formSelect:focus,
+.formGroup.floating .formInput:focus {
+  outline: none;
+  border-color: #03996b;
+  box-shadow: 0 0 0 4px rgba(3, 153, 107, 0.15);
+}
+
+.formGroup.floating .formLabel {
+  position: absolute;
+  top: -9px;
+  left: 12px;
+  background-color: #ffffff;
+  padding: 0 6px;
+  font-size: 0.72rem;
+  color: #515154;
+  font-weight: 500;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.formGroup.floating .formLabel svg {
+  color: #03996b;
+  font-size: 0.72rem;
+}
+
+/* ==========================================================================
+   Selector de archivo
+   ========================================================================== */
 .fileInput {
   display: none;
 }
@@ -228,75 +243,83 @@
 .fileInputLabel {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #374151;
-  transition: all 0.25s ease;
   justify-content: center;
-  align-self: flex-start;
+  gap: 8px;
+  padding: 20px 24px;
+  background-color: #f9f9fb;
+  border: 2px dashed #d2d2d7;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #515154;
+  transition: all 0.2s ease;
+  align-self: stretch;
 }
 
 .fileInputLabel:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  transform: translateY(-1px);
+  border-color: #03996b;
+  background-color: rgba(3, 153, 107, 0.03);
+  color: #03996b;
 }
 
-/* File Info */
+/* File info card */
 .fileInfo {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: #f0f9ff;
-  border: 1px solid #e0f2fe;
-  border-radius: 10px;
-  gap: 0.75rem;
+  padding: 12px 14px;
+  background-color: rgba(3, 153, 107, 0.05);
+  border: 1px solid rgba(3, 153, 107, 0.15);
+  border-radius: 12px;
+  gap: 10px;
 }
 
 .fileDetails {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
 
 .fileIcon {
-  color: #059669;
+  color: #03996b;
   font-size: 1.1rem;
   flex-shrink: 0;
 }
 
+.fileDetailsText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .fileName {
   display: block;
-  font-weight: 600;
-  color: #1e293b;
-  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  font-size: 0.85rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .fileSize {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.72rem;
+  color: #86868b;
 }
 
 .clearFile {
-  padding: 0.4rem;
+  width: 32px;
+  height: 32px;
   border: none;
-  background: #fef2f2;
-  color: #dc2626;
-  border-radius: 6px;
+  background-color: rgba(214, 48, 48, 0.08);
+  color: #d63030;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -304,317 +327,383 @@
 }
 
 .clearFile:hover {
-  background: #fecaca;
+  background-color: rgba(214, 48, 48, 0.15);
 }
 
-/* Action Buttons */
+/* ==========================================================================
+   Botones de acción
+   ========================================================================== */
 .actionButtons {
   display: flex;
-  gap: 0.75rem;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .submitButton {
-  padding: 0.75rem 1.5rem;
+  padding: 12px 20px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
+  background-color: #03996b;
+  color: #ffffff;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(3, 153, 107, 0.2);
 }
 
-.submitButton:hover:not(.disabled) {
+.submitButton:hover:not(.disabled):not(:disabled) {
+  background-color: #028059;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 6px 20px rgba(3, 153, 107, 0.3);
 }
 
-.submitButton.disabled {
-  background: #9ca3af;
+.submitButton.disabled,
+.submitButton:disabled {
+  background-color: #d2d2d7;
+  color: #86868b;
   cursor: not-allowed;
-  transform: none;
   box-shadow: none;
+  transform: none;
 }
 
 .cancelButton {
-  padding: 0.75rem 1.25rem;
-  border: 1px solid #d1d5db;
+  padding: 12px 18px;
+  border: 1px solid #d2d2d7;
   border-radius: 10px;
-  background: #ffffff;
-  color: #374151;
-  font-weight: 600;
-  font-size: 0.875rem;
+  background-color: #ffffff;
+  color: #1d1d1f;
+  font-weight: 500;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .cancelButton:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background-color: #f5f5f7;
+  border-color: #d63030;
+  color: #d63030;
 }
 
-/* ─── Disabled state ─── */
+/* ==========================================================================
+   Disabled state (funcionalidad suspendida)
+   ========================================================================== */
 .disabledState {
   text-align: center;
-  padding: 4rem 2rem;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px dashed #cbd5e1;
+  padding: 60px 24px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px dashed #d2d2d7;
+}
+
+.disabledState h3 {
+  margin: 12px 0 6px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.disabledState p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #86868b;
 }
 
 .disabledIcon {
-  font-size: 3rem;
-  color: #94a3b8;
-  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  color: #d2d2d7;
+  margin-bottom: 8px;
 }
 
-/* ─── CONFIGURACION ─── */
+/* ==========================================================================
+   Tab de configuración
+   ========================================================================== */
 .configContainer {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
+  padding: 24px;
+  animation: fadeInUp 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .configHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 16px;
 }
 
 .configIntro h3 {
-  margin: 0 0 0.25rem 0;
-  color: #1e293b;
+  margin: 0 0 4px 0;
+  color: #1d1d1f;
   font-size: 1rem;
+  font-weight: 600;
 }
 
 .configIntro p {
   margin: 0;
-  color: #64748b;
-  font-size: 0.85rem;
+  color: #86868b;
+  font-size: 0.82rem;
 }
 
 .saveConfigBtn {
-  background-color: #009b6d;
-  color: white;
+  background-color: #03996b;
+  color: #ffffff;
   border: none;
-  padding: 0.65rem 1.25rem;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.88rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(3, 153, 107, 0.2);
 }
 
 .saveConfigBtn:hover:not(:disabled) {
-  background-color: #007a56;
+  background-color: #028059;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(3, 153, 107, 0.3);
 }
 
 .saveConfigBtn:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Grid de 3 columnas fijas — todas las cards igual de anchas */
+/* Grid 3 columnas */
 .configLayout {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  gap: 16px;
 }
 
-/* Toggle ocupa fila completa */
 .configBlockFull {
   grid-column: 1 / -1;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fafafa;
-  overflow: hidden;
 }
 
-.configBlock {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #fafafa;
+.configBlock,
+.configBlockFull {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  background-color: #f9f9fb;
   overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.configBlock:hover,
+.configBlockFull:hover {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .blockHeader {
-  background: #f1f5f9;
-  padding: 0.875rem 1rem;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  border-bottom: 1px solid #e2e8f0;
-  color: #334155;
+  gap: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background-color: #ffffff;
+  color: #1d1d1f;
+}
+
+.blockHeader svg {
+  color: #03996b;
+  font-size: 0.85rem;
 }
 
 .blockHeader h4 {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
 .blockBody {
-  padding: 1rem;
+  padding: 14px;
 }
 
-/* Inputs de Configuracion */
+/* Inputs de config */
 .inputRow {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.875rem;
+  gap: 6px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
 .configInput,
 .configSelect {
   flex: 1;
-  min-width: 0;
-  padding: 0.45rem 0.625rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: #1e293b;
+  min-width: 80px;
+  padding: 8px 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #1d1d1f;
+  background-color: #ffffff;
+  font-family: inherit;
+  transition: all 0.2s ease;
 }
 
 .configInput:focus,
 .configSelect:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.08);
+  border-color: #03996b;
+  box-shadow: 0 0 0 3px rgba(3, 153, 107, 0.12);
+}
+
+.configSelect {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%2386868b%22%20d%3D%22M6%208.5L1.5%204h9z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  padding-right: 28px;
 }
 
 .addBtn {
-  background-color: #3b82f6;
-  color: white;
+  background-color: #03996b;
+  color: #ffffff;
   border: none;
-  padding: 0.45rem 0.875rem;
-  border-radius: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
 .addBtn:hover {
-  background-color: #2563eb;
+  background-color: #028059;
 }
 
 /* Tags */
 .tagContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 6px;
+  min-height: 24px;
 }
 
 .tag {
-  background: #e0f2fe;
-  color: #0369a1;
-  padding: 0.2rem 0.5rem 0.2rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
+  background-color: rgba(3, 153, 107, 0.08);
+  color: #028059;
+  border: 1px solid rgba(3, 153, 107, 0.2);
+  padding: 4px 6px 4px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 6px;
   font-weight: 500;
 }
 
 .tag button {
   background: none;
   border: none;
-  color: #0284c7;
+  color: #028059;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.15rem;
-  border-radius: 50%;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
 .tag button:hover {
-  background: #bae6fd;
-  color: #0c4a6e;
+  background-color: rgba(3, 153, 107, 0.15);
 }
 
 .emptyTag {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #86868b;
   font-style: italic;
 }
 
-/* Toggle Switch */
+/* ==========================================================================
+   Toggle Switch (iOS style)
+   ========================================================================== */
 .toggleLabel {
   position: relative;
   display: inline-flex;
   align-items: center;
   cursor: pointer;
-  gap: 0.875rem;
+  gap: 12px;
 }
 
 .toggleInput {
   opacity: 0;
   width: 0;
   height: 0;
+  position: absolute;
 }
 
 .toggleSlider {
   position: relative;
-  width: 46px;
-  height: 22px;
-  background-color: #cbd5e1;
-  border-radius: 22px;
-  transition: 0.3s;
+  width: 48px;
+  height: 28px;
+  background-color: #d2d2d7;
+  border-radius: 28px;
+  transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   flex-shrink: 0;
 }
 
-.toggleSlider:before {
+.toggleSlider::before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 22px;
+  width: 22px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  background-color: #ffffff;
   border-radius: 50%;
-  transition: 0.3s;
+  transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .toggleInput:checked + .toggleSlider {
-  background-color: #009b6d;
+  background-color: #03996b;
 }
 
-.toggleInput:checked + .toggleSlider:before {
-  transform: translateX(24px);
+.toggleInput:checked + .toggleSlider::before {
+  transform: translateX(20px);
 }
 
 .toggleText {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #334155;
+  font-weight: 500;
+  font-size: 0.88rem;
+  color: #1d1d1f;
 }
 
-/* ─── Animaciones ─── */
+/* ==========================================================================
+   Animaciones
+   ========================================================================== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -622,26 +711,118 @@
   }
 }
 
-/* ─── Responsive ─── */
-@media (max-width: 900px) {
+/* ==========================================================================
+   Responsive — Tablet (≤ 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .headerContent,
+  .tabsContainer,
+  .content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
   .configLayout {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 640px) {
-  .uploadArea {
-    grid-template-columns: 1fr;
+/* ==========================================================================
+   Responsive — Móvil (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* ---------- Header ---------- */
+  .header {
+    padding: 12px 0;
   }
 
-  .configLayout {
+  .headerContent {
+    padding: 0 16px;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.76rem;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabsContainer {
+    padding: 0 12px;
+    top: 66px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabsContainer::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Content ---------- */
+  .content {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* ---------- Card de carga ---------- */
+  .cardContent {
+    padding: 16px;
+  }
+
+  .uploadArea {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .filtersPanel {
+    gap: 12px;
+  }
+
+  .fileInputLabel {
+    padding: 24px 16px;
+    font-size: 0.85rem;
+  }
+
+  .fileName {
+    font-size: 0.82rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .submitButton,
+  .cancelButton {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 20px;
+  }
+
+  /* ---------- Disabled state ---------- */
+  .disabledState {
+    padding: 40px 20px;
+  }
+
+  /* ---------- Config ---------- */
+  .configContainer {
+    padding: 16px;
   }
 
   .configHeader {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
   }
 
   .saveConfigBtn {
@@ -649,15 +830,76 @@
     justify-content: center;
   }
 
-  .tabsContainer {
-    padding: 0 0.5rem;
+  .configLayout {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
+  .blockBody {
+    padding: 12px;
+  }
+
+  .inputRow {
+    gap: 6px;
+  }
+
+  .configInput,
+  .configSelect {
+    flex: 1 1 auto;
+  }
+
+  .addBtn {
+    flex: 1 1 100%;
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  /* Warning banner */
+  .warningBanner {
+    font-size: 0.82rem;
+    padding: 10px 12px;
+    align-items: flex-start;
+  }
+
+  /* Prevenir zoom de iOS en inputs */
+  .configInput,
+  .configSelect,
+  .formInput,
+  .formSelect {
+    font-size: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   Responsive — Móvil pequeño (≤ 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+  .headerContent,
+  .tabsContainer,
   .content {
-    padding: 1rem 0.5rem 2rem;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .tab {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+
+  .tab span {
+    display: none; /* Solo íconos en 480px para ahorrar espacio */
   }
 
   .cardContent {
-    padding: 1rem;
+    padding: 12px;
+  }
+
+  .configContainer {
+    padding: 12px;
+  }
+
+  .fileInputLabel {
+    padding: 20px 12px;
+    font-size: 0.82rem;
   }
 }

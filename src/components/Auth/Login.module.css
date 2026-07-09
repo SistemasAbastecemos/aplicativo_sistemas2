@@ -1,436 +1,480 @@
+/* ==========================================================================
+   Estructura Global - Lineamientos de Diseño Estilo Apple
+   ========================================================================== */
 .loginWrapper {
   display: flex;
   min-height: 100vh;
-  background: #f9fafb;
+  background-color: #ffffff;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
+/* ==========================================================================
+   Panel Izquierdo - Imagen de fondo con capa transparente #009b6d
+   ========================================================================== */
 .leftPanel {
-  flex: 1;
-  background:
-    linear-gradient(135deg, #2a8a3a, #36b04b94),
-    url(/src/assets/images/BELALCAZAR-1.jpg);
-  color: white;
+  flex: 1.1;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40px;
+  padding: 60px;
+  color: #ffffff;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Capa dedicada exclusivamente al color de respaldo institucional */
+.leftPanel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #009b6d;
+  z-index: 1; /* Al fondo de la jerarquía interna */
+}
+
+/* Capa de la imagen con el efecto Ken Burns (Encima del color base) */
+.leftPanel .bgImage {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  background-image: url(/src/assets/images/BELALCAZAR-1.jpg);
+  background-size: cover;
+  background-position: center;
+  animation: appleKenBurns 45s infinite ease-in-out;
+  z-index: 2;
+}
+
+/* Capa del Gradiente Corporativo de Intersección (Encima de la imagen) */
+.leftPanel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 155, 109, 0.9),
+    rgba(14, 82, 57, 0.94)
+  );
+  z-index: 3;
+}
+
+/* Partículas Lumínicas de Ambiente (Encima del gradiente) */
+.ambientLight1 {
+  position: absolute;
+  top: 15%;
+  left: 10%;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 178, 0.4) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  filter: blur(40px);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.ambientLight2 {
+  position: absolute;
+  bottom: 10%;
+  right: -5%;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 155, 109, 0.4) 0%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  filter: blur(50px);
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* El contenido (Textos y Logo) arriba de absolutamente todo */
+.leftContent {
+  max-width: 460px;
   text-align: center;
+  position: relative;
+  z-index: 5;
 }
 
 .panelLogo {
-  width: 50%;
-  margin-bottom: 20px;
+  width: auto;
+  height: 80px;
+  margin-bottom: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
 }
 
 .panelTitle {
-  font-size: 61px;
+  font-size: 2.4rem;
   font-weight: 700;
-  margin-bottom: 15px;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  line-height: 1.2;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .panelText {
-  font-size: 16px;
+  font-size: 1.1rem;
   line-height: 1.5;
-  max-width: 500px;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
+/* ==========================================================================
+   Panel Derecho - Área del Formulario
+   ========================================================================== */
 .rightPanel {
-  flex: 1;
+  flex: 0.9;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px;
+  background-color: #f5f5f7;
   position: relative;
-  overflow: visible;
-  background: linear-gradient(135deg, #f9fafb, #eef2f7);
-}
-
-.rightPanel::before,
-.rightPanel::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.15;
-  animation: float 8s ease-in-out infinite;
-}
-
-.rightPanel::before {
-  width: 200px;
-  height: 200px;
-  top: 10%;
-  left: 15%;
-  background: #36b04b;
-  animation-delay: 0s;
-}
-
-.rightPanel::after {
-  width: 300px;
-  height: 300px;
-  bottom: 5%;
-  right: 10%;
-  background: #2a8a3a;
-  animation-delay: 4s;
 }
 
 .cardWrap {
   position: relative;
   width: 100%;
   max-width: 400px;
-  /* igual que tu loginCard.max-width para atarlo */
-  z-index: 0;
-  /* centro por si el rightPanel usa justify/align center */
-  display: block;
   z-index: 1;
 }
 
-.loginCard {
-  background: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+/* ==========================================================================
+   Tarjeta Decorativa Rotada (Preservada y Adaptada a la Identidad)
+   ========================================================================== */
+.decorCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-6deg);
   width: 100%;
-  max-width: 400px;
-  text-align: center;
-  position: relative;
-  z-index: 2;
+  height: 100%;
+  padding: 28px 24px;
+  box-sizing: content-box;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 155, 109, 0.92),
+    rgba(22, 109, 76, 0.95)
+  );
+  border: 1px solid rgba(0, 155, 109, 0.15);
+  z-index: -1;
+  pointer-events: none;
 }
 
-.loginLogo {
-  width: 60%;
-  margin-bottom: 15px;
+/* ==========================================================================
+   Tarjeta de Formulario Estilo Apple Canvas
+   ========================================================================== */
+.loginCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.04);
+  padding: 40px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .loginTitle {
-  font-size: 22px;
-  font-weight: bold;
-  color: #1e293b;
-  margin-bottom: 25px;
+  font-size: 1.6rem;
+  font-weight: 650;
+  color: #1d1d1f;
+  letter-spacing: -0.02em;
+  text-align: left;
 }
 
+.loginSubtitle {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #86868b;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+/* Campos de entrada Input */
 .loginInputGroup {
-  margin-bottom: 15px;
+  margin-bottom: 14px;
+}
+
+.inputIconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 16px;
+  color: #86868b;
+  font-size: 1.1rem;
+  pointer-events: none;
 }
 
 .loginInputGroup input {
   width: 100%;
-  padding: 12px 14px;
-  font-size: 15px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
+  padding: 14px 16px 14px 44px;
+  font-size: 0.95rem;
+  background-color: #f5f5f7;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #1d1d1f;
   outline: none;
-  transition: all 0.3s ease;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .loginInputGroup input:focus {
-  border-color: #36b04b;
-  box-shadow: 0 0 6px rgba(54, 176, 75, 0.4);
+  background-color: #ffffff;
+  border-color: #009b6d;
+  box-shadow: 0 0 0 4px rgba(0, 155, 109, 0.15);
 }
 
+/* Botón de Acción Principal - #009b6d */
 .loginButton {
   width: 100%;
-  padding: 12px 20px;
-  font-size: 16px;
+  padding: 14px 24px;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: white;
-  background: #36b04b;
+  color: #ffffff;
+  background-color: #009b6d;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition:
-    background 0.3s ease,
-    transform 0.2s ease;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  margin-top: 8px;
 }
 
 .loginButton:hover {
-  background: #2a8a3a;
-  transform: translateY(-2px);
+  background-color: #00825b;
+}
+
+.loginButton:active {
+  background-color: #006a4a;
+}
+
+.loginButton:disabled {
+  background-color: #e8e8ed;
+  color: #a1a1a6;
+  cursor: not-allowed;
 }
 
 .loginError {
-  color: #e53e3e;
-  font-size: 14px;
-  margin-top: 10px;
+  color: #ff3b30;
+  font-size: 0.85rem;
+  margin: 8px 0 14px 0;
+  text-align: left;
+  line-height: 1.3;
 }
 
-.loginFooter {
-  margin-top: 25px;
-  font-size: 12px;
-  color: #6b7280;
+.extraLinks {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.linkButton,
+.backButton {
+  background: none;
+  border: none;
+  color: #009b6d;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.15s ease;
+}
+
+.linkButton:hover,
+.backButton:hover {
+  color: #00825b;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Capa de Microsoft Single Sign-On
+   ========================================================================== */
+.microsoftContainer {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.dividerOr {
+  width: 100%;
   text-align: center;
+  border-bottom: 1px solid #e8e8ed;
+  line-height: 0.1em;
+  margin: 20px 0;
+}
+
+.dividerOr span {
+  background: #ffffff;
+  padding: 0 14px;
+  color: #86868b;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.loginButtonMicrosoft {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  color: #1d1d1f;
+  border: 1px solid #d2d2d7;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.loginButtonMicrosoft:hover:not(:disabled) {
+  background-color: #f5f5f7;
+  border-color: #86868b;
+}
+
+.msIcon {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Pie de Página y Datos de Contacto (Restaurados y Estilizados)
+   ========================================================================== */
+.loginFooter {
+  margin-top: 28px;
+  border-top: 1px solid #f5f5f7;
+  padding-top: 20px;
 }
 
 .firmaList {
   list-style: none;
   padding: 0;
   margin: 0;
+  text-align: left;
 }
 
 .firmaList li {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 6px 0;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #86868b;
+  margin: 8px 0;
+  line-height: 1.4;
 }
 
 .icono {
-  color: #36b04b;
-}
-
-.logoMobile {
-  width: 50%;
-  margin-bottom: 20px;
-  display: none;
-  margin: 0 auto 20px auto;
-}
-
-.userIcon {
-  font-size: 100px;
-  color: #36b04b;
-  margin-bottom: 20px;
-  display: block;
-  margin: 0 auto 20px auto;
-}
-
-.registerIcon,
-.forgotIcon {
-  font-size: 90px;
-  margin: 0 auto 20px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.registerIcon {
-  color: #36b04b;
-}
-
-.forgotIcon {
-  color: #d9534f;
-}
-
-.decorCard {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  /* translate centra y el rotate da pequeño giro estético */
-  transform: translate(-50%, -50%) rotate(-6deg);
-  width: calc(100% + 40px);
-  /* siempre un poco más ancho que la loginCard */
-  height: calc(100% + 56px);
-  /* siempre un poco más alto que la loginCard */
-  max-width: 520px;
-  /* evita que crezca demasiado en pantallas enormes */
-  border-radius: 20px;
-  background: linear-gradient(135deg, #2a8a3a, #36b04b);
-  box-shadow: 0 12px 40px rgba(10, 25, 10, 0.18);
-  z-index: 1;
-  pointer-events: none;
-  /* evita que la decorCard interfiera con clicks */
-  will-change: transform, width, height;
-}
-
-.extraLinks {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  justify-content: center;
-}
-
-.linkButton {
-  background: none;
-  border: none;
-  color: #36b04b;
-  font-size: 14px;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  text-decoration: underline;
-}
-
-.linkButton:hover {
-  color: #2a8a3a;
-}
-
-/* ==========================================================================
-   Estilos para la Integracion de Microsoft SSO (Arquitectura Multilogin)
-   ========================================================================== */
-
-.microsoftContainer {
-  margin-top: 1.5rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Separador elegante entre el login tradicional y el corporativo */
-.dividerOr {
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid #e0e0e0;
-  line-height: 0.1em;
-  margin: 1rem 0 1.5rem;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-
-.dividerOr span {
-  background: #ffffff; /* Sincronizado con el fondo de la tarjeta de login */
-  padding: 0 15px;
-  color: #888888;
+  color: #009b6d;
   font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-/* Boton de Microsoft adaptado a las guias oficiales de la marca */
-.loginButtonMicrosoft {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: #ffffff;
-  color: #444444;
-  border: 1px solid #8c8c8c;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  font-family:
-    "Segoe UI",
-    -apple-system,
-    BlinkMacSystemFont,
-    Roboto,
-    sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.loginButtonMicrosoft:hover:not(:disabled) {
-  background-color: #fbfafa;
-  border-color: #4b4b4b;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.loginButtonMicrosoft:active:not(:disabled) {
-  background-color: #f2f2f2;
-}
-
-.loginButtonMicrosoft:disabled {
-  background-color: #f5f5f5;
-  border-color: #d9d9d9;
-  color: #aaaaaa;
-  cursor: not-allowed;
-}
-
-/* Ajuste del contenedor del icono SVG */
-.msIcon {
-  display: inline-block;
-  vertical-align: middle;
   flex-shrink: 0;
 }
 
+.enlace {
+  color: #86868b;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.enlace:hover {
+  color: #009b6d;
+  text-decoration: underline;
+}
+
 /* ==========================================================================
-   Pantalla de Carga de Autenticacion (Single Sign-On Layer)
+   Pie de Página y Datos de Contacto (Restaurados y Estilizados)
    ========================================================================== */
-
-.loadingOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(6px); /* Efecto esmerilado profesional */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999; /* Asegura superposicion absoluta sobre cualquier panel */
+.loginFooter {
+  margin-top: 28px;
+  border-top: 1px solid #f5f5f7;
+  padding-top: 20px;
 }
 
-.loadingContainer {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 400px;
-  padding: 2rem;
-}
-
-.loadingLogo {
-  max-width: 130px;
-  height: auto;
-  margin-bottom: 2rem;
-}
-
-.loadingContainer h3 {
-  margin: 1.5rem 0 0.5rem 0;
-  font-size: 1.35rem;
-  color: #1e6d31; /* Verde corporativo oscuro */
-  font-weight: 600;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-
-.loadingContainer p {
+.firmaList {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  font-size: 0.95rem;
-  color: #666666;
-  font-family: "Segoe UI", Arial, sans-serif;
+  text-align: left;
 }
 
-/* Animacion del Spinner (Double Bounce) */
-.spinner {
-  width: 50px;
-  height: 50px;
-  position: relative;
-  margin: 0 auto;
+.firmaList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #86868b;
+  margin: 8px 0;
+  line-height: 1.4;
 }
 
-.doubleBounce1,
-.doubleBounce2 {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: #009b6d; /* Verde principal Supermercado Belalcazar */
-  opacity: 0.6;
-  position: absolute;
-  top: 0;
-  left: 0;
-  animation: sk-bounce 2s infinite ease-in-out;
+.icono {
+  color: #009b6d;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
-.doubleBounce2 {
-  animation-delay: -1s;
+.enlace {
+  color: #86868b;
+  text-decoration: none;
+  transition: color 0.15s ease;
 }
 
-@keyframes sk-bounce {
+.enlace:hover {
+  color: #009b6d;
+  text-decoration: underline;
+}
+
+.logoMobile {
+  display: none;
+  max-height: 44px;
+  margin: 0 auto 20px auto;
+  object-fit: contain;
+}
+
+/* ==========================================================================
+   Responsividad Móvil Integrada
+   ========================================================================== */
+@keyframes appleKenBurns {
   0%,
   100% {
-    transform: scale(0);
+    transform: scale(1) translate(0, 0);
   }
   50% {
-    transform: scale(1);
+    transform: scale(1.06) translate(-1%, 1%);
   }
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(20px);
-  }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 834px) {
   .loginWrapper {
     flex-direction: column;
   }
@@ -440,28 +484,17 @@
   }
 
   .rightPanel {
-    padding: 20px;
-    overflow: visible;
+    flex: 1;
+    padding: 24px;
+    background-color: #f5f5f7;
   }
 
   .loginCard {
-    padding: 25px;
+    padding: 32px 24px;
+    border: none;
   }
 
   .logoMobile {
     display: block;
-  }
-
-  .userIcon {
-    display: none;
-  }
-
-  .decorCard {
-    transform: translate(-50%, -50%) rotate(-4deg);
-    width: calc(100% + 20px);
-    /* menos sobresalto horizontal en móvil */
-    height: calc(100% + 48px);
-    /* se mantiene más alto que la loginCard */
-    max-width: none;
   }
 }

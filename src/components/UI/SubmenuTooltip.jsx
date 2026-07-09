@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -38,49 +39,53 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styles from "./SubmenuTooltip.module.css";
 
-const SubmenuTooltip = ({ menu, onClose, onNavigate, onHover }) => {
+// Definido a nivel de módulo para no reconstruirlo en cada render
+const iconMap = {
+  home: faHome,
+  user: faUser,
+  user2: faUserCog,
+  users: faUsers,
+  "bar-chart": faChartBar,
+  formatos: faClipboardList,
+  costos: faDollarSign,
+  list: faList,
+  documents: faFile,
+  pdf: faFilePdf,
+  codificacion: faThLarge,
+  admin: faWrench,
+  inv: faBoxOpen,
+  sedes: faBuilding,
+  cargos: faIdCard,
+  areas: faBook,
+  menu: faProjectDiagram,
+  box: faCube,
+  file: faFileUpload,
+  informes: faChartColumn,
+  report: faExclamationTriangle,
+  pedidos: faShop,
+  fruver: faAppleWhole,
+  carnes: faFish,
+  porcentaje: faPercent,
+  cvm: faRulerCombined,
+  proveedor: faUserCheck,
+  contabilidad: faFileInvoiceDollar,
+  recaudo: faMoneyBillTransfer,
+  sistemas: faComputer,
+  compras: faStore,
+};
+
+const SubmenuTooltip = ({ menu, anchorRect, onClose, onNavigate, onHover }) => {
   const tooltipRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
   const location = useLocation();
 
-  const iconMap = {
-    home: faHome,
-    user: faUser,
-    user2: faUserCog,
-    users: faUsers,
-    "bar-chart": faChartBar,
-    formatos: faClipboardList,
-    costos: faDollarSign,
-    list: faList,
-    documents: faFile,
-    pdf: faFilePdf,
-    codificacion: faThLarge,
-    admin: faWrench,
-    inv: faBoxOpen,
-    sedes: faBuilding,
-    cargos: faIdCard,
-    areas: faBook,
-    menu: faProjectDiagram,
-    box: faCube,
-    file: faFileUpload,
-    informes: faChartColumn,
-    report: faExclamationTriangle,
-    pedidos: faShop,
-    fruver: faAppleWhole,
-    carnes: faFish,
-    porcentaje: faPercent,
-    cvm: faRulerCombined,
-    proveedor: faUserCheck,
-    contabilidad: faFileInvoiceDollar,
-    recaudo: faMoneyBillTransfer,
-    sistemas: faComputer,
-    compras: faStore,
-  };
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
-        const isSidebarClick = event.target.closest(".sidebar") !== null;
+        // Evita cerrar si el clic ocurre dentro de la barra lateral
+        const isSidebarClick =
+          event.target.closest("aside") !== null ||
+          event.target.closest("nav") !== null;
         if (!isSidebarClick) {
           onClose();
         }
@@ -178,10 +183,20 @@ const SubmenuTooltip = ({ menu, onClose, onNavigate, onHover }) => {
     });
   };
 
-  return (
+  // Sin rect de anclaje no podemos posicionar: no renderizamos nada
+  if (!anchorRect) return null;
+
+  // Posicion fija calculada a partir del icono disparador (viewport-relative)
+  const style = {
+    top: `${anchorRect.top}px`,
+    left: `${anchorRect.right + 8}px`,
+  };
+
+  return createPortal(
     <div
       ref={tooltipRef}
       className={styles.submenuTooltip}
+      style={style}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -193,7 +208,8 @@ const SubmenuTooltip = ({ menu, onClose, onNavigate, onHover }) => {
           {renderTooltipItems(menu.children)}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
 

@@ -1945,7 +1945,7 @@ const GestionVisitantes = () => {
           setVisitanteEncontrado(null);
 
           if (
-            datos.tipo === "CEDULA_ANTIGUA" || // <-- CORREGIDO AQUÍ
+            datos.tipo === "CEDULA_ANTIGUA" ||
             datos.tipo === "CEDULA_DIGITAL"
           ) {
             setFormData({
