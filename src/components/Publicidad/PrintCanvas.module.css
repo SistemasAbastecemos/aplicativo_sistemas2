@@ -466,6 +466,35 @@
   min-width: 0;
 }
 
+.printActionBtn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: #03996b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.printActionBtn:hover:not(:disabled) {
+  background: #028059;
+}
+.printActionBtnDisabled {
+  background: #72bea8;
+  cursor: not-allowed;
+}
+.selectError {
+  border-color: #ef4444 !important;
+}
+.printValidationHint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ef4444;
+}
+
 /* ==========================================================================\
    Queries de Adaptación Responsiva para Pantallas Móviles
    ========================================================================== */

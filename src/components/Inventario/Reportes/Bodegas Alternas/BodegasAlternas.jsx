@@ -78,8 +78,9 @@ const BodegasAlternas = () => {
               onConsultar={model.consultarReporte}
             />
 
-            {model.reporteData.length > 0 && (
-              <div style={{ marginTop: "20px" }}>
+            <div style={{ marginTop: "20px" }}>
+              {/* El botón de Excel solo aparece si realmente hay información para descargar */}
+              {model.reporteData.length > 0 && (
                 <div className={styles.contenedorAcciones}>
                   <button
                     className={styles.btnDescargarExcel}
@@ -89,12 +90,13 @@ const BodegasAlternas = () => {
                     <FA icon={faFileExcel} /> Exportar Excel
                   </button>
                 </div>
-                <TablaReporte
-                  datos={model.reporteData}
-                  estructuras={model.estructurasColumnas}
-                />
-              </div>
-            )}
+              )}
+
+              <TablaReporte
+                datos={model.reporteData}
+                estructuras={model.estructurasColumnas}
+              />
+            </div>
           </>
         ) : (
           <TabParametrizacion

@@ -772,20 +772,6 @@
 }
 
 /* ==========================================================================
-   Estado vacío
-   ========================================================================== */
-.estadoVacioContainer {
-  text-align: center;
-  padding: 40px 20px;
-  color: #86868b;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  font-size: 0.88rem;
-}
-
-/* ==========================================================================
    Utilitarias del legacy (preservadas para no romper componentes hijos)
    ========================================================================== */
 .btnIconoMargen {

@@ -277,7 +277,7 @@
 }
 
 .btnSave {
-  background: #0071e3;
+  background: #03996b;
   color: #ffffff;
   border: none;
   padding: 10px;
@@ -289,7 +289,7 @@
 }
 
 .btnSave:hover {
-  background: #0077ed;
+  background: #028059;
 }
 
 .btnCancel {

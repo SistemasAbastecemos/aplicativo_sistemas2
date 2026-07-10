@@ -31,7 +31,7 @@ const PrintCanvas = () => {
   );
 
   // ==========================================================================
-  // EFECTO CRÍTICO: Sincronización Automática al Cambiar de Módulo/Pestaña
+  // Sincronización Automática al Cambiar de Módulo/Pestaña
   // ==========================================================================
   useEffect(() => {
     // Si el usuario regresa a la Terminal de Impresión, refrescamos el catálogo desde la API

@@ -10,13 +10,10 @@ import Paginacion from "./Paginacion";
 import { useFiltrosTabla } from "../hooks/useFiltrosTabla";
 import { useSortPaginacion } from "../hooks/useSortPaginacion";
 
-/**
- * Componente principal de la tabla de resultados. Compone los filtros
- * multi-select, el sort, la paginación y el renderizado.
- *
- * Si no hay datos, muestra el estado vacío. Si hay datos pero los
- * filtros dejan la lista sin resultados, muestra un mensaje inline.
- */
+// Importaciones del EmptyState global e iconos
+import EmptyState from "../../../../UI/EmptyState";
+import { faBuilding, faSearch } from "@fortawesome/free-solid-svg-icons";
+
 const TablaResultados = ({ datos }) => {
   const containerRef = useRef(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -32,24 +29,30 @@ const TablaResultados = ({ datos }) => {
 
   const handleSort = (key) => {
     setSortConfig((prev) => {
+      // CORREGIDO: Se quitaron las barras invertidas de escape en "asc" y "desc"
       const direction =
         prev.key === key && prev.direction === "asc" ? "desc" : "asc";
       return { key, direction };
     });
   };
 
+  // 1. Estado vacío inicial (cuando entras a la pantalla y datos viene null o vacío)
   if (!datos || datos.length === 0) {
     return (
-      <div className={styles.estadoVacioContainer}>
-        No se registran datos para mostrar. Modifique las variables de entrada
-        e inicie la consulta.
-      </div>
+      <EmptyState
+        icon={faBuilding}
+        title="Aún no hay reportes generados"
+        description="No se registran datos para mostrar. Modifique las variables de entrada e inicie la consulta."
+      />
     );
   }
 
   return (
     <div className={styles.contenedorTablaMaestra} ref={containerRef}>
-      <BarraFiltrosDropdowns {...filtrosTabla} onBusquedaChange={filtrosTabla.handleBusquedaChange} />
+      <BarraFiltrosDropdowns
+        {...filtrosTabla}
+        onBusquedaChange={filtrosTabla.handleBusquedaChange}
+      />
 
       <div className={styles.tablaResponsivaWrapper}>
         <table>
@@ -60,13 +63,14 @@ const TablaResultados = ({ datos }) => {
                 <FilaTabla key={`${item.item}-${index}`} item={item} />
               ))
             ) : (
+              /* 2. Estado vacío interno (cuando se filtra la tabla con la barra de texto y no hay coincidencias) */
               <tr>
-                <td
-                  colSpan={COLUMNAS_TABLA.length}
-                  className={styles.celdaParametrizacionVacia}
-                >
-                  No se encontraron registros que coincidan con los filtros
-                  aplicados.
+                <td colSpan={COLUMNAS_TABLA.length} style={{ padding: "0px" }}>
+                  <EmptyState
+                    icon={faSearch}
+                    title="Sin coincidencias"
+                    description={`No se encontraron registros que coincidan con la búsqueda "${filtrosTabla.filtros.busqueda}". Intente con otros filtros.`}
+                  />
                 </td>
               </tr>
             )}

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import styles from "./LectorPrecios.module.css";
+import styles from "../B1/LectorPrecios.module.css";
 import successSound from "../../../assets/sounds/success.mp3";
 import errorSound from "../../../assets/sounds/error.mp3";
 
@@ -50,7 +50,8 @@ const LectorPreciosGuabinas = () => {
   // Refs de audio (creados una sola vez con lazy init)
   const audioSuccess = useRef(null);
   const audioError = useRef(null);
-  if (audioSuccess.current === null) audioSuccess.current = new Audio(successSound);
+  if (audioSuccess.current === null)
+    audioSuccess.current = new Audio(successSound);
   if (audioError.current === null) audioError.current = new Audio(errorSound);
 
   const {

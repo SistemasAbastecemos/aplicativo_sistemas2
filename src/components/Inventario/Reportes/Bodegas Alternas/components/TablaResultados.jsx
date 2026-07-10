@@ -7,10 +7,13 @@ import {
   faSortUp,
   faSortDown,
   faMapMarkerAlt,
+  faSearch,
+  faBuilding,
 } from "@fortawesome/free-solid-svg-icons";
+import EmptyState from "../../../UI/EmpstyState";
 
 export const TablaResultados = React.memo(
-  ({ items, onEditClick, puedeEditar }) => {
+  ({ items, onEditClick, puedeEditar, hayBusqueda = false, search = "" }) => {
     const [sortConfig, setSortConfig] = useState({
       key: null,
       direction: "asc",
@@ -46,10 +49,17 @@ export const TablaResultados = React.memo(
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return (
-        <div className={styles.estadoVacioContainer}>
-          No se registran datos para mostrar. Modifique las variables de entrada
-          e inicie la consulta.
-        </div>
+        <EmptyState
+          icon={hayBusqueda ? faSearch : faBuilding}
+          title={
+            hayBusqueda ? "Sin coincidencias" : "Aún no hay bodegas registradas"
+          }
+          description={
+            hayBusqueda
+              ? `No se encontraron bodegas que coincidan con "${search.trim()}". Intenta con otro término.`
+              : "No se registran datos para mostrar. Modifique las variables de entrada e inicie la consulta."
+          }
+        />
       );
     }
 

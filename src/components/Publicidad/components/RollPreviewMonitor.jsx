@@ -18,8 +18,8 @@ export default function RollPreviewMonitor({ activeTemplate, itemsToPrint }) {
     return (
       <EmptyState
         icon={faMicrochip}
-        title="Sin Matriz Activa"
-        description="Mapee una plantilla activa en el panel izquierdo para proyectar la cinta de previsualización leal."
+        title="Sin vista previa"
+        description="Seleccione una plantilla activa en el panel izquierdo para ver la previsualziacion de la impresión."
       />
     );
   }

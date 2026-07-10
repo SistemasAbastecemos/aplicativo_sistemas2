@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: #0071e3;
+  background-color: #03996b;
   color: #ffffff;
   border: none;
   padding: 6px 12px;
@@ -52,7 +52,7 @@
 }
 
 .appleBtnPrimary:hover:not(:disabled) {
-  background-color: #0077ed;
+  background-color: #028059;
 }
 
 /* ==========================================================================
