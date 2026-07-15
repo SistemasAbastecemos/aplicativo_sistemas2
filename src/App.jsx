@@ -59,6 +59,7 @@ import Informes from "./components/Informes/Informes";
 // INVENTARIOS //
 import ExistenciasAverias from "./components/Inventario/Reportes/Averias/ExistenciasAverias";
 import ExistenciasBodegasAlternas from "./components/Inventario/Reportes/Bodegas Alternas/BodegasAlternas";
+import ExistenciasCostos from "./components/Inventario/Reportes/Existencias Costos/ExistenciasCostos";
 
 // LECTOR PRECIOS //
 import LectorPrecios1 from "./components/LectorPrecios/B1/LectorPrecios";
@@ -407,6 +408,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <ExistenciasBodegasAlternas />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/inventarios/reportes/existencias_costos"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <ExistenciasCostos />
               </Layout>
             </PrivateRoute>
           }
