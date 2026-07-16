@@ -1,13 +1,13 @@
 <div align="center">
 
-<img src="./assets/logo.png" alt="Supermercados Belalcázar" width="240" />
+<img src="./src/assets/images/logo.png" alt="Supermercados Belalcázar" width="240" />
 
 # Documentación Técnica del Sistema
 
 **Abastecemos de Occidente S.A.S. — Supermercados Belalcázar**
-**Aplicativo interno — `aplicativo.supermercadobelalcazar.com`**
+**Aplicativo SEAO — `aplicativo.supermercadobelalcazar.com`**
 
-<sub>Versión 1.0 · Documento maestro · Estilo Apple · Color corporativo <code>#03996b</code></sub>
+<sub>Versión 1.0 · Documento maestro </sub>
 
 </div>
 
@@ -15,14 +15,14 @@
 
 ## Aviso de documento
 
-| | |
-|---|---|
-| **Cliente interno** | Abastecemos de Occidente S.A.S. (Supermercados Belalcázar) |
-| **Autor de la documentación** | Área de Sistemas / TI |
-| **Alcance del documento** | Sistema completo: Frontend React, Backend PHP (cPanel), Framework de repositorios (servidor LAN), Base de datos MySQL / PostgreSQL, Infraestructura Cloudflare + Cloudflared |
-| **Fecha de análisis** | 14 de julio de 2026 |
-| **Fuente del análisis** | `frontend.zip`, `backend.zip`, `repo.zip`, `mysqlphpmyadmin.sql`, `logo.png` |
-| **Confidencialidad** | Uso interno — no distribuir fuera de la organización |
+|                               |                                                                                                                                                                              |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cliente interno**           | Abastecemos de Occidente S.A.S. (Supermercados Belalcázar)                                                                                                                   |
+| **Autor de la documentación** | Área de Sistemas / TI                                                                                                                                                        |
+| **Alcance del documento**     | Sistema completo: Frontend React, Backend PHP (cPanel), Framework de repositorios (servidor LAN), Base de datos MySQL / PostgreSQL, Infraestructura Cloudflare + Cloudflared |
+| **Fecha de análisis**         | 14 de julio de 2026                                                                                                                                                          |
+| **Fuente del análisis**       | `frontend.zip`, `backend.zip`, `repo.zip`, `mysqlphpmyadmin.sql`, `logo.png`                                                                                                 |
+| **Confidencialidad**          | Uso interno — no distribuir fuera de la organización                                                                                                                         |
 
 ---
 
@@ -67,16 +67,16 @@ El sistema es un **aplicativo web interno de tres capas físicas** que atraviesa
 
 ### 1.2 Componentes principales identificados
 
-| Capa | Tecnología | Ubicación | Rol |
-|---|---|---|---|
-| **Frontend SPA** | React 19.2, Vite 7.1, React Router 7.8 | Servido desde cPanel (build `dist/`) | Interfaz de usuario, gestión de sesión en `localStorage`, ruteo protegido, ~19 dominios funcionales |
-| **Backend de aplicación** | PHP 7/8, PDO, MySQL 8.0.37 | Hosting cPanel — `supermer_AplicativoSistemas` | 30+ subcarpetas API, autenticación por token de sesión (tabla `sesiones`), permisos por menú+acción, subida de archivos, envío de correos (PHPMailer), generación de PDF (TCPDF / FPDF), Excel (PhpSpreadsheet), integración con Microsoft 365 SSO |
-| **Framework / repositorios** | PHP + PDO PostgreSQL | Servidor LAN interno detrás de Cloudflared | Router monolítico `index.php` con tabla de acciones → clase::método; 5 módulos temáticos; 18 acciones expuestas actualmente |
-| **BD del aplicativo** | MySQL 8 (`supermer_AplicativoSistemas`) | cPanel | 63 tablas + 1 vista: usuarios, roles, permisos, menús, actas, pedidos, separatas, solicitudes, sesiones, logs, CVM, visitantes, etc. |
-| **BD del ERP** | PostgreSQL (`biable01`, `biable02`) | Servidor LAN | Datos del ERP Siesa Biable (dos empresas: Abastecemos y Tobar) |
-| **DNS / seguridad de borde** | Cloudflare | `supermercadobelalcazar.com` | DNS, WAF, TLS |
-| **Túnel LAN** | Cloudflared | LAN → Cloudflare | Publica el framework interno vía `api-biable.supermercadobelalcazar.com` sin abrir puertos |
-| **Agente de impresora local** | WebSocket `ws://127.0.0.1:8181` | PC del usuario | Impresión de etiquetas (Monarch 9830/9906 · TSC ME240/MB240T/MB241T) desde el frontend |
+| Capa                          | Tecnología                              | Ubicación                                      | Rol                                                                                                                                                                                                                                                |
+| ----------------------------- | --------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend SPA**              | React 19.2, Vite 7.1, React Router 7.8  | Servido desde cPanel (build `dist/`)           | Interfaz de usuario, gestión de sesión en `localStorage`, ruteo protegido, ~19 dominios funcionales                                                                                                                                                |
+| **Backend de aplicación**     | PHP 7/8, PDO, MySQL 8.0.37              | Hosting cPanel — `supermer_AplicativoSistemas` | 30+ subcarpetas API, autenticación por token de sesión (tabla `sesiones`), permisos por menú+acción, subida de archivos, envío de correos (PHPMailer), generación de PDF (TCPDF / FPDF), Excel (PhpSpreadsheet), integración con Microsoft 365 SSO |
+| **Framework / repositorios**  | PHP + PDO PostgreSQL                    | Servidor LAN interno detrás de Cloudflared     | Router monolítico `index.php` con tabla de acciones → clase::método; 5 módulos temáticos; 18 acciones expuestas actualmente                                                                                                                        |
+| **BD del aplicativo**         | MySQL 8 (`supermer_AplicativoSistemas`) | cPanel                                         | 63 tablas + 1 vista: usuarios, roles, permisos, menús, actas, pedidos, separatas, solicitudes, sesiones, logs, CVM, visitantes, etc.                                                                                                               |
+| **BD del ERP**                | PostgreSQL (`biable01`, `biable02`)     | Servidor LAN                                   | Datos del ERP Siesa Biable (dos empresas: Abastecemos y Tobar)                                                                                                                                                                                     |
+| **DNS / seguridad de borde**  | Cloudflare                              | `supermercadobelalcazar.com`                   | DNS, WAF, TLS                                                                                                                                                                                                                                      |
+| **Túnel LAN**                 | Cloudflared                             | LAN → Cloudflare                               | Publica el framework interno vía `api-biable.supermercadobelalcazar.com` sin abrir puertos                                                                                                                                                         |
+| **Agente de impresora local** | WebSocket `ws://127.0.0.1:8181`         | PC del usuario                                 | Impresión de etiquetas (Monarch 9830/9906 · TSC ME240/MB240T/MB241T) desde el frontend                                                                                                                                                             |
 
 ### 1.3 Dominios funcionales del aplicativo (evidencia: `App.jsx` + `repo/index.php`)
 
@@ -107,14 +107,14 @@ El sistema es un **aplicativo web interno de tres capas físicas** que atraviesa
 
 ### 1.5 Riesgos / observaciones detectadas durante el análisis
 
-*Se enumeran para respaldar el capítulo 25 (Refactorización) y 26 (Deuda Técnica). No son críticas — son evidencia para el documento de recomendaciones.*
+_Se enumeran para respaldar el capítulo 25 (Refactorización) y 26 (Deuda Técnica). No son críticas — son evidencia para el documento de recomendaciones._
 
 - **Credenciales en texto plano en el repositorio** (`backend/api/config/database.php`, `backend/api/config/lan_api.php`, `repo/.env`). Deberían pasar a variables de entorno del hosting.
 - **Múltiples variantes de `subir_checker_mysql*.php`** — señal de duplicación por sede (2, 5, 8, 11) que se beneficiaría de parametrización.
 - **`lector_precios` duplicado en cinco archivos** (`get_producto_b*.php`) — mismo patrón.
 - **`api.js.back` y `logger.php.bak`** conviven con las versiones vigentes; conviene depurarlos.
 - **`repo/index.php` incluye 18 `require_once`** en la cabecera; a mediano plazo un autoloader PSR-4 sería ganancia neta.
-- **Middleware `auth.php` actúa por *side-effect*** (setea `$GLOBALS` al final del archivo). Funciona, pero acopla y complica pruebas.
+- **Middleware `auth.php` actúa por _side-effect_** (setea `$GLOBALS` al final del archivo). Funciona, pero acopla y complica pruebas.
 
 ---
 
@@ -174,76 +174,76 @@ docs/
 
 ### 2.1 Tabla índice — 28 documentos + índice de módulos
 
-| # | Documento | Objetivo | Fuentes principales |
-|---|---|---|---|
-| 01 | **Resumen Ejecutivo** | Visión de negocio + alcance + características | `App.jsx`, `repo/index.php`, `README.md` frontend |
-| 02 | **Arquitectura General** | Diagrama global + responsabilidades por capa | Todos los ZIP |
-| 03 | **Arquitectura Backend** | Estructura de `backend/api/`, patrones, servicios comunes | `backend/api/**` |
-| 04 | **Arquitectura Frontend** | Componentes, hooks, contexts, servicios, ruteo, ciclo de render | `frontend/src/**` |
-| 05 | **Framework Interno** | Router LAN: cómo procesa `accion`, cómo despacha, cómo responde | `repo/index.php`, `repo/core/*`, `repo/modules/**` |
-| 06 | **Flujo Completo de una Petición** | Diagrama de secuencia end-to-end (usuario → BD → respuesta) | Todos |
-| 07 | **Diagramas UML** | Casos de uso, clases, componentes, paquetes, secuencia, despliegue, actividades | Todos |
-| 08 | **Diagramas de Infraestructura** | Cloudflare, DNS, Cloudflared, cPanel, LAN, BDs | `.env`, `LanClient.php`, `authmiddleware.php` |
-| 09 | **APIs** | Catálogo completo de endpoints (método, params, respuesta, errores, ejemplos, auth) | `backend/api/**`, `repo/index.php` (mapa de acciones) |
-| 10 | **Autenticación** | Login local + Microsoft 365 + sesiones + M2M | `login.php`, `login_microsoft.php`, `AuthContext.jsx`, `authmiddleware.php` |
-| 11 | **Autorización** | Roles, permisos por menú y por acción (ver/crear/editar/eliminar) | `roles/`, `menu/`, `middlewares/check_permission.php` |
-| 12 | **Seguridad** | CORS, IP allow-list, cifrado de contraseñas, tokens, cabeceras, riesgos | Middlewares, `.htaccess`, `logger.php` |
-| 13 | **Dependencias** | Librerías npm y PHP con propósito y uso concreto | `package.json`, `backend/utils/` |
-| 14 | **Base de Datos** | Modelo MySQL (63 tablas) + esquema PostgreSQL usado, entidades, relaciones, ERD | `mysqlphpmyadmin.sql`, queries en repos |
-| 15 | **Configuración** | Variables de entorno, `.htaccess`, `vite.config.js`, `.env` de cada componente | `.env` × 3, `.htaccess` × 2, `vite.config.js` |
-| 16 | **Deploy** | Requisitos, pasos para desplegar cada capa, Cloudflare + cloudflared | `.htaccess`, `vite.config.js`, `LanClient.php` |
-| 17 | **Manual del Desarrollador** | Cómo iniciar el proyecto local, cómo añadir un módulo end-to-end, convenciones | `README.md` frontend, `App.jsx`, patrones detectados |
-| 18 | **Manual de Soporte** | Diagnóstico de errores comunes, dónde ver logs, problemas frecuentes | `logger.php`, `sys_logs`, `logs/ingest.php` |
-| 19 | **Manual de Operación** | Backups, actualizaciones, monitoreo, cronjobs | `cron/**`, `.env`, hosting |
-| 20 | **Flujo de Datos** | Cómo viaja la información entre capas y bases | Todos |
-| 21 | **Flujo de Negocio** | Cada dominio funcional visto desde el usuario final | `App.jsx`, componentes |
-| 22 | **Convenciones** | Naming, organización de carpetas, patrones de módulo, estilo | Toda la evidencia observada |
-| 23 | **Módulos (por dominio)** | Un documento por dominio (~11 sub-docs) con endpoints, componentes, flujos, permisos | Componentes React + endpoints PHP + acciones LAN |
-| 24 | **Código Explicado** | Explicación técnica de partes no obvias (LanClient, request(), dispatch del router) | Piezas concretas |
-| 25 | **Refactorización (propuesta)** | Mejoras priorizadas — sin modificar código | Observaciones §1.5 + hallazgos por capa |
-| 26 | **Deuda Técnica** | Inventario clasificado por severidad e impacto | Hallazgos consolidados |
-| 27 | **Riesgos** | Arquitectónicos, de infraestructura, seguridad, escalabilidad | Todos |
-| 28 | **Roadmap** | Propuesta técnica de evolución a mediano/largo plazo | Consolidación final |
+| #   | Documento                          | Objetivo                                                                             | Fuentes principales                                                         |
+| --- | ---------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| 01  | **Resumen Ejecutivo**              | Visión de negocio + alcance + características                                        | `App.jsx`, `repo/index.php`, `README.md` frontend                           |
+| 02  | **Arquitectura General**           | Diagrama global + responsabilidades por capa                                         | Todos los ZIP                                                               |
+| 03  | **Arquitectura Backend**           | Estructura de `backend/api/`, patrones, servicios comunes                            | `backend/api/**`                                                            |
+| 04  | **Arquitectura Frontend**          | Componentes, hooks, contexts, servicios, ruteo, ciclo de render                      | `frontend/src/**`                                                           |
+| 05  | **Framework Interno**              | Router LAN: cómo procesa `accion`, cómo despacha, cómo responde                      | `repo/index.php`, `repo/core/*`, `repo/modules/**`                          |
+| 06  | **Flujo Completo de una Petición** | Diagrama de secuencia end-to-end (usuario → BD → respuesta)                          | Todos                                                                       |
+| 07  | **Diagramas UML**                  | Casos de uso, clases, componentes, paquetes, secuencia, despliegue, actividades      | Todos                                                                       |
+| 08  | **Diagramas de Infraestructura**   | Cloudflare, DNS, Cloudflared, cPanel, LAN, BDs                                       | `.env`, `LanClient.php`, `authmiddleware.php`                               |
+| 09  | **APIs**                           | Catálogo completo de endpoints (método, params, respuesta, errores, ejemplos, auth)  | `backend/api/**`, `repo/index.php` (mapa de acciones)                       |
+| 10  | **Autenticación**                  | Login local + Microsoft 365 + sesiones + M2M                                         | `login.php`, `login_microsoft.php`, `AuthContext.jsx`, `authmiddleware.php` |
+| 11  | **Autorización**                   | Roles, permisos por menú y por acción (ver/crear/editar/eliminar)                    | `roles/`, `menu/`, `middlewares/check_permission.php`                       |
+| 12  | **Seguridad**                      | CORS, IP allow-list, cifrado de contraseñas, tokens, cabeceras, riesgos              | Middlewares, `.htaccess`, `logger.php`                                      |
+| 13  | **Dependencias**                   | Librerías npm y PHP con propósito y uso concreto                                     | `package.json`, `backend/utils/`                                            |
+| 14  | **Base de Datos**                  | Modelo MySQL (63 tablas) + esquema PostgreSQL usado, entidades, relaciones, ERD      | `mysqlphpmyadmin.sql`, queries en repos                                     |
+| 15  | **Configuración**                  | Variables de entorno, `.htaccess`, `vite.config.js`, `.env` de cada componente       | `.env` × 3, `.htaccess` × 2, `vite.config.js`                               |
+| 16  | **Deploy**                         | Requisitos, pasos para desplegar cada capa, Cloudflare + cloudflared                 | `.htaccess`, `vite.config.js`, `LanClient.php`                              |
+| 17  | **Manual del Desarrollador**       | Cómo iniciar el proyecto local, cómo añadir un módulo end-to-end, convenciones       | `README.md` frontend, `App.jsx`, patrones detectados                        |
+| 18  | **Manual de Soporte**              | Diagnóstico de errores comunes, dónde ver logs, problemas frecuentes                 | `logger.php`, `sys_logs`, `logs/ingest.php`                                 |
+| 19  | **Manual de Operación**            | Backups, actualizaciones, monitoreo, cronjobs                                        | `cron/**`, `.env`, hosting                                                  |
+| 20  | **Flujo de Datos**                 | Cómo viaja la información entre capas y bases                                        | Todos                                                                       |
+| 21  | **Flujo de Negocio**               | Cada dominio funcional visto desde el usuario final                                  | `App.jsx`, componentes                                                      |
+| 22  | **Convenciones**                   | Naming, organización de carpetas, patrones de módulo, estilo                         | Toda la evidencia observada                                                 |
+| 23  | **Módulos (por dominio)**          | Un documento por dominio (~11 sub-docs) con endpoints, componentes, flujos, permisos | Componentes React + endpoints PHP + acciones LAN                            |
+| 24  | **Código Explicado**               | Explicación técnica de partes no obvias (LanClient, request(), dispatch del router)  | Piezas concretas                                                            |
+| 25  | **Refactorización (propuesta)**    | Mejoras priorizadas — sin modificar código                                           | Observaciones §1.5 + hallazgos por capa                                     |
+| 26  | **Deuda Técnica**                  | Inventario clasificado por severidad e impacto                                       | Hallazgos consolidados                                                      |
+| 27  | **Riesgos**                        | Arquitectónicos, de infraestructura, seguridad, escalabilidad                        | Todos                                                                       |
+| 28  | **Roadmap**                        | Propuesta técnica de evolución a mediano/largo plazo                                 | Consolidación final                                                         |
 
 ---
 
 ## 3 · Registro de progreso
 
-*Este bloque se actualiza en cada iteración. Es la fuente de verdad para saber qué hemos entregado y qué falta.*
+_Este bloque se actualiza en cada iteración. Es la fuente de verdad para saber qué hemos entregado y qué falta._
 
 ### 3.1 Estado por documento
 
-| # | Documento | Estado | Notas |
-|---|---|---|---|
-| — | `README.md` (índice maestro) | ✅ **Entregado** | Este archivo |
-| 01 | Resumen Ejecutivo | ✅ **Entregado** | Visión, dominios, stack, números clave, características diferenciales, roadmap resumido, cómo leer por rol |
-| 02 | Arquitectura General | ✅ **Entregado** | Vista macro + capas + protocolos + diagramas Mermaid |
-| 03 | Arquitectura Backend | ✅ **Entregado** | ~110 endpoints, 2 patrones, middlewares, modelos, LanClient, ciclo de vida |
-| 04 | Arquitectura Frontend | ✅ **Entregado** | Stack, providers, contextos, hooks, capa HTTP, ruteo, ciclos de render |
-| 05 | Framework Interno | ✅ **Entregado** | Router LAN, auth M2M, ciclo de request, 30 acciones catalogadas |
-| 06 | Flujo de una Petición | ✅ **Entregado** | 5 escenarios end-to-end, diagramas, timing, casos límite, guía de trace |
-| 07 | Diagramas UML | ✅ **Entregado** | Casos de uso, clases, componentes, paquetes, actividades, estados, secuencia |
-| 08 | Diagramas de Infraestructura | ✅ **Entregado** | DNS, túnel, cPanel, LAN, sedes, POS, cronjobs, puertos, sistema adyacente |
-| 09 | APIs | ✅ **Entregado** | Catálogo por dominio: 100+ endpoints cPanel + 30 acciones LAN, códigos de error, patrones de consumo |
-| 10 | Autenticación | ✅ **Entregado** | 3 flujos: local + Microsoft SSO + M2M, ciclo de sesión, matriz HTTP |
-| 11 | Autorización | ✅ **Entregado** | 2 generaciones, lógica AND rol × cargo, ERD, revocación en vivo, sin bypass |
-| 12 | Seguridad | ✅ **Entregado** | Modelo de amenazas, análisis STRIDE, 18 hallazgos priorizados, hoja de ruta |
-| 13 | Dependencias | ✅ **Entregado** | Frontend npm (27+11), backend vendorizado (7), framework 0, duplicidades priorizadas |
-| 14 | Base de Datos | ✅ **Entregado** | 63 tablas + 1 vista MySQL agrupadas en 11 dominios; ERD por bloque; PostgreSQL inferido |
-| 15 | Configuración | ✅ **Entregado** | 12 archivos catalogados: .env × 2, .htaccess × 2, config PHP, vite.config; 10 recomendaciones |
-| 16 | Deploy | ✅ **Entregado** | Deploy inicial e incremental por capa, checklist de 20+ items, OAuth Microsoft, cronjobs |
-| 17 | Manual del Desarrollador | ✅ **Entregado** | Setup local, workflow, agregar módulo end-to-end, convenciones, debugging, antipatrones |
-| 18 | Manual de Soporte | ✅ **Entregado** | 12 incidentes frecuentes con paso a paso, diccionario de errores, trace de peticiones |
-| 19 | Manual de Operación | ✅ **Entregado** | Backups, rotación de secretos, cronjobs, monitoreo, ciclo diario/semanal/mensual/anual, respuesta a incidentes |
-| 20 | Flujo de Datos | ✅ **Entregado** | 5 categorías de datos, ciclos de vida, PII y retención, volúmenes esperados |
-| 21 | Flujo de Negocio | ✅ **Entregado** | 8 procesos principales, actores, calendario operativo, 10 reglas de negocio |
-| 22 | Convenciones | ✅ **Entregado** | 8 principios, naming, organización, patrones A/B, thin orchestrator, guías de decisión |
-| 23 | Módulos (11 sub-docs) | ⏳ Pendiente | Se generará uno por uno |
-| 24 | Código Explicado | ✅ **Entregado** | 14 piezas de código no obvias explicadas con extractos y motivación |
-| 25 | Refactorización | ✅ **Entregado** | 8 paquetes de trabajo, 49 items priorizados, gantt 12 meses, métricas de éxito |
-| 26 | Deuda Técnica | ✅ **Entregado** | 49 items catalogados, 3 severidades, top 20 priorizados por costo/beneficio |
-| 27 | Riesgos | ✅ **Entregado** | 33 riesgos en 5 categorías, matriz probabilidad × impacto, 5 críticos, mapa de calor |
-| 28 | Roadmap | ✅ **Entregado** | 4 horizontes a 36 meses, iniciativas por horizonte, métricas, dependencias, presupuesto |
+| #   | Documento                    | Estado                  | Notas                                                                                                                                        |
+| --- | ---------------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| —   | `README.md` (índice maestro) | ✅ **Entregado**        | Este archivo                                                                                                                                 |
+| 01  | Resumen Ejecutivo            | ✅ **Entregado**        | Visión, dominios, stack, números clave, características diferenciales, roadmap resumido, cómo leer por rol                                   |
+| 02  | Arquitectura General         | ✅ **Entregado**        | Vista macro + capas + protocolos + diagramas Mermaid                                                                                         |
+| 03  | Arquitectura Backend         | ✅ **Entregado**        | ~110 endpoints, 2 patrones, middlewares, modelos, LanClient, ciclo de vida                                                                   |
+| 04  | Arquitectura Frontend        | ✅ **Entregado**        | Stack, providers, contextos, hooks, capa HTTP, ruteo, ciclos de render                                                                       |
+| 05  | Framework Interno            | ✅ **Entregado**        | Router LAN, auth M2M, ciclo de request, 30 acciones catalogadas                                                                              |
+| 06  | Flujo de una Petición        | ✅ **Entregado**        | 5 escenarios end-to-end, diagramas, timing, casos límite, guía de trace                                                                      |
+| 07  | Diagramas UML                | ✅ **Entregado**        | Casos de uso, clases, componentes, paquetes, actividades, estados, secuencia                                                                 |
+| 08  | Diagramas de Infraestructura | ✅ **Entregado**        | DNS, túnel, cPanel, LAN, sedes, POS, cronjobs, puertos, sistema adyacente                                                                    |
+| 09  | APIs                         | ✅ **Entregado**        | Catálogo por dominio: 100+ endpoints cPanel + 30 acciones LAN, códigos de error, patrones de consumo                                         |
+| 10  | Autenticación                | ✅ **Entregado**        | 3 flujos: local + Microsoft SSO + M2M, ciclo de sesión, matriz HTTP                                                                          |
+| 11  | Autorización                 | ✅ **Entregado**        | 2 generaciones, lógica AND rol × cargo, ERD, revocación en vivo, sin bypass                                                                  |
+| 12  | Seguridad                    | ✅ **Entregado**        | Modelo de amenazas, análisis STRIDE, 18 hallazgos priorizados, hoja de ruta                                                                  |
+| 13  | Dependencias                 | ✅ **Entregado**        | Frontend npm (27+11), backend vendorizado (7), framework 0, duplicidades priorizadas                                                         |
+| 14  | Base de Datos                | ✅ **Entregado**        | 63 tablas + 1 vista MySQL agrupadas en 11 dominios; ERD por bloque; PostgreSQL inferido                                                      |
+| 15  | Configuración                | ✅ **Entregado**        | 12 archivos catalogados: .env × 2, .htaccess × 2, config PHP, vite.config; 10 recomendaciones                                                |
+| 16  | Deploy                       | ✅ **Entregado**        | Deploy inicial e incremental por capa, checklist de 20+ items, OAuth Microsoft, cronjobs                                                     |
+| 17  | Manual del Desarrollador     | ✅ **Entregado**        | Setup local, workflow, agregar módulo end-to-end, convenciones, debugging, antipatrones                                                      |
+| 18  | Manual de Soporte            | ✅ **Entregado**        | 12 incidentes frecuentes con paso a paso, diccionario de errores, trace de peticiones                                                        |
+| 19  | Manual de Operación          | ✅ **Entregado**        | Backups, rotación de secretos, cronjobs, monitoreo, ciclo diario/semanal/mensual/anual, respuesta a incidentes                               |
+| 20  | Flujo de Datos               | ✅ **Entregado**        | 5 categorías de datos, ciclos de vida, PII y retención, volúmenes esperados                                                                  |
+| 21  | Flujo de Negocio             | ✅ **Entregado**        | 8 procesos principales, actores, calendario operativo, 10 reglas de negocio                                                                  |
+| 22  | Convenciones                 | ✅ **Entregado**        | 8 principios, naming, organización, patrones A/B, thin orchestrator, guías de decisión                                                       |
+| 23  | Módulos (11 sub-docs)        | ✅ **12/12 entregados** | README + admin-panel + fruver + carnes + compras + contabilidad + inventario + sistemas + seguridad + publicidad + informes + lector-precios |
+| 24  | Código Explicado             | ✅ **Entregado**        | 14 piezas de código no obvias explicadas con extractos y motivación                                                                          |
+| 25  | Refactorización              | ✅ **Entregado**        | 8 paquetes de trabajo, 49 items priorizados, gantt 12 meses, métricas de éxito                                                               |
+| 26  | Deuda Técnica                | ✅ **Entregado**        | 49 items catalogados, 3 severidades, top 20 priorizados por costo/beneficio                                                                  |
+| 27  | Riesgos                      | ✅ **Entregado**        | 33 riesgos en 5 categorías, matriz probabilidad × impacto, 5 críticos, mapa de calor                                                         |
+| 28  | Roadmap                      | ✅ **Entregado**        | 4 horizontes a 36 meses, iniciativas por horizonte, métricas, dependencias, presupuesto                                                      |
 
 ### 3.2 Áreas del código que aún requieren análisis más profundo
 
