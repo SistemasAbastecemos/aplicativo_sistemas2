@@ -56,6 +56,9 @@ import PrintCanvas from "./components/Publicidad/PrintCanvas";
 // INFORMES //
 import Informes from "./components/Informes/Informes";
 
+// TERMINAL VIEWER //
+import Terminal from "./components/Terminal/Terminal";
+
 // INVENTARIOS //
 import ExistenciasAverias from "./components/Inventario/Reportes/Averias/ExistenciasAverias";
 import ExistenciasBodegasAlternas from "./components/Inventario/Reportes/Bodegas Alternas/BodegasAlternas";
@@ -293,6 +296,17 @@ function AppContent() {
             <PrivateRoute>
               <Layout>
                 <Informes />
+              </Layout>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/terminal"
+          element={
+            <PrivateRoute>
+              <Layout>
+                <Terminal />
               </Layout>
             </PrivateRoute>
           }

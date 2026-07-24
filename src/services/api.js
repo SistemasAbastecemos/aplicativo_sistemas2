@@ -350,6 +350,43 @@ export const apiService = {
     });
   },
 
+  ///////////////////////
+  ////// UTILIDADES /////
+  ///////////////////////
+
+  async getUtilidades(manageMode = false) {
+    return request("/v1/private/index.php?action=listar_utilidades", {
+      method: "POST",
+      body: { manage_mode: manageMode },
+      requireToken: true,
+      errorMessage: "Error al obtener la lista de utilidades",
+    });
+  },
+
+  async saveUtilidad(payload) {
+    return request("/v1/private/index.php?action=guardar_utilidad", {
+      method: "POST",
+      body: payload,
+      requireToken: true,
+      statusMessages: {
+        403: "No tiene permisos para gestionar las utilidades del dashboard",
+      },
+      errorMessage: "Error al guardar la utilidad",
+    });
+  },
+
+  async deleteUtilidad(id) {
+    return request("/v1/private/index.php?action=eliminar_utilidad", {
+      method: "POST",
+      body: { id },
+      requireToken: true,
+      statusMessages: {
+        403: "No tiene permisos para eliminar accesos directos",
+      },
+      errorMessage: "Error al eliminar la utilidad",
+    });
+  },
+
   //////////////////////////
   /////// PROVEEDORES //////
   //////////////////////////
