@@ -31,6 +31,18 @@ const Login = () => {
 
   const cargando = submitting || cargandoMS;
 
+  // Si esta validando silenciosamente, mostramos unicamente el Loader en el primer renderizado
+  if (cargandoMS && !submitting) {
+    return (
+      <LoadingScreen
+        isVisible={true}
+        title="Verificando sesión corporativa"
+        subtitle="Comprobando credenciales de Microsoft Office 365..."
+        variant="fullscreen"
+      />
+    );
+  }
+
   return (
     <div className={styles.loginWrapper}>
       {cargando && (
